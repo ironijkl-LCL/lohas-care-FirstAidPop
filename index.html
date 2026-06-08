@@ -2,7 +2,7 @@
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>First Aid Pop 急救彈彈樂!</title>
 
 <style>
@@ -10,76 +10,146 @@ body{
     margin:0;
     background:#d8f1ff;
     text-align:center;
-    font-family: 'Arial Black', Arial, sans-serif; /* 換上更有遊戲感的字體 */
+    font-family: 'Arial Black', Arial, sans-serif;
     touch-action: none;
     user-select: none;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
-/* 遊戲專屬大招牌 */
+/* 遊戲標題招牌 */
 .game-title {
-    margin: 15px 0 5px 0;
+    margin: 5px 0;
     color: #e74c3c;
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 900;
     text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 2px -2px 0px #fff, -2px 2px 0px #fff, 3px 3px 5px rgba(0,0,0,0.2);
     letter-spacing: 1px;
+    line-height: 1.2;
 }
 
-.info-bar { font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #2c3e50; font-family: Arial, sans-serif;}
+.info-bar { 
+    font-size: 18px; 
+    font-weight: bold; 
+    margin: 5px 0 10px 0; 
+    color: #2c3e50; 
+    font-family: Arial, sans-serif;
+}
 
+/* 🧰 藥箱按鈕樣式 - 手機自適應與卡通公仔圖片結合 */
+.btn-kit {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 25px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    margin-bottom: 12px;
+    transition: 0.2s;
+    width: 85%;
+    max-width: 320px;
+    font-family: Arial, sans-serif;
+    
+    /* 載入藥箱公仔圖案 */
+    background-image: url('https://img.icons8.com/emoji/96/first-aid-kit-emoji.png');
+    background-repeat: no-repeat;
+    background-position: 15px center; 
+    background-size: 28px; 
+    padding-left: 55px; 
+}
+.btn-kit:hover { background-color: #c0392b; }
+.btn-kit:disabled { background-color: #95a5a6; cursor: not-allowed; box-shadow: none; opacity: 0.7; }
+
+/* 💡 藥箱提示閃爍動畫 */
+.hint-flash { animation: flash-glow 0.4s ease-in-out 3; }
+@keyframes flash-glow {
+    0%, 100% { background-color: #fff; }
+    50% { background-color: #f1c40f; transform: scale(1.05); border-radius: 18%; }
+}
+
+/* RWD 棋盤外層容器 */
 .board-container {
     position: relative;
-    display: inline-block;
-    margin-top: 10px;
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 520px; 
+    box-sizing: border-box;
 }
 
+/* 自動彈性棋盤 */
 .board{
-    display:grid;
-    grid-template-columns:repeat(8,60px);
-    gap:6px;
-    justify-content:center;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr); 
+    gap: 1.2vw; 
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.3);
+    padding: 8px;
+    border-radius: 12px;
 }
+
+/* 完美正方形格子自適應螢幕 */
 .cell{
-    width:60px;height:60px;background:#fff;border-radius:10px;
-    position:relative;
+    width: 100%;
+    aspect-ratio: 1 / 1; 
+    background: #fff;
+    border-radius: 18%; 
+    position: relative;
     box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
     box-sizing: border-box;
 }
 
+/* 點選高亮框 */
 .selected {
     border: 3px solid #e74c3c !important;
     background: #ffeaea !important;
 }
 
 .disk{
-    display:flex;align-items:center;justify-content:center;
-    height:100%;font-size:34px;cursor:pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    font-size: 7.5vw; 
+    cursor: pointer;
     transition: transform 0.1s ease;
 }
 .disk:active { transform: scale(0.9); }
 
+/* 💥 爆炸粒子改進（相對於棋盤定位，不被重繪切斷） */
 .particle{
-    position:absolute;
-    font-size:20px;
-    pointer-events:none;
+    position: absolute;
+    font-size: 5vw; 
+    pointer-events: none;
     z-index: 999;
-    animation:explode 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+    animation: explode 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
 }
 @keyframes explode{
     0% { transform: translate(0, 0) scale(1); opacity: 1; }
     100% { transform: translate(var(--x),var(--y)) scale(0.5); opacity:0; }
 }
 
-.control-panel { margin: 10px; }
+.control-panel { margin: 5px; }
 .music-btn{
-    padding:8px 15px;
-    border:none;border-radius:15px;
-    background:#2ecc71;color:#fff;font-weight:bold;
+    padding: 6px 12px;
+    border: none; border-radius: 15px;
+    background: #2ecc71; color: #fff; font-weight: bold;
     cursor: pointer; box-shadow: 0 3px 5px rgba(0,0,0,0.1);
-    font-size: 14px;
+    font-size: 13px;
     font-family: Arial, sans-serif;
 }
 .music-btn:active { transform: scale(0.95); }
+
+/* 電腦版大螢幕優化 */
+@media (min-width: 520px) {
+    .board { gap: 6px; }
+    .disk { font-size: 34px; }
+    .particle { font-size: 20px; }
+}
 </style>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -88,7 +158,7 @@ body{
 
 <body>
 
-<div class="game-title">🚑 First Aid Pop! <br><span style="color:#1a5f7a; font-size:22px;">急救彈彈樂!</span></div>
+<div class="game-title">🚑 First Aid Pop! <br><span style="color:#1a5f7a; font-size:18px;">急救彈彈樂!</span></div>
 
 <div class="control-panel">
     <button class="music-btn" onclick="toggleMusic()">🎵 音樂開關 (BGM)</button>
@@ -96,20 +166,26 @@ body{
 
 <div class="info-bar">得分: <span id="score">0</span></div>
 
+<button id="kit-btn" class="btn-kit" onclick="useFirstAidKit()">藥箱急救 (剩餘 3 次)</button>
+
 <div class="board-container" id="game-container">
     <div id="board" class="board"></div>
 </div>
 
 <script>
+// ===== 基本變數 =====
 const SIZE=8;
 const TYPES=["😷","🏋️","🩺","💉","🚑","💊","🩹","🥼"];
 let grid=[], score=0;
 let last=null; 
 let isAnimating = false; 
+let kitCount = 3; 
 
 const board=document.getElementById("board");
 const gameContainer = document.getElementById("game-container");
+const kitBtn=document.getElementById("kit-btn");
 
+// ===== 🔊 音效 =====
 const sounds={
  match: new Audio("https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"),
 };
@@ -120,6 +196,7 @@ function playSound(s){
  } catch(e) {}
 }
 
+// ===== 🎵 背景音樂 =====
 const bgm=new Audio("https://assets.mixkit.co/music/preview/mixkit-game-level-music-689.mp3");
 bgm.loop=true;
 bgm.volume=0.3;
@@ -133,16 +210,21 @@ document.body.addEventListener("pointerdown",()=>{
  bgm.play().catch(()=>{});
 },{once:true});
 
+// ===== 📳 震動 =====
 function vibrate(){
  if(navigator.vibrate){ navigator.vibrate(60); }
 }
 
+// ===== 💥 修正後的粒子特效 =====
 function explodeEffect(r,c){
  const cell=document.getElementById(`cell-${r}-${c}`);
  if(!cell) return;
 
  const offsetLeft = cell.offsetLeft + cell.offsetWidth / 2 - 10;
  const offsetTop = cell.offsetTop + cell.offsetHeight / 2 - 10;
+
+ const isMobile = window.innerWidth < 520;
+ const spreadRange = isMobile ? window.innerWidth * 0.2 : 60;
 
  for(let i=0;i<8;i++){
    let p=document.createElement("div");
@@ -151,8 +233,8 @@ function explodeEffect(r,c){
    p.style.left = offsetLeft + "px";
    p.style.top = offsetTop + "px";
 
-   let x=(Math.random()*120-60)+"px";
-   let y=(Math.random()*120-60)+"px";
+   let x=(Math.random() * (spreadRange * 2) - spreadRange) + "px";
+   let y=(Math.random() * (spreadRange * 2) - spreadRange) + "px";
 
    p.style.setProperty("--x",x);
    p.style.setProperty("--y",y);
@@ -162,6 +244,7 @@ function explodeEffect(r,c){
  }
 }
 
+// ===== 開局防直接消除的棋盤生成 =====
 function create(){
  let g;
  do {
@@ -187,6 +270,7 @@ function hasMatch(g){
     return false;
 }
 
+// ===== 渲染畫面 =====
 function render(){
  board.innerHTML="";
  grid.forEach((row,r)=>{
@@ -211,6 +295,7 @@ function render(){
  });
 }
 
+// ===== 點擊交換處理 =====
 function click(r,c){
  if(isAnimating) return; 
 
@@ -230,6 +315,7 @@ function click(r,c){
 
    setTimeout(() => {
        if(!checkMatchesAndEliminate(r, c, last.r, last.c)) {
+           // 交換無效，播放絲滑彈回
            [grid[r][c],grid[last.r][last.c]]=[grid[last.r][last.c],grid[r][c]];
            isAnimating = false;
            last = null;
@@ -244,6 +330,7 @@ function click(r,c){
  }
 }
 
+// ===== 橫向與直向的完美消除判定 =====
 function checkMatchesAndEliminate(r1, c1, r2, c2) {
  let toRemove = Array.from({length: SIZE}, () => Array(SIZE).fill(false));
  let hasMatchFound = false;
@@ -260,8 +347,7 @@ function checkMatchesAndEliminate(r1, c1, r2, c2) {
 
  for(let c=0;c<SIZE;c++){
    for(let r=0;r<SIZE-2;r++){
-     let v=grid[r][c];
-     if(v && v===grid[r+1][c] && v===grid[r+2][c]){
+     if(grid[r][c] && grid[r][c]===grid[r+1][c] && grid[r][c]===grid[r+2][c]){
        toRemove[r][c] = toRemove[r+1][c] = toRemove[r+2][c] = true;
        hasMatchFound = true;
      }
@@ -291,6 +377,7 @@ function checkMatchesAndEliminate(r1, c1, r2, c2) {
  return false;
 }
 
+// ===== 自動連鎖檢查 (Combo) =====
 function autoCheckLoop() {
     let toRemove = Array.from({length: SIZE}, () => Array(SIZE).fill(false));
     let hasMatchFound = false;
@@ -303,8 +390,7 @@ function autoCheckLoop() {
     }
     for(let c=0;c<SIZE;c++){
       for(let r=0;r<SIZE-2;r++){
-        let v=grid[r][c];
-        if(v && v===grid[r+1][c] && v===grid[r+2][c]) toRemove[r][c] = toRemove[r+1][c] = toRemove[r+2][c] = hasMatchFound = true;
+        if(grid[r][c] && grid[r][c]===grid[r+1][c] && grid[r][c]===grid[r+2][c]) toRemove[r][c] = toRemove[r+1][c] = toRemove[r+2][c] = hasMatchFound = true;
       }
     }
 
@@ -321,10 +407,11 @@ function autoCheckLoop() {
         vibrate();
         setTimeout(drop, 250);
     } else {
-        isAnimating = false; 
+        isAnimating = false; // 連鎖結束，解鎖面板
     }
 }
 
+// ===== 掉落補滿 =====
 function drop(){
  for(let c=0;c<SIZE;c++){
    let col=[];
@@ -341,6 +428,88 @@ function drop(){
  setTimeout(autoCheckLoop, 150);
 }
 
+// ===== 藥箱掃描演算法 =====
+function scanForHint(){
+    for(let r=0;r<SIZE;r++){
+        for(let c=0;c<SIZE;c++){
+            let dirs=[[0,1],[1,0]];
+            for(let [dr,dc] of dirs){
+                let nr=r+dr,nc=c+dc;
+                if(nr<SIZE && nc<SIZE){
+                    [grid[r][c],grid[nr][nc]]=[grid[nr][nc],grid[r][c]];
+                    
+                    let hasMatchFound = false;
+                    for(let tr=0;tr<SIZE;tr++){
+                      for(let tc=0;tc<SIZE-2;tc++){
+                        if(grid[tr][tc] && grid[tr][tc]===grid[tr][tc+1] && grid[tr][tc]===grid[tr][tc+2]) hasMatchFound = true;
+                      }
+                    }
+                    for(let tc=0;tc<SIZE;tc++){
+                      for(let tr=0;tr<SIZE-2;tr++){
+                        if(grid[tr][tc] && grid[tr][tc]===grid[tr+1][tc] && grid[tr][tc]===grid[tr+2][tc]) hasMatchFound = true;
+                      }
+                    }
+
+                    [grid[r][c],grid[nr][nc]]=[grid[nr][nc],grid[r][c]]; 
+                    
+                    if(hasMatchFound) {
+                        return { p1: {r, c}, p2: {r: nr, c: nc} };
+                    }
+                }
+            }
+        }
+    }
+    return null;
+}
+
+// ===== 點擊藥箱急救功能 =====
+function useFirstAidKit() {
+    if(kitCount <= 0 || isAnimating) return;
+
+    let hint = scanForHint();
+
+    if(hint) {
+        kitCount--;
+        kitBtn.innerText = `藥箱急救 (剩餘 ${kitCount} 次)`;
+        if(kitCount === 0) kitBtn.disabled = true;
+
+        isAnimating = true; 
+        let cell1 = document.getElementById(`cell-${hint.p1.r}-${hint.p1.c}`);
+        let cell2 = document.getElementById(`cell-${hint.p2.r}-${hint.p2.c}`);
+
+        cell1.classList.add("hint-flash");
+        cell2.classList.add("hint-flash");
+
+        setTimeout(() => {
+            cell1.classList.remove("hint-flash");
+            cell2.classList.remove("hint-flash");
+            isAnimating = false;
+        }, 1200); 
+    } else {
+        alert("🩺 藥箱掃描：目前盤面已無任何可行解法，免費為您重新洗牌！");
+        grid = create();
+        render();
+    }
+}
+
+// ===== Firebase 預留區 =====
+/*
+const firebaseConfig = {
+ apiKey:"YOUR_API_KEY",
+ authDomain:"YOUR_AUTH_DOMAIN",
+ projectId:"YOUR_PROJECT_ID",
+ storageBucket:"YOUR_STORAGE_BUCKET",
+ messagingSenderId:"YOUR_SENDER_ID",
+ appId:"YOUR_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
+function saveScore(){
+ db.collection("scores").add({ score: score, time: Date.now() });
+}
+*/
+
+// ===== 啟動遊戲 =====
 grid=create();
 render();
 </script>
