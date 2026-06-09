@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>First Aid Pop 急救彈彈樂! - 100關全屏流版</title>
+<title>First Aid Pop 急救彈彈樂! - 排行榜神醫版</title>
 
 <style>
 body{
@@ -45,7 +45,7 @@ body{
     font-weight: bold;
     box-shadow: 0 3px 5px rgba(0,0,0,0.1);
 }
-.music-btn{
+.music-btn, .rank-toggle-btn{
     padding: 6px 12px;
     border: none; border-radius: 15px;
     background: #2ecc71; color: #fff; font-weight: bold;
@@ -53,7 +53,8 @@ body{
     font-size: 13px;
     font-family: Arial, sans-serif;
 }
-.music-btn:active { transform: scale(0.95); }
+.rank-toggle-btn { background: #f39c12; margin-left: 5px; }
+.music-btn:active, .rank-toggle-btn:active { transform: scale(0.95); }
 
 /* ⏱️ 倒計時進度條外殼 */
 .timer-container {
@@ -238,6 +239,49 @@ body{
     100% { transform: translate(0, -40px); opacity: 0; }
 }
 
+/* 🏆 全球排名榜彈窗 UI */
+.rank-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+.rank-content {
+    background: white;
+    width: 85%;
+    max-width: 400px;
+    border-radius: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+.rank-title {
+    font-size: 22px;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-weight: 900;
+}
+.rank-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+    font-size: 15px;
+}
+.rank-table th { background: #34495e; color: white; padding: 6px; }
+.rank-table td { padding: 8px 6px; border-bottom: 1px solid #eee; font-weight: bold; }
+.rank-table tr:nth-child(2) td { color: #f1c40f; } /* 第一名金黃色 */
+.rank-table tr:nth-child(3) td { color: #95a5a6; } /* 第二名銀色 */
+.rank-table tr:nth-child(4) td { color: #d35400; } /* 第三名銅色 */
+.close-rank-btn {
+    background: #e74c3c; color: white; border: none;
+    padding: 8px 20px; border-radius: 15px; font-weight: bold;
+    cursor: pointer; width: 100%; font-size: 15px;
+}
+
 /* 提示文字外殼 */
 #tipBox{
     position:fixed;
@@ -260,6 +304,9 @@ body{
     .particle { font-size: 20px; }
 }
 </style>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 </head>
 
 <body>
@@ -268,7 +315,10 @@ body{
 
 <div class="control-panel">
     <div class="level-badge">第 <span id="current-level">1</span> / 100 關</div>
-    <button class="music-btn" onclick="toggleMusic()">🎵 音樂開關</button>
+    <div>
+        <button class="music-btn" onclick="toggleMusic()">🎵 音樂</button>
+        <button class="rank-toggle-btn" onclick="showLeaderboardPopup()">🏆 排名</button>
+    </div>
 </div>
 
 <div class="timer-container">
@@ -292,9 +342,37 @@ body{
     <div id="board" class="board"></div>
 </div>
 
+<div id="rankModal" class="rank-modal">
+    <div class="rank-content">
+        <div class="rank-title">🏆 全球神醫榜 (Top 10)</div>
+        <table class="rank-table">
+            <thead>
+                <tr>
+                    <th>名次</th>
+                    <th>神醫暱稱</th>
+                    <th>最高關卡</th>
+                    <th>總得分</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+                <tr><td colspan="4">排行載入中...</td></tr>
+            </tbody>
+        </table>
+        <button class="close-rank-btn" onclick="closeLeaderboardPopup()">返回急救</button>
+    </div>
+</div>
+
 <div id="tipBox"></div>
 
 <script>
+// ===== 🛠️ Firebase 聯網設定 =====
+const firebaseConfig = {
+    databaseURL: "https://first-aid-pop-default-rtdb.firebaseio.com/"
+};
+// 初始化 Firebase
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
 const SIZE=8;
 const TYPES=["😷","🏋️","🩺","💉","🧰","💊","🩹","🥼","🧪"];
 const BOMB = "💣";
@@ -309,7 +387,7 @@ let moves = 35;
 let maxTime = 90; 
 let timeLeft = 90;
 let timerInterval = null;
-let musicUserToggled = false; // 紀錄玩家有沒有主動按過關閉音樂
+let musicUserToggled = false; 
 
 let mission = { "💉": 5, "🩺": 5 };
 
@@ -337,12 +415,10 @@ function playSound(s){
  } catch(e) {}
 }
 
-// ===== 🎵 背景音樂設定 =====
 const bgm = new Audio("https://assets.mixkit.co/music/preview/mixkit-game-level-music-689.mp3");
 bgm.loop = true;
 bgm.volume = 0.3;
 
-// 🛠️ 核心修正：只要玩家開始操作遊戲（任何點擊、摸到螢幕），音樂就會瞬間強制啟動！
 function autoPlayMusic() {
     if (bgm.paused && !musicUserToggled) {
         bgm.play().catch(()=>{});
@@ -355,11 +431,10 @@ function toggleMusic(){
      musicUserToggled = false;
  } else {
      bgm.pause();
-     musicUserToggled = true; // 標記玩家主動關閉，不自動重啟
+     musicUserToggled = true; 
  }
 }
 
-// 監聽全局手勢：點擊、觸摸、拖曳等任何第一時間互動都會直接喚醒音樂
 document.addEventListener("pointerdown", autoPlayMusic, { passive: true });
 document.addEventListener("touchstart", autoPlayMusic, { passive: true });
 document.addEventListener("click", autoPlayMusic, { passive: true });
@@ -747,13 +822,17 @@ function renderMission() {
     missionEl.innerText = `💉 針筒剩餘: ${mission["💉"]} ｜ 🩺 聽筒剩餘: ${mission["🩺"]}`;
 }
 
+/* 🏆 升級版：支援 Firebase 上傳的 GAME OVER 與關卡檢查機制 */
 function checkGameStatus(timeOut = false) {
     if (mission["💉"] <= 0 && mission["🩺"] <= 0) {
         clearInterval(timerInterval);
+        isAnimating = true;
         setTimeout(() => {
             if(currentLevel >= 100) {
-                showTip("👑 逆天神蹟！你已成功攻克全部 100 關！");
+                showTip("👑 逆天神蹟！你已完成全部 100 關！");
+                uploadScoreToFirebase(); // 通關完畢，上傳最終頂級分數
                 currentLevel = 1;
+                score = 0;
             } else {
                 showTip(`🎉 第 ${currentLevel} 關通過！`);
                 currentLevel++;
@@ -762,15 +841,25 @@ function checkGameStatus(timeOut = false) {
         }, 150);
     } else if (moves <= 0 || timeOut) {
         clearInterval(timerInterval);
+        isAnimating = true; 
+        
+        // 畫面上灰階鎖定特效
+        board.style.filter = "grayscale(100%) opacity(60%)";
+        board.style.transition = "filter 0.5s ease";
+        bgm.pause();
+
         setTimeout(() => {
-            if(timeOut) showTip(`⏱️ 時間到！第 ${currentLevel} 關失敗`);
-            else showTip(`😢 步數用盡！第 ${currentLevel} 關失敗`);
-            setupLevel(); 
-        }, 150);
+            let reason = timeOut ? "⏱️ 時間到！急救失敗！" : "😢 步數用盡！傷患未能及時送醫！";
+            alert(`${reason}\n\n【GAME OVER】\n🚨 停留在：第 ${currentLevel} 關\n🏆 目前總得分：${score}`);
+            
+            // 觸發上傳資料庫
+            uploadScoreToFirebase();
+        }, 300);
     }
 }
 
 function setupLevel() {
+    board.style.filter = "none";
     document.getElementById("current-level").innerText = currentLevel;
     let targetCount = Math.min(25, 5 + Math.floor((currentLevel - 1) / 2));
     mission = { "💉": targetCount, "🩺": targetCount };
@@ -856,6 +945,74 @@ function useAmbulanceRescue() {
     }
 }
 
+// ===== 🏆 排名榜上傳與載入核心邏輯 =====
+
+function uploadScoreToFirebase() {
+    let name = prompt("🩺 留名神醫榜！請輸入你的暱稱：", "匿名實習醫生");
+    if (name === null) name = "無名英雄";
+    name = name.trim() === "" ? "匿名實習醫生" : name;
+
+    // 將紀錄推送至資料庫的 "leaderboard" 路徑下
+    database.ref("leaderboard").push({
+        name: name,
+        level: currentLevel,
+        score: score,
+        timestamp: Date.now()
+    }).then(() => {
+        showTip("🚀 分數已即時同步至全球雲端！");
+        showLeaderboardPopup(); // 上傳完直接彈出排行榜，給玩家炫耀
+    }).catch(err => {
+        console.error("同步失敗：", err);
+        setupLevel();
+    });
+}
+
+function showLeaderboardPopup() {
+    const tbody = document.getElementById("leaderboard-body");
+    tbody.innerHTML = `<tr><td colspan="4">🚑 雲端急救數據加載中...</td></tr>`;
+    document.getElementById("rankModal").style.display = "flex";
+
+    // 從 Firebase 獲取最高的前 10 名數據（以 score 分數做排序）
+    database.ref("leaderboard").orderByChild("score").limitToLast(10).once("value", snapshot => {
+        let list = [];
+        snapshot.forEach(child => {
+            list.push(child.val());
+        });
+        
+        // 由於 Firebase limitToLast 是由小到大排，我們需要反轉陣列（由大到小）
+        list.reverse();
+
+        tbody.innerHTML = "";
+        if(list.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4">目前榜單空空如也，快來拿下第一！</td></tr>`;
+            return;
+        }
+
+        list.forEach((player, index) => {
+            let tr = document.createElement("tr");
+            let rankMedal = index + 1;
+            if (index === 0) rankMedal = "🥇";
+            if (index === 1) rankMedal = "🥈";
+            if (index === 2) rankMedal = "🥉";
+
+            tr.innerHTML = `
+                <td>${rankMedal}</td>
+                <td style="max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${player.name}</td>
+                <td>第 ${player.level} 關</td>
+                <td style="color:#e74c3c;">${player.score}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    });
+}
+
+function closeLeaderboardPopup() {
+    document.getElementById("rankModal").style.display = "none";
+    // 關閉後自動重新洗牌配置新一局或本關
+    setupLevel();
+}
+
+// 啟動首關
 setupLevel();
 </script>
 </body>
