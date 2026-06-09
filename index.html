@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>First Aid Pop 急救彈彈樂!</title>
+<title>First Aid Pop 急救彈彈樂! - 100關全屏流版</title>
 
 <style>
 body{
@@ -17,57 +17,135 @@ body{
     box-sizing: border-box;
 }
 
-/* 遊戲標題招牌 */
+/* 遊戲招牌 Logo */
 .game-title {
-    margin: 5px 0;
+    margin: 5px 0 0 0;
     color: #e74c3c;
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 900;
     text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 2px -2px 0px #fff, -2px 2px 0px #fff, 3px 3px 5px rgba(0,0,0,0.2);
     letter-spacing: 1px;
-    line-height: 1.2;
 }
 
-.info-bar { 
-    font-size: 18px; 
-    font-weight: bold; 
-    margin: 5px 0 10px 0; 
-    color: #2c3e50; 
+/* 關卡資訊與控制面板 */
+.control-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 520px;
+    margin: 5px auto;
+    padding: 0 10px;
+}
+.level-badge {
+    background: #9b59b6;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+}
+.music-btn{
+    padding: 6px 12px;
+    border: none; border-radius: 15px;
+    background: #2ecc71; color: #fff; font-weight: bold;
+    cursor: pointer; box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+    font-size: 13px;
+    font-family: Arial, sans-serif;
+}
+.music-btn:active { transform: scale(0.95); }
+
+/* ⏱️ 倒計時進度條外殼 */
+.timer-container {
+    width: 90%;
+    max-width: 480px;
+    background: #bdc3c7;
+    height: 14px;
+    border-radius: 7px;
+    margin: 8px auto;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+}
+/* ⏱️ 倒計時動態進度條本體 */
+.timer-bar {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #2ecc71, #27ae60);
+    transition: width 0.1s linear, background-color 0.3s ease;
+}
+.timer-warning {
+    background: linear-gradient(90deg, #e74c3c, #c0392b) !important;
+}
+.timer-text {
+    font-size: 14px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-top: -3px;
     font-family: Arial, sans-serif;
 }
 
-/* 🧰 藥箱按鈕樣式 - 手機自適應與卡通公仔圖片結合 */
-.btn-kit {
-    background-color: #e74c3c;
+/* 頂部數據欄 */
+.info-bar { 
+    font-size: 16px; 
+    font-weight: bold; 
+    margin: 6px 0; 
+    color: #2c3e50; 
+    font-family: Arial, sans-serif;
+}
+.info-bar span {
+    background: #fff;
+    padding: 3px 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* 任務目標欄 */
+#mission {
+    background: #fff;
+    padding: 6px 12px;
+    border-radius: 12px;
+    display: inline-flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 15px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+    margin: 2px auto 8px auto;
+    border: 2px solid #3498db;
+    font-family: Arial, sans-serif;
+}
+
+/* 🚑 救護車提示按鈕 */
+.btn-ambulance {
+    background: linear-gradient(135deg, #34495e, #2c3e50);
     color: white;
     border: none;
-    padding: 10px 20px;
-    font-size: 16px;
+    padding: 8px 18px;
+    font-size: 14px;
     font-weight: bold;
-    border-radius: 25px;
+    border-radius: 20px;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-    margin-bottom: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    margin-bottom: 8px;
     transition: 0.2s;
     width: 85%;
     max-width: 320px;
     font-family: Arial, sans-serif;
-    
-    /* 載入藥箱公仔圖案 */
-    background-image: url('https://img.icons8.com/emoji/96/first-aid-kit-emoji.png');
-    background-repeat: no-repeat;
-    background-position: 15px center; 
-    background-size: 28px; 
-    padding-left: 55px; 
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
 }
-.btn-kit:hover { background-color: #c0392b; }
-.btn-kit:disabled { background-color: #95a5a6; cursor: not-allowed; box-shadow: none; opacity: 0.7; }
+.btn-ambulance:active { transform: scale(0.95); }
+.btn-ambulance:disabled { background: #95a5a6; cursor: not-allowed; box-shadow: none; opacity: 0.6; }
 
-/* 💡 藥箱提示閃爍動畫 */
+/* 💡 提示閃爍動畫 */
 .hint-flash { animation: flash-glow 0.4s ease-in-out 3; }
 @keyframes flash-glow {
     0%, 100% { background-color: #fff; }
-    50% { background-color: #f1c40f; transform: scale(1.05); border-radius: 18%; }
+    50% { background-color: #f1c40f; transform: scale(1.05); border-radius: 18%; box-shadow: 0 0 12px #f1c40f; }
 }
 
 /* RWD 棋盤外層容器 */
@@ -86,19 +164,20 @@ body{
     grid-template-columns: repeat(8, 1fr); 
     gap: 1.2vw; 
     justify-content: center;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.4);
     padding: 8px;
-    border-radius: 12px;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
 }
 
 /* 完美正方形格子自適應螢幕 */
 .cell{
     width: 100%;
-    aspect-ratio: 1 / 1; 
+    aspect-ratio: 1; 
     background: #fff;
     border-radius: 18%; 
     position: relative;
-    box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
     box-sizing: border-box;
 }
 
@@ -108,6 +187,7 @@ body{
     background: #ffeaea !important;
 }
 
+/* 9款彩色公仔與炸彈樣式 */
 .disk{
     display: flex;
     align-items: center;
@@ -120,7 +200,16 @@ body{
 }
 .disk:active { transform: scale(0.9); }
 
-/* 💥 爆炸粒子改進（相對於棋盤定位，不被重繪切斷） */
+/* 💣 炸彈呼吸特效 */
+.bomb-item {
+    animation: pulse 0.8s infinite alternate;
+}
+@keyframes pulse {
+    0% { transform: scale(1); filter: drop-shadow(0 0 2px #e74c3c); }
+    100% { transform: scale(1.1); filter: drop-shadow(0 0 8px #e74c3c); }
+}
+
+/* 💥 爆炸粒子位置 */
 .particle{
     position: absolute;
     font-size: 5vw; 
@@ -133,59 +222,111 @@ body{
     100% { transform: translate(var(--x),var(--y)) scale(0.5); opacity:0; }
 }
 
-.control-panel { margin: 5px; }
-.music-btn{
-    padding: 6px 12px;
-    border: none; border-radius: 15px;
-    background: #2ecc71; color: #fff; font-weight: bold;
-    cursor: pointer; box-shadow: 0 3px 5px rgba(0,0,0,0.1);
-    font-size: 13px;
-    font-family: Arial, sans-serif;
+/* ⏱️+加時浮動文字動畫 */
+.time-bonus-text {
+    position: absolute;
+    color: #2ecc71;
+    font-weight: 900;
+    font-size: 22px;
+    text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff;
+    pointer-events: none;
+    z-index: 1000;
+    animation: floatUp 0.8s ease-out forwards;
 }
-.music-btn:active { transform: scale(0.95); }
+@keyframes floatUp {
+    0% { transform: translate(0, 0); opacity: 1; }
+    100% { transform: translate(0, -40px); opacity: 0; }
+}
 
-/* 電腦版大螢幕優化 */
+/* 提示文字外殼 */
+#tipBox{
+    position:fixed;
+    top:20px;
+    left:50%;
+    transform:translateX(-50%);
+    background:rgba(0,0,0,0.85);
+    color:#fff;
+    padding:8px 15px;
+    border-radius:20px;
+    opacity:0;
+    transition:0.3s;
+    pointer-events: none;
+    z-index: 1001;
+}
+
 @media (min-width: 520px) {
     .board { gap: 6px; }
     .disk { font-size: 34px; }
     .particle { font-size: 20px; }
 }
 </style>
-
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
 
-<div class="game-title">🚑 First Aid Pop! <br><span style="color:#1a5f7a; font-size:18px;">急救彈彈樂!</span></div>
+<div class="game-title">🚑 First Aid Pop!</div>
 
 <div class="control-panel">
-    <button class="music-btn" onclick="toggleMusic()">🎵 音樂開關 (BGM)</button>
+    <div class="level-badge">第 <span id="current-level">1</span> / 100 關</div>
+    <button class="music-btn" onclick="toggleMusic()">🎵 音樂開關</button>
 </div>
 
-<div class="info-bar">得分: <span id="score">0</span></div>
+<div class="timer-container">
+    <div id="timer-bar" class="timer-bar"></div>
+</div>
+<div id="timer-text" class="timer-text">剩餘時間: 90.0 秒</div>
 
-<button id="kit-btn" class="btn-kit" onclick="useFirstAidKit()">藥箱急救 (剩餘 3 次)</button>
+<div class="info-bar">
+    <span>得分: <span id="score" style="color:#e74c3c;">0</span></span> 
+    <span>步數: <span id="moves" style="color:#2ecc71;">35</span></span>
+</div>
+
+<div id="mission"></div>
+<br>
+
+<button id="ambulance-btn" class="btn-ambulance" onclick="useAmbulanceRescue()">
+    出動救護車：<span id="car-icons">🚑 🚑 🚑</span>
+</button>
 
 <div class="board-container" id="game-container">
     <div id="board" class="board"></div>
 </div>
 
+<div id="tipBox"></div>
+
 <script>
-// ===== 基本變數 =====
 const SIZE=8;
-const TYPES=["😷","🏋️","🩺","💉","🚑","💊","🩹","🥼"];
+const TYPES=["😷","🏋️","🩺","💉","🧰","💊","🩹","🥼","🧪"];
+const BOMB = "💣";
+
 let grid=[], score=0;
 let last=null; 
 let isAnimating = false; 
-let kitCount = 3; 
+let rescueMovesLeft = 3; 
+
+let currentLevel = 1;
+let moves = 35;
+let maxTime = 90; 
+let timeLeft = 90;
+let timerInterval = null;
+let musicUserToggled = false; // 紀錄玩家有沒有主動按過關閉音樂
+
+let mission = { "💉": 5, "🩺": 5 };
+
+const tips=[
+"🔥 關卡提升後，收集目標會變多！",
+"⏱️ 每消出一組配對，都能增加倒計時秒數！",
+"💣 湊齊4個能獲得炸彈，引爆它能清除全屏同款！"
+];
 
 const board=document.getElementById("board");
 const gameContainer = document.getElementById("game-container");
-const kitBtn=document.getElementById("kit-btn");
+const ambulanceBtn=document.getElementById("ambulance-btn");
+const carIconsEl=document.getElementById("car-icons");
+const timerBar=document.getElementById("timer-bar");
+const timerTextEl=document.getElementById("timer-text");
+const tipBox=document.getElementById("tipBox");
 
-// ===== 🔊 音效 =====
 const sounds={
  match: new Audio("https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"),
 };
@@ -196,35 +337,91 @@ function playSound(s){
  } catch(e) {}
 }
 
-// ===== 🎵 背景音樂 =====
-const bgm=new Audio("https://assets.mixkit.co/music/preview/mixkit-game-level-music-689.mp3");
-bgm.loop=true;
-bgm.volume=0.3;
+// ===== 🎵 背景音樂設定 =====
+const bgm = new Audio("https://assets.mixkit.co/music/preview/mixkit-game-level-music-689.mp3");
+bgm.loop = true;
+bgm.volume = 0.3;
 
-function toggleMusic(){
- if(bgm.paused) bgm.play().catch(()=>{ alert("請先點擊畫面上任意地方激活音源"); });
- else bgm.pause();
+// 🛠️ 核心修正：只要玩家開始操作遊戲（任何點擊、摸到螢幕），音樂就會瞬間強制啟動！
+function autoPlayMusic() {
+    if (bgm.paused && !musicUserToggled) {
+        bgm.play().catch(()=>{});
+    }
 }
 
-document.body.addEventListener("pointerdown",()=>{
- bgm.play().catch(()=>{});
-},{once:true});
+function toggleMusic(){
+ if(bgm.paused) {
+     bgm.play().catch(()=>{ alert("請點擊盤面任意處解鎖瀏覽器音訊限制"); });
+     musicUserToggled = false;
+ } else {
+     bgm.pause();
+     musicUserToggled = true; // 標記玩家主動關閉，不自動重啟
+ }
+}
 
-// ===== 📳 震動 =====
+// 監聽全局手勢：點擊、觸摸、拖曳等任何第一時間互動都會直接喚醒音樂
+document.addEventListener("pointerdown", autoPlayMusic, { passive: true });
+document.addEventListener("touchstart", autoPlayMusic, { passive: true });
+document.addEventListener("click", autoPlayMusic, { passive: true });
+
 function vibrate(){
  if(navigator.vibrate){ navigator.vibrate(60); }
 }
 
-// ===== 💥 修正後的粒子特效 =====
+function showTip(t){
+    tipBox.innerText=t;
+    tipBox.style.opacity=1;
+    setTimeout(()=>tipBox.style.opacity=0,2200);
+}
+
+function startTimer() {
+    clearInterval(timerInterval);
+    maxTime = Math.max(30, 90 - (currentLevel - 1) * 0.5);
+    timeLeft = maxTime;
+    
+    timerInterval = setInterval(() => {
+        if (isAnimating) return; 
+        
+        timeLeft -= 0.1;
+        if (timeLeft <= 0) {
+            timeLeft = 0;
+            clearInterval(timerInterval);
+            checkGameStatus(true); 
+        }
+        
+        const percentage = (timeLeft / maxTime) * 100;
+        timerBar.style.width = percentage + "%";
+        timerTextEl.innerText = `剩餘時間: ${Math.max(0, timeLeft).toFixed(1)} 秒`;
+        
+        if (timeLeft <= 10) timerBar.classList.add("timer-warning");
+        else timerBar.classList.remove("timer-warning");
+    }, 100);
+}
+
+function showTimeBonusEffect(r, c, addedTime) {
+    const cell = document.getElementById(`cell-${r}-${c}`);
+    if (!cell) return;
+
+    const offsetLeft = cell.offsetLeft + cell.offsetWidth / 2 - 25;
+    const offsetTop = cell.offsetTop + cell.offsetHeight / 2 - 15;
+
+    let bonusText = document.createElement("div");
+    bonusText.className = "time-bonus-text";
+    bonusText.innerText = `+${addedTime.toFixed(1)}s`;
+    bonusText.style.left = offsetLeft + "px";
+    bonusText.style.top = offsetTop + "px";
+
+    gameContainer.appendChild(bonusText);
+    setTimeout(() => bonusText.remove(), 800);
+}
+
 function explodeEffect(r,c){
  const cell=document.getElementById(`cell-${r}-${c}`);
  if(!cell) return;
 
  const offsetLeft = cell.offsetLeft + cell.offsetWidth / 2 - 10;
  const offsetTop = cell.offsetTop + cell.offsetHeight / 2 - 10;
-
- const isMobile = window.innerWidth < 520;
- const spreadRange = isMobile ? window.innerWidth * 0.2 : 60;
+ const spreadRange = window.innerWidth < 520 ? window.innerWidth * 0.2 : 60;
 
  for(let i=0;i<8;i++){
    let p=document.createElement("div");
@@ -235,7 +432,6 @@ function explodeEffect(r,c){
 
    let x=(Math.random() * (spreadRange * 2) - spreadRange) + "px";
    let y=(Math.random() * (spreadRange * 2) - spreadRange) + "px";
-
    p.style.setProperty("--x",x);
    p.style.setProperty("--y",y);
 
@@ -244,16 +440,13 @@ function explodeEffect(r,c){
  }
 }
 
-// ===== 開局防直接消除的棋盤生成 =====
 function create(){
  let g;
  do {
     g = [];
     for(let r=0;r<SIZE;r++){
        let row=[];
-       for(let c=0;c<SIZE;c++){
-         row.push(TYPES[Math.floor(Math.random()*8)]);
-       }
+       for(let c=0;c<SIZE;c++) row.push(TYPES[Math.floor(Math.random()*9)]);
        g.push(row);
     }
  } while(hasMatch(g)); 
@@ -263,31 +456,31 @@ function create(){
 function hasMatch(g){
     for(let r=0;r<SIZE;r++){
         for(let c=0;c<SIZE;c++){
-            if(c<=SIZE-3 && g[r][c] && g[r][c]===g[r][c+1] && g[r][c]===g[r][c+2]) return true;
-            if(r<=SIZE-3 && g[r][c] && g[r][c]===g[r+1][c] && g[r][c]===g[r+2][c]) return true;
+            if(c<=SIZE-3 && g[r][c] && g[r][c]!==BOMB && g[r][c]===g[r][c+1] && g[r][c]===g[r][c+2]) return true;
+            if(r<=SIZE-3 && g[r][c] && g[r][c]!==BOMB && g[r][c]===g[r+1][c] && g[r][c]===g[r+2][c]) return true;
         }
     }
     return false;
 }
 
-// ===== 渲染畫面 =====
 function render(){
  board.innerHTML="";
+ renderMission();
+
  grid.forEach((row,r)=>{
    row.forEach((cell,c)=>{
      let div=document.createElement("div");
      div.className="cell";
      div.id=`cell-${r}-${c}`;
+     div.dataset.r=r;
+     div.dataset.c=c;
 
-     if(last && last.r === r && last.c === c) {
-         div.classList.add("selected");
-     }
+     if(last && last.r === r && last.c === c) div.classList.add("selected");
 
      if(cell){
        let d=document.createElement("div");
-       d.className="disk";
+       d.className = (cell === BOMB) ? "disk bomb-item" : "disk";
        d.innerText=cell;
-       d.onclick=()=>click(r,c);
        div.appendChild(d);
      }
      board.appendChild(div);
@@ -295,10 +488,17 @@ function render(){
  });
 }
 
-// ===== 點擊交換處理 =====
-function click(r,c){
- if(isAnimating) return; 
+board.addEventListener("pointerdown", e=>{
+    if(isAnimating || moves<=0 || timeLeft<=0) return;
+    let cell = e.target.closest(".cell");
+    if(!cell) return;
+    
+    let r = parseInt(cell.dataset.r);
+    let c = parseInt(cell.dataset.c);
+    click(r, c);
+});
 
+function click(r,c){
  if(!last){
      last={r,c}; 
      render(); 
@@ -314,13 +514,14 @@ function click(r,c){
    render();
 
    setTimeout(() => {
-       if(!checkMatchesAndEliminate(r, c, last.r, last.c)) {
-           // 交換無效，播放絲滑彈回
+       if(!checkMatchesAndEliminate()) {
            [grid[r][c],grid[last.r][last.c]]=[grid[last.r][last.c],grid[r][c]];
            isAnimating = false;
            last = null;
            render();
        } else {
+           moves--;
+           document.getElementById("moves").innerText = moves;
            last = null;
        }
    }, 150);
@@ -330,41 +531,98 @@ function click(r,c){
  }
 }
 
-// ===== 橫向與直向的完美消除判定 =====
-function checkMatchesAndEliminate(r1, c1, r2, c2) {
+function checkMatchesAndEliminate() {
  let toRemove = Array.from({length: SIZE}, () => Array(SIZE).fill(false));
  let hasMatchFound = false;
+ let matchObjects = [];
 
  for(let r=0;r<SIZE;r++){
-   for(let c=0;c<SIZE-2;c++){
-     let v=grid[r][c];
-     if(v && v===grid[r][c+1] && v===grid[r][c+2]){
-       toRemove[r][c] = toRemove[r][c+1] = toRemove[r][c+2] = true;
-       hasMatchFound = true;
+   let cnt = 1;
+   for(let c=1;c<SIZE;c++){
+     if(grid[r][c] && grid[r][c] === grid[r][c-1] && grid[r][c] !== BOMB){
+       cnt++;
+     } else {
+       if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: c-cnt, len: cnt}); hasMatchFound = true; }
+       cnt = 1;
      }
    }
+   if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: SIZE-cnt, len: cnt}); hasMatchFound = true; }
  }
 
  for(let c=0;c<SIZE;c++){
-   for(let r=0;r<SIZE-2;r++){
-     if(grid[r][c] && grid[r][c]===grid[r+1][c] && grid[r][c]===grid[r+2][c]){
-       toRemove[r][c] = toRemove[r+1][c] = toRemove[r+2][c] = true;
-       hasMatchFound = true;
+   let cnt = 1;
+   for(let r=1;r<SIZE;r++){
+     if(grid[r][c] && grid[r][c] === grid[r-1][c] && grid[r][c] !== BOMB){
+       cnt++;
+     } else {
+       if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: r-cnt, len: cnt}); hasMatchFound = true; }
+       cnt = 1;
      }
    }
+   if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: SIZE-cnt, len: cnt}); hasMatchFound = true; }
  }
 
  if(hasMatchFound){
+   matchObjects.forEach(m => {
+       if(m.type === 'H') { for(let i=0; i<m.len; i++) toRemove[m.r][m.startC + i] = true; }
+       else { for(let i=0; i<m.len; i++) toRemove[m.startR + i][m.c] = true; }
+   });
+
+   let targetExplodeTypes = new Set();
+   for(let r=0; r<SIZE; r++) {
+       for(let c=0; c<SIZE; c++) {
+           if(toRemove[r][c] && grid[r][c] === BOMB) {
+               let neighbors = [[0,1],[1,0],[0,-1],[-1,0]];
+               for(let [dr,dc] of neighbors) {
+                   let nr=r+dr, nc=c+dc;
+                   if(nr>=0 && nr<SIZE && nc>=0 && nc<SIZE && grid[nr][nc] && TYPES.includes(grid[nr][nc])) {
+                       targetExplodeTypes.add(grid[nr][nc]);
+                   }
+               }
+           }
+       }
+   }
+
+   if(targetExplodeTypes.size > 0) {
+       for(let r=0; r<SIZE; r++) {
+           for(let c=0; c<SIZE; c++) {
+               if(grid[r][c] && (targetExplodeTypes.has(grid[r][c]) || grid[r][c] === BOMB)) toRemove[r][c] = true;
+           }
+       }
+   }
+
    let removedCount = 0;
+   let sampleR = 0, sampleC = 0; 
+   let maxLen = 3;
+   matchObjects.forEach(m => { if(m.len > maxLen) maxLen = m.len; });
+
    for(let r=0;r<SIZE;r++){
      for(let c=0;c<SIZE;c++){
        if(toRemove[r][c]) {
          explodeEffect(r,c); 
+         sampleR = r; sampleC = c;
+         
+         if(grid[r][c] === "💉" && mission["💉"] > 0) mission["💉"]--;
+         if(grid[r][c] === "🩺" && mission["🩺"] > 0) mission["🩺"]--;
+
          grid[r][c]=null; 
          removedCount++;
        }
      }
    }
+
+   matchObjects.forEach(m => {
+       let spawnR = m.type === 'H' ? m.r : m.startR;
+       let spawnC = m.type === 'H' ? m.startC : m.c;
+       if(m.len >= 4) grid[spawnR][spawnC] = BOMB; 
+   });
+
+   let addedTime = 1.5;
+   if(maxLen === 4) addedTime = 3.5;
+   if(maxLen >= 5 || removedCount >= 7 || targetExplodeTypes.size > 0) addedTime = 6.0; 
+   
+   timeLeft = Math.min(maxTime, timeLeft + addedTime); 
+   showTimeBonusEffect(sampleR, sampleC, addedTime); 
 
    playSound(sounds.match);
    vibrate(); 
@@ -377,59 +635,167 @@ function checkMatchesAndEliminate(r1, c1, r2, c2) {
  return false;
 }
 
-// ===== 自動連鎖檢查 (Combo) =====
 function autoCheckLoop() {
     let toRemove = Array.from({length: SIZE}, () => Array(SIZE).fill(false));
     let hasMatchFound = false;
+    let matchObjects = [];
 
     for(let r=0;r<SIZE;r++){
-      for(let c=0;c<SIZE-2;c++){
-        let v=grid[r][c];
-        if(v && v===grid[r][c+1] && v===grid[r][c+2]) toRemove[r][c] = toRemove[r][c+1] = toRemove[r][c+2] = hasMatchFound = true;
+      let cnt = 1;
+      for(let c=1;c<SIZE;c++){
+        if(grid[r][c] && grid[r][c] === grid[r][c-1] && grid[r][c] !== BOMB) cnt++;
+        else {
+          if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: c-cnt, len: cnt}); hasMatchFound=true; }
+          cnt = 1;
+        }
       }
+      if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: SIZE-cnt, len: cnt}); hasMatchFound=true; }
     }
     for(let c=0;c<SIZE;c++){
-      for(let r=0;r<SIZE-2;r++){
-        if(grid[r][c] && grid[r][c]===grid[r+1][c] && grid[r][c]===grid[r+2][c]) toRemove[r][c] = toRemove[r+1][c] = toRemove[r+2][c] = hasMatchFound = true;
+      let cnt = 1;
+      for(let r=1;r<SIZE;r++){
+        if(grid[r][c] && grid[r][c] === grid[r-1][c] && grid[r][c] !== BOMB) cnt++;
+        else {
+          if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: r-cnt, len: cnt}); hasMatchFound=true; }
+          cnt = 1;
+        }
       }
+      if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: SIZE-cnt, len: cnt}); hasMatchFound=true; }
     }
 
     if(hasMatchFound) {
+        matchObjects.forEach(m => {
+            if(m.type === 'H') { for(let i=0; i<m.len; i++) toRemove[m.r][m.startC + i] = true; }
+            else { for(let i=0; i<m.len; i++) toRemove[m.startR + i][m.c] = true; }
+        });
+
+        let targetExplodeTypes = new Set();
+        for(let r=0; r<SIZE; r++) {
+            for(let c=0; c<SIZE; c++) {
+                if(toRemove[r][c] && grid[r][c] === BOMB) {
+                    let neighbors = [[0,1],[1,0],[0,-1],[-1,0]];
+                    for(let [dr,dc] of neighbors) {
+                        let nr=r+dr, nc=c+dc;
+                        if(nr>=0 && nr<SIZE && nc>=0 && nc<SIZE && grid[nr][nc] && TYPES.includes(grid[nr][nc])) targetExplodeTypes.add(grid[nr][nc]);
+                    }
+                }
+            }
+        }
+
+        if(targetExplodeTypes.size > 0) {
+            for(let r=0; r<SIZE; r++) {
+                for(let c=0; c<SIZE; c++) {
+                    if(grid[r][c] && (targetExplodeTypes.has(grid[r][c]) || grid[r][c] === BOMB)) toRemove[r][c] = true;
+                }
+            }
+        }
+
         let count = 0;
+        let sampleR = 0, sampleC = 0;
+        let maxLen = 3;
+        matchObjects.forEach(m => { if(m.len > maxLen) maxLen = m.len; });
+
         for(let r=0;r<SIZE;r++){
           for(let c=0;c<SIZE;c++){
-            if(toRemove[r][c]) { explodeEffect(r,c); grid[r][c]=null; count++; }
+            if(toRemove[r][c]) { 
+                explodeEffect(r,c); 
+                sampleR = r; sampleC = c;
+                if(grid[r][c] === "💉" && mission["💉"] > 0) mission["💉"]--;
+                if(grid[r][c] === "🩺" && mission["🩺"] > 0) mission["🩺"]--;
+                grid[r][c]=null; 
+                count++; 
+            }
           }
         }
+
+        matchObjects.forEach(m => {
+            let spawnR = m.type === 'H' ? m.r : m.startR;
+            let spawnC = m.type === 'H' ? m.startC : m.c;
+            if(m.len >= 4) grid[spawnR][spawnC] = BOMB;
+        });
+        
+        let addedTime = 1.5;
+        if(maxLen === 4) addedTime = 3.5;
+        if(maxLen >= 5 || count >= 7 || targetExplodeTypes.size > 0) addedTime = 6.0;
+        timeLeft = Math.min(maxTime, timeLeft + addedTime);
+        showTimeBonusEffect(sampleR, sampleC, addedTime);
+
         score += count * 10;
         document.getElementById("score").innerText=score;
         playSound(sounds.match);
         vibrate();
         setTimeout(drop, 250);
     } else {
-        isAnimating = false; // 連鎖結束，解鎖面板
+        isAnimating = false; 
+        checkGameStatus(false);
     }
 }
 
-// ===== 掉落補滿 =====
 function drop(){
  for(let c=0;c<SIZE;c++){
    let col=[];
-   for(let r=0;r<SIZE;r++)
-     if(grid[r][c]) col.push(grid[r][c]);
-
-   while(col.length<SIZE)
-     col.unshift(TYPES[Math.floor(Math.random()*8)]);
-
-   for(let r=0;r<SIZE;r++)
-     grid[r][c]=col[r];
+   for(let r=0;r<SIZE;r++) if(grid[r][c]) col.push(grid[r][c]);
+   while(col.length<SIZE) col.unshift(TYPES[Math.floor(Math.random()*9)]);
+   for(let r=0;r<SIZE;r++) grid[r][c]=col[r];
  }
  render();
  setTimeout(autoCheckLoop, 150);
 }
 
-// ===== 藥箱掃描演算法 =====
-function scanForHint(){
+function renderMission() {
+    const missionEl = document.getElementById("mission");
+    missionEl.innerText = `💉 針筒剩餘: ${mission["💉"]} ｜ 🩺 聽筒剩餘: ${mission["🩺"]}`;
+}
+
+function checkGameStatus(timeOut = false) {
+    if (mission["💉"] <= 0 && mission["🩺"] <= 0) {
+        clearInterval(timerInterval);
+        setTimeout(() => {
+            if(currentLevel >= 100) {
+                showTip("👑 逆天神蹟！你已成功攻克全部 100 關！");
+                currentLevel = 1;
+            } else {
+                showTip(`🎉 第 ${currentLevel} 關通過！`);
+                currentLevel++;
+            }
+            setupLevel();
+        }, 150);
+    } else if (moves <= 0 || timeOut) {
+        clearInterval(timerInterval);
+        setTimeout(() => {
+            if(timeOut) showTip(`⏱️ 時間到！第 ${currentLevel} 關失敗`);
+            else showTip(`😢 步數用盡！第 ${currentLevel} 關失敗`);
+            setupLevel(); 
+        }, 150);
+    }
+}
+
+function setupLevel() {
+    document.getElementById("current-level").innerText = currentLevel;
+    let targetCount = Math.min(25, 5 + Math.floor((currentLevel - 1) / 2));
+    mission = { "💉": targetCount, "🩺": targetCount };
+
+    moves = Math.min(45, 35 + Math.floor((currentLevel - 1) / 8));
+    document.getElementById("moves").innerText = moves;
+    
+    last = null;
+    isAnimating = false;
+    rescueMovesLeft = 3;
+    ambulanceBtn.disabled = false;
+    
+    let cars = "";
+    for(let i=0; i<rescueMovesLeft; i++) cars += "橫向 🚑 ";
+    carIconsEl.innerText = cars;
+
+    grid = create();
+    render();
+    startTimer(); 
+    if(currentLevel === 1 || currentLevel % 5 === 0) {
+        showTip(tips[Math.floor(Math.random()*tips.length)]);
+    }
+}
+
+function scanForRescueHint(){
     for(let r=0;r<SIZE;r++){
         for(let c=0;c<SIZE;c++){
             let dirs=[[0,1],[1,0]];
@@ -449,12 +815,8 @@ function scanForHint(){
                         if(grid[tr][tc] && grid[tr][tc]===grid[tr+1][tc] && grid[tr][tc]===grid[tr+2][tc]) hasMatchFound = true;
                       }
                     }
-
                     [grid[r][c],grid[nr][nc]]=[grid[nr][nc],grid[r][c]]; 
-                    
-                    if(hasMatchFound) {
-                        return { p1: {r, c}, p2: {r: nr, c: nc} };
-                    }
+                    if(hasMatchFound) return { p1: {r, c}, p2: {r: nr, c: nc} };
                 }
             }
         }
@@ -462,16 +824,18 @@ function scanForHint(){
     return null;
 }
 
-// ===== 點擊藥箱急救功能 =====
-function useFirstAidKit() {
-    if(kitCount <= 0 || isAnimating) return;
-
-    let hint = scanForHint();
+function useAmbulanceRescue() {
+    if(rescueMovesLeft <= 0 || isAnimating || moves <= 0 || timeLeft <= 0) return;
+    let hint = scanForRescueHint();
 
     if(hint) {
-        kitCount--;
-        kitBtn.innerText = `藥箱急救 (剩餘 ${kitCount} 次)`;
-        if(kitCount === 0) kitBtn.disabled = true;
+        rescueMovesLeft--;
+        let cars = "";
+        for(let i=0; i<rescueMovesLeft; i++) cars += "🚑 ";
+        if(cars === "") cars = "已用盡";
+        carIconsEl.innerText = cars;
+
+        if(rescueMovesLeft === 0) ambulanceBtn.disabled = true;
 
         isAnimating = true; 
         let cell1 = document.getElementById(`cell-${hint.p1.r}-${hint.p1.c}`);
@@ -486,33 +850,13 @@ function useFirstAidKit() {
             isAnimating = false;
         }, 1200); 
     } else {
-        alert("🩺 藥箱掃描：目前盤面已無任何可行解法，免費為您重新洗牌！");
+        showTip("🚑 無可行解，自動重新洗牌！");
         grid = create();
         render();
     }
 }
 
-// ===== Firebase 預留區 =====
-/*
-const firebaseConfig = {
- apiKey:"YOUR_API_KEY",
- authDomain:"YOUR_AUTH_DOMAIN",
- projectId:"YOUR_PROJECT_ID",
- storageBucket:"YOUR_STORAGE_BUCKET",
- messagingSenderId:"YOUR_SENDER_ID",
- appId:"YOUR_APP_ID"
-};
-firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
-function saveScore(){
- db.collection("scores").add({ score: score, time: Date.now() });
-}
-*/
-
-// ===== 啟動遊戲 =====
-grid=create();
-render();
+setupLevel();
 </script>
-
 </body>
 </html>
