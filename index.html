@@ -195,7 +195,7 @@ body{
     background: #ffeaea !important;
 }
 
-/* .disk 樣式：100% 圖片與 Emoji 保險 */
+/* 🛠️ ❺ (A) Swap fail 彈回與手感回彈特效優化 */
 .disk{
     width: 85%;
     height: 85%;
@@ -206,8 +206,8 @@ body{
     background-repeat: no-repeat;
     background-position: center;
     cursor: pointer;
-    pointer-events: none; /* 穿透點擊事件，由 cell 大網格精準掌控拖拽鏈路 */
-    transition: transform 0.15s cubic-bezier(0.25, 1, 0.5, 1);
+    pointer-events: none; 
+    transition: transform 0.18s cubic-bezier(.3, 1.5, .5, 1);
     
     font-size: 7.5vw;
     display: flex;
@@ -215,9 +215,8 @@ body{
     justify-content: center;
     filter: drop-shadow(0px 4px 3px rgba(0,0,0,0.22)); 
 }
-.disk:active { transform: scale(0.9); }
 
-/* 💣 3D炸彈地雷特效 */
+/* 💣 3D炸彈呼吸特效 */
 .bomb_3d { 
     background-image: url('https://img.icons8.com/color/96/bomb.png') !important; 
     animation: pulse 0.8s infinite alternate;
@@ -227,8 +226,28 @@ body{
     100% { transform: scale(1.1); filter: drop-shadow(0 0 10px #e74c3c); }
 }
 
-/* 💥 爆炸粒子位置 */
-.particle{
+/* 🌈 ❻ 彩虹球（5連特製樣式） */
+.rainbow_3d {
+    background-image: url('https://img.icons8.com/color/96/rainbow.png') !important;
+    animation: rainbowPulse 0.6s infinite alternate;
+}
+@keyframes rainbowPulse {
+    0% { transform: scale(1); filter: drop-shadow(0 0 4px #f1c40f); }
+    100% { transform: scale(1.15); filter: drop-shadow(0 0 12px #9b59b6); }
+}
+
+/* 🛠️ ❶ 爆炸動畫效能隔離管理層 (fx-layer) */
+#fx-layer {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+}
+
+.particle {
     position: absolute;
     font-size: 5vw; 
     pointer-events: none;
@@ -240,7 +259,7 @@ body{
     100% { transform: translate(var(--x),var(--y)) scale(0.5); opacity:0; }
 }
 
-/* ⏱️+加時與動態變色 Combo 飄字特效外殼 */
+/* ⏱️+加時與分數飄字特效外殼 */
 .time-bonus-text, .combo-bonus-text {
     position: absolute;
     font-weight: 900;
@@ -253,12 +272,14 @@ body{
     font-size: 20px;
     text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff;
 }
+/* 🛠️ ❺ (B) Combo文字立體縮放爆發質感 */
 .combo-bonus-text {
     font-size: 26px;
     text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 2px 2px 4px rgba(0,0,0,0.4);
+    transform: scale(1.3);
 }
 @keyframes floatUpUp {
-    0% { transform: translate(0, 0) scale(0.8); opacity: 1; }
+    0% { transform: translate(0, 0) scale(0.9); opacity: 1; }
     100% { transform: translate(0, -60px) scale(1.1); opacity: 0; }
 }
 
@@ -420,6 +441,7 @@ body{
     <div id="board" class="board"></div>
 </div>
 
+<!-- 🏆 全球排行榜彈窗 UI -->
 <div id="rankModal" class="rank-modal">
     <div class="rank-content">
         <div class="rank-title">🏆 全球神醫榜 (Top 10)</div>
@@ -440,6 +462,7 @@ body{
     </div>
 </div>
 
+<!-- 💀 客製化內嵌 Game Over 結算彈窗 UI -->
 <div id="gameOverModal" class="game-over-modal">
     <div class="game-over-content">
         <div class="go-title">💀 GAME OVER</div>
@@ -458,6 +481,9 @@ body{
     </div>
 </div>
 
+<!-- 🛠 shrink-layer 效能優化粒子集中地 -->
+<div id="fx-layer"></div>
+
 <div id="tipBox"></div>
 
 <script>
@@ -470,8 +496,9 @@ const database = firebase.database();
 
 const SIZE = 8;
 const BOMB = "bomb_3d";
+const RAINBOW = "rainbow_3d"; // ❻ 彩虹球定義
 
-// 20 款大滿貫官方 3D 用品清單
+// 20 款高清 3D 圖案庫定義
 const MASTER_ITEMS = {
     "kit_3d": { url: "https://img.icons8.com/color/96/first-aid-kit.png", text: "🧰" },
     "bottle_3d": { url: "https://img.icons8.com/color/96/medicine-bottle.png", text: "🧪" },
@@ -535,10 +562,12 @@ const carIconsEl=document.getElementById("car-icons");
 const timerBar=document.getElementById("timer-bar");
 const timerTextEl=document.getElementById("timer-text");
 const tipBox=document.getElementById("tipBox");
+const fxLayer = document.getElementById("fx-layer"); // ❶ 粒子統一圖層
 
+// 🔊 雙重效果音
 const sounds={
- match: new Audio("https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"),
- wrong: new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"),
+ match: new Audio("https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"), 
+ wrong: new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"), 
 };
 
 function playSound(s){
@@ -600,7 +629,7 @@ function startTimer() {
         timerBar.style.width = percentage + "%";
         timerTextEl.innerText = `剩餘時間: ${Math.max(0, timeLeft).toFixed(1)} 秒`;
         
-        // 🛠️ ❹ 視覺級精準 HSL 動態漸變（綠 -> 黃 -> 紅）
+        // ❹ 視覺級精準 HSL 動態漸變
         let ratio = timeLeft / maxTime;
         let hue = ratio * 120; 
         timerBar.style.background = `hsl(${hue}, 80%, 50%)`;
@@ -636,11 +665,14 @@ function showComboEffect(cell, comboCount) {
     comboText.style.top = offsetTop + "px";
     
     comboText.style.color = `hsl(${comboCount * 40}, 90%, 60%)`;
+    // ❺ (B) Combo 做 scale 質感爆發
+    comboText.style.transform = "scale(1.3)";
 
     document.body.appendChild(comboText);
     setTimeout(() => comboText.remove(), 1000);
 }
 
+// ❶ 粒子優化：全部綁定到統一的外層 fxLayer 管理，消除效能卡頓
 function explodeEffect(r,c){
  const cell=document.getElementById(`cell-${r}-${c}`);
  if(!cell) return;
@@ -662,7 +694,7 @@ function explodeEffect(r,c){
    p.style.setProperty("--x",x);
    p.style.setProperty("--y",y);
 
-   document.body.appendChild(p);
+   fxLayer.appendChild(p); // ❶ 容器統一接管
    setTimeout(()=>p.remove(),600);
  }
 }
@@ -707,14 +739,14 @@ function create(){
 function hasMatch(g){
     for(let r=0;r<SIZE;r++){
         for(let c=0;c<SIZE;c++){
-            if(c<=SIZE-3 && g[r][c] && g[r][c]!==BOMB && g[r][c]===g[r][c+1] && g[r][c]===g[r][c+2]) return true;
-            if(r<=SIZE-3 && g[r][c] && g[r][c]!==BOMB && g[r][c]===g[r+1][c] && g[r][c]===g[r+2][c]) return true;
+            if(g[r][c] === BOMB || g[r][c] === RAINBOW) continue;
+            if(c<=SIZE-3 && g[r][c] && g[r][c]===g[r][c+1] && g[r][c]===g[r][c+2]) return true;
+            if(r<=SIZE-3 && g[r][c] && g[r][c]===g[r+1][c] && g[r][c]===g[r+2][c]) return true;
         }
     }
     return false;
 }
 
-// 🛠️ ❷ 專業升級：計算全盤可行解數量，確保最少有 2-3 個 possible moves 提升開局可玩性
 function countPossibleMoves(g){
     let count = 0;
     for(let r=0;r<SIZE;r++){
@@ -725,7 +757,7 @@ function countPossibleMoves(g){
                 if(nr<SIZE && nc<SIZE){
                     [g[r][c],g[nr][nc]]=[g[nr][nc],g[r][c]];
                     if(hasMatch(g)) count++;
-                    [g[r][c],g[nr][nc]]=[g[nr][nc],g[r][c]]; // 還原
+                    [g[r][c],g[nr][nc]]=[g[nr][nc],g[r][c]]; 
                 }
             }
         }
@@ -737,7 +769,7 @@ function generateValidGrid() {
     let g;
     do {
         g = create();
-    } while (countPossibleMoves(g) < 2); // 🛠️ 確保最少有 2 步可走，絕不開局卡死
+    } while (countPossibleMoves(g) < 2); 
     return g;
 }
 
@@ -759,6 +791,8 @@ function render(){
        let d=document.createElement("div");
        if (cell === BOMB) {
            d.className = "disk bomb_3d";
+       } else if (cell === RAINBOW) {
+           d.className = "disk rainbow_3d"; // ❻ 彩虹球渲染
        } else {
            d.className = "disk " + cell;
            d.innerText = MASTER_ITEMS[cell] ? MASTER_ITEMS[cell].text : "";
@@ -770,7 +804,7 @@ function render(){
  });
 }
 
-// 🛠️ ❸ pointermove 動態流暢滑動連擊防手抖
+// ❺ Candy Crush 動態連續拖拽交換鏈路
 let startCell = null;
 let isSwapping = false;
 
@@ -792,9 +826,16 @@ board.addEventListener("pointermove", e=>{
     
     if(Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1) {
         isSwapping = true;
+        let savedStart = startCell;
         startCell = null; 
-        click(r1, c1);
-        click(r2, c2);
+        
+        // 🛠️ ❻ 彩虹球觸發判定：如果是彩虹球與普通色互換，直接觸發全清同色！
+        if(grid[r1][c1] === RAINBOW || grid[r2][c2] === RAINBOW) {
+            triggerRainbowExplode(r1, c1, r2, c2);
+        } else {
+            click(r1, c1);
+            click(r2, c2);
+        }
         
         setTimeout(() => {
             isSwapping = false;
@@ -805,6 +846,33 @@ board.addEventListener("pointermove", e=>{
 board.addEventListener("pointerup", () => {
     startCell = null;
 });
+
+// ❻ 彩虹球全屏爆破處理
+function triggerRainbowExplode(r1, c1, r2, c2) {
+    isAnimating = true;
+    let targetColor = (grid[r1][c1] === RAINBOW) ? grid[r2][c2] : grid[r1][c1];
+    
+    // 如果彩虹球跟炸彈或者另一個彩虹球換，隨機指定當前池子的一個色
+    if(!targetColor || targetColor === BOMB || targetColor === RAINBOW) {
+        targetColor = currentLevelTypes[Math.floor(Math.random() * currentLevelTypes.length)];
+    }
+
+    let toRemove = Array.from({length: SIZE}, () => Array(SIZE).fill(false));
+    toRemove[r1][c1] = true;
+    toRemove[r2][c2] = true;
+
+    for(let r=0; r<SIZE; r++) {
+        for(let c=0; c<SIZE; c++) {
+            if(grid[r][c] === targetColor || grid[r][c] === RAINBOW) {
+                toRemove[r][c] = true;
+            }
+        }
+    }
+
+    moves--;
+    document.getElementById("moves").innerText = moves;
+    executeEliminationStep(toRemove, 5); // 5連線爆破長度權重
+}
 
 function click(r,c){
  if(!last){
@@ -823,6 +891,13 @@ function click(r,c){
 
    setTimeout(() => {
        currentComboCount = 1; 
+       
+       if(grid[r][c] === RAINBOW || grid[last.r][last.c] === RAINBOW) {
+           triggerRainbowExplode(r, c, last.r, last.c);
+           last = null;
+           return;
+       }
+
        if(!checkMatchesAndEliminate()) {
            [grid[r][c],grid[last.r][last.c]]=[grid[last.r][last.c],grid[r][c]];
            playSound(sounds.wrong); 
@@ -849,7 +924,7 @@ function checkMatchesAndEliminate() {
  for(let r=0;r<SIZE;r++){
    let cnt = 1;
    for(let c=1;c<SIZE;c++){
-     if(grid[r][c] && grid[r][c] === grid[r][c-1] && grid[r][c] !== BOMB){
+     if(grid[r][c] && grid[r][c] === grid[r][c-1] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW){
        cnt++;
      } else {
        if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: c-cnt, len: cnt}); hasMatchFound = true; }
@@ -862,7 +937,7 @@ function checkMatchesAndEliminate() {
  for(let c=0;c<SIZE;c++){
    let cnt = 1;
    for(let r=1;r<SIZE;r++){
-     if(grid[r][c] && grid[r][c] === grid[r-1][c] && grid[r][c] !== BOMB){
+     if(grid[r][c] && grid[r][c] === grid[r-1][c] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW){
        cnt++;
      } else {
        if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: r-cnt, len: cnt}); hasMatchFound = true; }
@@ -878,7 +953,7 @@ function checkMatchesAndEliminate() {
        else { for(let i=0; i<m.len; i++) toRemove[m.startR + i][m.c] = true; }
    });
 
-   // 🛠️ ❶ 核心 Bug 修正：補上隱藏的括號包裹，確保 bombColor 連鎖引爆橫掃全盤邏輯百分百正確
+   // ❶ 修正括號包裹：Bomb 炸全盤同色
    for(let r=0; r<SIZE; r++) {
        for(let c=0; c<SIZE; c++) {
            if(toRemove[r][c] && grid[r][c] === BOMB) {
@@ -886,7 +961,7 @@ function checkMatchesAndEliminate() {
                let dirs = [[0,1],[1,0],[0,-1],[-1,0]];
                for(let [dr,dc] of dirs){
                    let nr=r+dr, nc=c+dc;
-                   if(nr>=0 && nr<SIZE && nc>=0 && nc<SIZE && grid[nr][nc] && grid[nr][nc] !== BOMB){
+                   if(nr>=0 && nr<SIZE && nc>=0 && nc<SIZE && grid[nr][nc] && grid[nr][nc] !== BOMB && grid[nr][nc] !== RAINBOW){
                        bombColor = grid[nr][nc];
                        break;
                    }
@@ -904,10 +979,20 @@ function checkMatchesAndEliminate() {
        }
    }
 
-   let removedCount = 0;
-   let targetCellEl = null;
    let maxLen = 3;
    matchObjects.forEach(m => { if(m.len > maxLen) maxLen = m.len; });
+
+   // 調用統一的清除渲染
+   executeEliminationStep(toRemove, maxLen, matchObjects);
+   return true;
+ }
+ return false;
+}
+
+// 封裝核心清除、計分、大道具 spawn 邏輯鏈條
+function executeEliminationStep(toRemove, maxLen, matchObjects = []) {
+   let removedCount = 0;
+   let targetCellEl = null;
 
    for(let r=0;r<SIZE;r++){
      for(let c=0;c<SIZE;c++){
@@ -924,10 +1009,19 @@ function checkMatchesAndEliminate() {
      }
    }
 
+   // ❹ 💥 spawn bomb/rainbow 細節優化與安全防空心鎖定
    matchObjects.forEach(m => {
        let spawnR = m.type === 'H' ? m.r : m.startR;
        let spawnC = m.type === 'H' ? m.startC : m.c;
-       if(m.len >= 4) grid[spawnR][spawnC] = BOMB; 
+       
+       // ❹ 修正：只有在該格被清空時，才補入新特殊道具
+       if(grid[spawnR][spawnC] === null) {
+           if(m.len === 4) {
+               grid[spawnR][spawnC] = BOMB; 
+           } else if(m.len >= 5) {
+               grid[spawnR][spawnC] = RAINBOW; // ❻ 5連發射彩虹球！
+           }
+       }
    });
 
    let addedTime = 1.5;
@@ -940,17 +1034,15 @@ function checkMatchesAndEliminate() {
        showComboEffect(targetCellEl, currentComboCount);
    }
 
+   // 計分加乘
    let roundScore = (removedCount * 100) * currentComboCount;
-   score += roundScore;
-   document.getElementById("score").innerText = score;
+   let newScore = score + roundScore;
+   animateScore(newScore); // ❺ (C) 調用平滑滾動計分動畫
 
    playSound(sounds.match); 
    vibrate(); 
    
    setTimeout(drop, 350); 
-   return true;
- }
- return false;
 }
 
 function autoCheckLoop() {
@@ -961,7 +1053,7 @@ function autoCheckLoop() {
     for(let r=0;r<SIZE;r++){
       let cnt = 1;
       for(let c=1;c<SIZE;c++){
-        if(grid[r][c] && grid[r][c] === grid[r][c-1] && grid[r][c] !== BOMB) cnt++;
+        if(grid[r][c] && grid[r][c] === grid[r][c-1] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW) cnt++;
         else {
           if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: c-cnt, len: cnt}); hasMatchFound=true; }
           cnt = 1;
@@ -972,7 +1064,7 @@ function autoCheckLoop() {
     for(let c=0;c<SIZE;c++){
       let cnt = 1;
       for(let r=1;r<SIZE;r++){
-        if(grid[r][c] && grid[r][c] === grid[r-1][c] && grid[r][c] !== BOMB) cnt++;
+        if(grid[r][c] && grid[r][c] === grid[r-1][c] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW) cnt++;
         else {
           if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: r-cnt, len: cnt}); hasMatchFound=true; }
           cnt = 1;
@@ -988,7 +1080,7 @@ function autoCheckLoop() {
             else { for(let i=0; i<m.len; i++) toRemove[m.startR + i][m.c] = true; }
         });
 
-        // 🛠️ ❶ 連鎖中的 Bomb 判定括號同步包裹修復
+        // 連鎖中的 💣 判定
         for(let r=0; r<SIZE; r++) {
             for(let c=0; c<SIZE; c++) {
                 if(toRemove[r][c] && grid[r][c] === BOMB) {
@@ -996,7 +1088,7 @@ function autoCheckLoop() {
                     let dirs = [[0,1],[1,0],[0,-1],[-1,0]];
                     for(let [dr,dc] of dirs){
                         let nr=r+dr, nc=c+dc;
-                        if(nr>=0 && nr<SIZE && nc>=0 && nc<SIZE && grid[nr][nc] && grid[nr][nc] !== BOMB){
+                        if(nr>=0 && nr<SIZE && nc>=0 && nc<SIZE && grid[nr][nc] && grid[nr][nc] !== BOMB && grid[nr][nc] !== RAINBOW){
                             bombColor = grid[nr][nc];
                             break;
                         }
@@ -1014,50 +1106,13 @@ function autoCheckLoop() {
             }
         }
 
-        let count = 0;
-        let targetCellEl = null;
         let maxLen = 3;
         matchObjects.forEach(m => { if(m.len > maxLen) maxLen = m.len; });
-
-        for(let r=0;r<SIZE;r++){
-          for(let c=0;c<SIZE;c++){
-            if(toRemove[r][c]) { 
-                explodeEffect(r,c); 
-                if(!targetCellEl) targetCellEl = document.getElementById(`cell-${r}-${c}`);
-                if(grid[r][c] === targetKey1 && mission[targetKey1] > 0) mission[targetKey1]--;
-                if(grid[r][c] === targetKey2 && mission[targetKey2] > 0) mission[targetKey2]--;
-                grid[r][c]=null; 
-                count++; 
-            }
-          }
-        }
-
-        matchObjects.forEach(m => {
-            let spawnR = m.type === 'H' ? m.r : m.startR;
-            let spawnC = m.type === 'H' ? m.startC : m.c;
-            if(m.len >= 4) grid[spawnR][spawnC] = BOMB;
-        });
-        
-        let addedTime = 1.5;
-        if(maxLen === 4) addedTime = 3.5;
-        if(maxLen >= 5 || count >= 7) addedTime = 6.0;
-        timeLeft = Math.min(maxTime, timeLeft + addedTime);
-        if(targetCellEl) {
-            showTimeBonusEffect(targetCellEl, addedTime);
-            showComboEffect(targetCellEl, currentComboCount);
-        }
-
-        let roundScore = (count * 100) * currentComboCount;
-        score += roundScore;
-        document.getElementById("score").innerText = score;
-
-        playSound(sounds.match);
-        vibrate();
-        setTimeout(drop, 350);
+        executeEliminationStep(toRemove, maxLen, matchObjects);
     } else {
         isAnimating = false; 
         
-        // 🛠️ ❷ 檢測死局：若無步數可行，自動發動高階防死局機制重整盤面
+        // 死局智能檢測重洗
         if(countPossibleMoves(grid) < 1 && moves > 0 && timeLeft > 0) {
             showTip("🚑 系統偵測到全盤無解死局！免費發動物資重新洗牌！");
             grid = generateValidGrid();
@@ -1068,24 +1123,44 @@ function autoCheckLoop() {
     }
 }
 
+// 🛠️ ❷ 指針高效填滿算法優化（高速一重迴圈指針，徹底杜絕白格漏洞）
 function drop(){
     let len = currentLevelTypes.length;
-    for(let c=0;c<SIZE;c++){
-        let col=[];
-        for(let r=0;r<SIZE;r++) {
+    for(let c=0; c<SIZE; c++) {
+        let pointer = SIZE - 1;
+        // 1. 由下往上將有值方塊歸位複寫
+        for(let r=SIZE-1; r>=0; r--) {
             if(grid[r][c] !== null && grid[r][c] !== undefined && grid[r][c] !== "") {
-                col.push(grid[r][c]);
+                grid[pointer][c] = grid[r][c];
+                pointer--;
             }
         }
-        while(col.length<SIZE) {
-            col.unshift(currentLevelTypes[Math.floor(Math.random()*len)]); 
-        }
-        for(let r=0;r<SIZE;r++) {
-            grid[r][c]=col[r];
+        // 2. 頂部剩下多少空位指針，100% 補充滿隨機方塊
+        while(pointer >= 0) {
+            grid[pointer][c] = currentLevelTypes[Math.floor(Math.random() * len)];
+            pointer--;
         }
     }
     render();
     setTimeout(autoCheckLoop, 150);
+}
+
+// ❺ (C) 滾動數字動畫計分函數
+function animateScore(newScore){
+    let start = score;
+    let diff = newScore - start;
+    if(diff === 0) return;
+    let step = 0;
+
+    let i = setInterval(()=>{
+        step++;
+        document.getElementById("score").innerText = Math.floor(start + diff * (step/10));
+        if(step>=10) {
+            clearInterval(i);
+            score = newScore; // 精確賦值終點分
+            document.getElementById("score").innerText = score;
+        }
+    }, 20);
 }
 
 function renderMission() {
@@ -1107,15 +1182,15 @@ function checkGameStatus(timeOut = false) {
         isAnimating = true;
         
         let speedBonus = Math.floor(timeLeft * 50);
-        score += speedBonus;
-        document.getElementById("score").innerText = score;
+        let newScore = score + speedBonus;
+        animateScore(newScore);
         
         setTimeout(() => {
             if(currentLevel >= 100) {
                 showTip("👑 逆天神蹟！你已成功攻克全部 100 關！");
                 triggerGameOverUI("👑 恭喜你完美通關 100 關，達成最高榮譽！");
             } else {
-                showTip("🎉 第 " + currentLevel + " 關通過！速度加分 +" + speedBonus);
+                showTip(`🎉 第 ${currentLevel} 關通過！速度加分 +${speedBonus}`);
                 currentLevel++; 
                 setupLevel();
             }
@@ -1319,13 +1394,6 @@ function showLeaderboardPopup() {
             tbody.appendChild(tr);
         });
     });
-}
-
-function closeLeaderboardPopup() {
-    document.getElementById("rankModal").style.display = "none";
-    if(document.getElementById("gameOverModal").style.display !== "flex") {
-        setupLevel();
-    }
 }
 
 // 啟動首關
