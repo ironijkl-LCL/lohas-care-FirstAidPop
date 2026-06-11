@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>First Aid Pop! 20款大滿貫終極流暢到位版</title>
+<title>First Aid Pop! 20款大滿貫終極滑動死局修復版</title>
 
 <style>
 body{
@@ -129,7 +129,7 @@ body{
     filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.15));
 }
 
-/* 🚑 救護車提示按鈕 */
+/* 橫向 🚑 救護車提示按鈕 */
 .btn-ambulance {
     background: linear-gradient(135deg, #34495e, #2c3e50);
     color: white;
@@ -210,6 +210,7 @@ body{
     background-repeat: no-repeat;
     background-position: center;
     cursor: pointer;
+    pointer-events: none; /* 🛠️ 核心機制：讓觸控事件完美穿透到 cell 父格，確保滑動手勢精確偵測 */
     transition: transform 0.1s ease;
     
     /* 3D 文字保險外觀特效 */
@@ -313,7 +314,7 @@ body{
     cursor: pointer; width: 100%; font-size: 15px;
 }
 
-/* 💀 網頁內嵌式客製化 Game Over 結算畫面 UI */
+/* 💀 網頁內嵌式客製化 Game Over 結算彈窗 UI */
 .game-over-modal {
     display: none;
     position: fixed;
@@ -478,7 +479,7 @@ const database = firebase.database();
 const SIZE = 8;
 const BOMB = "bomb_3d";
 
-// 🛠️ 20 款大滿貫高清 3D 圖案庫網址，精心優化校對，結合 Emoji 雙重保險技術
+// 🛠️ 20 款大滿貫高清 3D 圖案庫全定義（完美校對官方類名映射）
 const MASTER_ITEMS = {
     "kit_3d": { url: "https://img.icons8.com/color/96/first-aid-kit.png", text: "🧰" },
     "bottle_3d": { url: "https://img.icons8.com/color/96/medicine-bottle.png", text: "🧪" },
@@ -502,11 +503,11 @@ const MASTER_ITEMS = {
     "magnifier_3d": { url: "https://img.icons8.com/color/96/magnifying-glass-tilted-right.png", text: "🔍" }
 };
 
-// CSS 動態注入網址 (將底層字串邏輯同 CSS 外觀樣式完全分離，根治卡死 Bug)
+// CSS 動態外觀樣式注入 (完全隔離數據對照，消行不卡死)
 const styleSheet = document.createElement("style");
 let styleRules = "";
 for (let key in MASTER_ITEMS) {
-    styleRules += `.` + key + ` { background-image: url('${MASTER_ITEMS[key].url}'); }\n`;
+    styleRules += `.` + key + ` { background-image: url('${MASTER_ITEMS[key].url}') !important; }\n`;
 }
 styleSheet.innerText = styleRules;
 document.head.appendChild(styleSheet);
@@ -542,7 +543,7 @@ const timerBar=document.getElementById("timer-bar");
 const timerTextEl=document.getElementById("timer-text");
 const tipBox=document.getElementById("tipBox");
 
-// 🔊 修正音效控制
+// 🔊 新增效果音控制
 const sounds={
  match: new Audio("https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"), // 正確 ✅
  wrong: new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"), // 錯誤 ❌
@@ -617,6 +618,7 @@ function showTimeBonusEffect(r, c, addedTime) {
     const cell = document.getElementById(`cell-${r}-${c}`);
     if (!cell) return;
 
+    const rect = cell.getBoundingClientRect();
     const offsetLeft = cell.offsetLeft + cell.offsetWidth / 2 - 25;
     const offsetTop = cell.offsetTop + cell.offsetHeight / 2 - 15;
 
@@ -740,7 +742,7 @@ function render(){
            d.className = "disk bomb_3d";
        } else {
            d.className = "disk " + cell;
-           // 🛠️ 雙重保險技術：圖片載入失敗時背後顯示 3D Emoji，絕不留白
+           // 雙重保險文字
            d.innerText = MASTER_ITEMS[cell] ? MASTER_ITEMS[cell].text : "";
        }
        div.appendChild(d);
@@ -750,14 +752,38 @@ function render(){
  });
 }
 
+// 📱 跨格滑動 Touch 機制核心重構
+let startCell = null;
+
 board.addEventListener("pointerdown", e=>{
     if(isAnimating || moves<=0 || timeLeft <= 0) return;
-    let cell = e.target.closest(".cell");
-    if(!cell) return;
+    startCell = e.target.closest(".cell");
+});
+
+board.addEventListener("pointerup", e=>{
+    if(!startCell || isAnimating) return;
     
-    let r = parseInt(cell.dataset.r);
-    let c = parseInt(cell.dataset.c);
-    click(r, c);
+    // 💡 利用觸控點位置精確捕捉終點方塊
+    let touch = e.changedTouches ? e.changedTouches[0] : e;
+    let targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+    let endCell = targetEl ? targetEl.closest(".cell") : null;
+    
+    if(!endCell || startCell === endCell) {
+        startCell = null;
+        return;
+    }
+
+    let r1 = parseInt(startCell.dataset.r), c1 = parseInt(startCell.dataset.c);
+    let r2 = parseInt(endCell.dataset.r), c2 = parseInt(endCell.dataset.c);
+    
+    // 相鄰判定
+    if(Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1) {
+        click(r1, c1);
+        click(r2, c2);
+    } else {
+        playSound(sounds.wrong); 
+    }
+    startCell = null;
 });
 
 function click(r,c){
@@ -778,7 +804,6 @@ function click(r,c){
    setTimeout(() => {
        currentComboCount = 1; 
        if(!checkMatchesAndEliminate()) {
-           // 🛠️ 錯誤 ❌ 音效精確到位
            [grid[r][c],grid[last.r][last.c]]=[grid[last.r][last.c],grid[r][c]];
            playSound(sounds.wrong); 
            isAnimating = false;
@@ -833,6 +858,7 @@ function checkMatchesAndEliminate() {
        else { for(let i=0; i<m.len; i++) toRemove[m.startR + i][m.c] = true; }
    });
 
+   // 👉 核心修正：Bomb 直接炸全盤同色
    let targetExplodeTypes = new Set();
    for(let r=0; r<SIZE; r++) {
        for(let c=0; c<SIZE; c++) {
@@ -890,12 +916,12 @@ function checkMatchesAndEliminate() {
    showTimeBonusEffect(sampleR, sampleC, addedTime); 
    showComboEffect(sampleR, sampleC, currentComboCount);
 
-   // 🧮 基礎 100 分與 Combo 連鎖乘算
+   // 🧮 計分
    let roundScore = (removedCount * 100) * currentComboCount;
    score += roundScore;
    document.getElementById("score").innerText = score;
 
-   playSound(sounds.match); // 正確 ✅ 音效
+   playSound(sounds.match); 
    vibrate(); 
    
    setTimeout(drop, 350); 
@@ -933,7 +959,7 @@ function autoCheckLoop() {
     }
 
     if(hasMatchFound) {
-        currentComboCount++; // 連鎖反應，Combo 遞增
+        currentComboCount++; 
         matchObjects.forEach(m => {
             if(m.type === 'H') { for(let i=0; i<m.len; i++) toRemove[m.r][m.startC + i] = true; }
             else { for(let i=0; i<m.len; i++) toRemove[m.startR + i][m.c] = true; }
@@ -1000,11 +1026,18 @@ function autoCheckLoop() {
         setTimeout(drop, 350);
     } else {
         isAnimating = false; 
-        checkGameStatus(false);
+        
+        // 🛠️ 核心機制升級：每次連鎖徹底靜默結束後，自動觸發「智能防死局死鎖檢測」
+        if(scanForRescueHint() === null && moves > 0 && timeLeft > 0) {
+            showTip("🚑 系統偵測到全盤死局！免費為您智能重新洗牌！");
+            grid = create();
+            render();
+        } else {
+            checkGameStatus(false);
+        }
     }
 }
 
-/* 🛠️ 終極掉落演算法（絕不卡死、完美填滿漏洞） */
 function drop(){
     let len = currentLevelTypes.length;
     for(let c=0;c<SIZE;c++){
@@ -1029,17 +1062,17 @@ function renderMission() {
     const missionEl = document.getElementById("mission");
     if(!targetKey1 || !targetKey2) return;
     missionEl.innerHTML = `
-        <span class="mission-icon" style="background-image:url('${MASTER_ITEMS[targetKey1].url}')">${MASTER_ITEMS[targetKey1].text}</span> 目標剩餘: ${mission[targetKey1]} ｜ 
-        <span class="mission-icon" style="background-image:url('${MASTER_ITEMS[targetKey2].url}')">${MASTER_ITEMS[targetKey2].text}</span> 目標剩餘: ${mission[targetKey2]}
+        <span class="mission-icon" style="background-image:url('${MASTER_ITEMS[targetKey1]}')"></span> 目標剩餘: ${mission[targetKey1]} ｜ 
+        <span class="mission-icon" style="background-image:url('${MASTER_ITEMS[targetKey2]}')"></span> 目標剩餘: ${mission[targetKey2]}
     `;
 }
 
+// 結算判定
 function checkGameStatus(timeOut = false) {
     if (mission[targetKey1] <= 0 && mission[targetKey2] <= 0) {
         clearInterval(timerInterval);
         isAnimating = true;
         
-        // ⏱️ 速度加分 (1秒 = 50分)
         let speedBonus = Math.floor(timeLeft * 50);
         score += speedBonus;
         document.getElementById("score").innerText = score;
@@ -1050,7 +1083,7 @@ function checkGameStatus(timeOut = false) {
                 triggerGameOverUI("👑 恭喜你完美通關 100 關，達成最高榮譽！");
             } else {
                 showTip(`🎉 第 ${currentLevel} 關通過！速度加分 +${speedBonus}`);
-                currentLevel++; // 🎮 Level 自動提升
+                currentLevel++; 
                 setupLevel();
             }
         }, 300);
@@ -1088,7 +1121,6 @@ function restartWholeGame() {
     setupLevel();
 }
 
-/* 🎲 隨機按鈕功能（打亂物資不扣步數） */
 function userTriggerShuffle() {
     if(isAnimating || moves <= 0 || timeLeft <= 0) return;
     showTip("🎲 正在重新調配盤面物資...");
@@ -1100,7 +1132,6 @@ function setupLevel() {
     board.style.filter = "none";
     document.getElementById("current-level").innerText = currentLevel;
     
-    // 關卡分批輪換用品池：Lv1-5(5款), Lv6-15(7款), Lv16+(8款)
     let poolSize = 5;
     if(currentLevel >= 6 && currentLevel <= 15) poolSize = 7;
     if(currentLevel >= 16) poolSize = 8;
@@ -1117,7 +1148,6 @@ function setupLevel() {
     mission[targetKey1] = targetCount;
     mission[targetKey2] = targetCount;
 
-    // ⏱️ 時間逐步變短增加難度
     moves = Math.min(45, 35 + Math.floor((currentLevel - 1) / 8));
     document.getElementById("moves").innerText = moves;
     
@@ -1161,7 +1191,7 @@ function scanForRescueHint(){
                     }
                     for(let tc=0;tc<SIZE;tc++){
                       for(let tr=0;tr<SIZE-2;tr++){
-                        if(grid[tr][tc] && grid[tr][tc]===grid[tr+1][tc] && grid[tr][tc]===grid[tr+2][tc]) hasMatchFound = true;
+                        if(grid[tr][tc] && grid[tr][tc]===grid[tr+1][tc] && grid[tr][tc]&&grid[tr][tc]===grid[tr+2][tc]) hasMatchFound = true;
                       }
                     }
                     [grid[r][c],grid[nr][nc]]=[grid[nr][nc],grid[r][c]]; 
@@ -1173,6 +1203,7 @@ function scanForRescueHint(){
     return null;
 }
 
+/* 🚑 智能解法掃描：點擊救護車依然可以獲取高光黃金閃爍提示 */
 function useAmbulanceRescue() {
     if(rescueMovesLeft <= 0 || isAnimating || moves <= 0 || timeLeft <= 0) return;
     let hint = scanForRescueHint();
@@ -1207,7 +1238,8 @@ function useAmbulanceRescue() {
             isAnimating = false;
         }, 1200); 
     } else {
-        showTip("🚑 無可行解，自動重新洗牌！");
+        // 保險備用重置
+        showTip("🚑 當前盤面已自動完成洗牌優化！");
         grid = create();
         render();
     }
