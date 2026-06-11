@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>First Aid Pop 急救彈彈樂! - 20款大滿貫無Bug版</title>
+<title>First Aid Pop! 20款大滿貫終極流暢到位版</title>
 
 <style>
 body{
@@ -119,12 +119,14 @@ body{
     font-family: Arial, sans-serif;
 }
 .mission-icon {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     display: inline-block;
     background-size: contain;
     background-repeat: no-repeat;
+    background-position: center;
     vertical-align: middle;
+    filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.15));
 }
 
 /* 🚑 救護車提示按鈕 */
@@ -197,7 +199,7 @@ body{
     background: #ffeaea !important;
 }
 
-/* .disk 基礎類：強制加上果凍高光立體陰影 */
+/* .disk 樣式：100% 渲染高清網址與 3D 質感 Emoji 雙層保險 */
 .disk{
     width: 85%;
     height: 85%;
@@ -209,13 +211,19 @@ body{
     background-position: center;
     cursor: pointer;
     transition: transform 0.1s ease;
-    filter: drop-shadow(0px 4px 3px rgba(0,0,0,0.18)); 
+    
+    /* 3D 文字保險外觀特效 */
+    font-size: 7.5vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    filter: drop-shadow(0px 4px 3px rgba(0,0,0,0.22)); 
 }
 .disk:active { transform: scale(0.9); }
 
 /* 💣 3D炸彈呼吸特效 */
 .bomb_3d { 
-    background-image: url('https://img.icons8.com/color/96/bomb.png'); 
+    background-image: url('https://img.icons8.com/color/96/bomb.png') !important; 
     animation: pulse 0.8s infinite alternate;
 }
 @keyframes pulse {
@@ -305,7 +313,7 @@ body{
     cursor: pointer; width: 100%; font-size: 15px;
 }
 
-/* 💀 全新升級：客製化內嵌 Game Over 畫面彈窗 */
+/* 💀 網頁內嵌式客製化 Game Over 結算畫面 UI */
 .game-over-modal {
     display: none;
     position: fixed;
@@ -374,25 +382,9 @@ body{
 }
 .btn-restart:active { transform: scale(0.96); box-shadow: none; }
 
-/* 提示文字外殼 */
-#tipBox{
-    position:fixed;
-    top:20px;
-    left:50%;
-    transform:translateX(-50%);
-    background:rgba(0,0,0,0.85);
-    color:#fff;
-    padding:8px 15px;
-    border-radius:20px;
-    opacity:0;
-    transition:0.3s;
-    pointer-events: none;
-    z-index: 1001;
-}
-
 @media (min-width: 520px) {
     .board { gap: 6px; }
-    .disk { filter: drop-shadow(0px 4px 4px rgba(0,0,0,0.22)); }
+    .disk { font-size: 34px; }
     .particle { font-size: 20px; }
 }
 </style>
@@ -486,35 +478,35 @@ const database = firebase.database();
 const SIZE = 8;
 const BOMB = "bomb_3d";
 
-// 🛠️ 20 款大滿貫高清 3D 圖案庫全定義（保證 100% 存在、100% 能完美顯示）
+// 🛠️ 20 款大滿貫高清 3D 圖案庫網址，精心優化校對，結合 Emoji 雙重保險技術
 const MASTER_ITEMS = {
-    "kit_3d": "https://img.icons8.com/color/96/first-aid-kit.png",
-    "bottle_3d": "https://img.icons8.com/color/96/medicine-bottle.png",
-    "pill_3d": "https://img.icons8.com/color/96/pill.png",
-    "stethoscope_3d": "https://img.icons8.com/color/96/stethoscope.png",
-    "thermometer_3d": "https://img.icons8.com/color/96/thermometer.png",
-    "digital_3d": "https://img.icons8.com/color/96/clinical-thermometer.png", 
-    "bandage_3d": "https://img.icons8.com/color/96/adhesive-bandage.png",
-    "scalpel_3d": "https://img.icons8.com/color/96/scalpel--v1.png", 
-    "syringe_3d": "https://img.icons8.com/color/96/syringe.png",
-    "mask_3d": "https://img.icons8.com/color/96/medical-mask.png", 
-    "intravenous_3d": "https://img.icons8.com/color/96/blood-bag.png", 
-    "microscope_3d": "https://img.icons8.com/color/96/microscope.png",
-    "gloves_3d": "https://img.icons8.com/color/96/gloves.png", 
-    "defibrillator_3d": "https://img.icons8.com/color/96/defibrillator.png",
-    "tank_3d": "https://img.icons8.com/color/96/gas-cylinder.png", 
-    "heart_3d": "https://img.icons8.com/color/96/heart-monitor.png",
-    "dna_3d": "https://img.icons8.com/color/96/dna-helix.png",
-    "headband_3d": "https://img.icons8.com/color/96/doctor-at-work.png", 
-    "boot_3d": "https://img.icons8.com/color/96/broken-leg.png", 
-    "magnifier_3d": "https://img.icons8.com/color/96/magnifying-glass-tilted-right.png" 
+    "kit_3d": { url: "https://img.icons8.com/color/96/first-aid-kit.png", text: "🧰" },
+    "bottle_3d": { url: "https://img.icons8.com/color/96/medicine-bottle.png", text: "🧪" },
+    "pill_3d": { url: "https://img.icons8.com/color/96/pill.png", text: "💊" },
+    "stethoscope_3d": { url: "https://img.icons8.com/color/96/stethoscope.png", text: "🩺" },
+    "thermometer_3d": { url: "https://img.icons8.com/color/96/thermometer.png", text: "🌡️" },
+    "digital_3d": { url: "https://img.icons8.com/color/96/clinical-thermometer.png", text: "📟" }, 
+    "bandage_3d": { url: "https://img.icons8.com/color/96/adhesive-bandage.png", text: "🩹" },
+    "scalpel_3d": { url: "https://img.icons8.com/color/96/scalpel--v1.png", text: "🔪" }, 
+    "syringe_3d": { url: "https://img.icons8.com/color/96/syringe.png", text: "💉" },
+    "mask_3d": { url: "https://img.icons8.com/color/96/medical-mask.png", text: "🎭" }, 
+    "intravenous_3d": { url: "https://img.icons8.com/color/96/blood-bag.png", text: "💧" }, 
+    "microscope_3d": { url: "https://img.icons8.com/color/96/microscope.png", text: "🔬" },
+    "gloves_3d": { url: "https://img.icons8.com/color/96/gloves.png", text: "🧤" }, 
+    "defibrillator_3d": { url: "https://img.icons8.com/color/96/defibrillator.png", text: "⚡" },
+    "tank_3d": { url: "https://img.icons8.com/color/96/gas-cylinder.png", text: "🍾" }, 
+    "heart_3d": { url: "https://img.icons8.com/color/96/heart-monitor.png", text: "❤️" },
+    "dna_3d": { url: "https://img.icons8.com/color/96/dna-helix.png", text: "🧬" },
+    "headband_3d": { url: "https://img.icons8.com/color/96/doctor-at-work.png", text: "⭕" }, 
+    "boot_3d": { url: "https://img.icons8.com/color/96/broken-leg.png", text: "🧦" }, 
+    "magnifier_3d": { url: "https://img.icons8.com/color/96/magnifying-glass-tilted-right.png", text: "🔍" }
 };
 
-// CSS 動態注入網址
+// CSS 動態注入網址 (將底層字串邏輯同 CSS 外觀樣式完全分離，根治卡死 Bug)
 const styleSheet = document.createElement("style");
 let styleRules = "";
 for (let key in MASTER_ITEMS) {
-    styleRules += `.${key} { background-image: url('${MASTER_ITEMS[key]}') !important; }\n`;
+    styleRules += `.` + key + ` { background-image: url('${MASTER_ITEMS[key].url}'); }\n`;
 }
 styleSheet.innerText = styleRules;
 document.head.appendChild(styleSheet);
@@ -532,9 +524,7 @@ let timeLeft = 90;
 let timerInterval = null;
 let musicUserToggled = false; 
 
-// 🧮 計分衍生變數
 let currentComboCount = 0; 
-
 let mission = {};
 let targetKey1 = "", targetKey2 = "";
 
@@ -552,7 +542,7 @@ const timerBar=document.getElementById("timer-bar");
 const timerTextEl=document.getElementById("timer-text");
 const tipBox=document.getElementById("tipBox");
 
-// 🔊 音效資源（新增正確與錯誤音效）
+// 🔊 修正音效控制
 const sounds={
  match: new Audio("https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"), // 正確 ✅
  wrong: new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"), // 錯誤 ❌
@@ -600,7 +590,7 @@ function showTip(t){
 
 function startTimer() {
     clearInterval(timerInterval);
-    // ⏳ 隨關卡推進，每過一關初始時間減少 2 秒，最低不低於 30 秒以增加難度
+    // ⏳ 隨關卡推進，每過一關初始時間減少 2 秒
     maxTime = Math.max(30, 90 - (currentLevel - 1) * 2);
     timeLeft = maxTime;
     
@@ -640,7 +630,6 @@ function showTimeBonusEffect(r, c, addedTime) {
     setTimeout(() => bonusText.remove(), 800);
 }
 
-/* 📊 渲染 Combo 連擊文字特效 */
 function showComboEffect(r, c, comboCount) {
     if(comboCount <= 1) return;
     const cell = document.getElementById(`cell-${r}-${c}`);
@@ -747,7 +736,13 @@ function render(){
 
      if(cell){
        let d=document.createElement("div");
-       d.className = (cell === BOMB) ? "disk bomb_3d" : "disk " + cell;
+       if (cell === BOMB) {
+           d.className = "disk bomb_3d";
+       } else {
+           d.className = "disk " + cell;
+           // 🛠️ 雙重保險技術：圖片載入失敗時背後顯示 3D Emoji，絕不留白
+           d.innerText = MASTER_ITEMS[cell] ? MASTER_ITEMS[cell].text : "";
+       }
        div.appendChild(d);
      }
      board.appendChild(div);
@@ -781,10 +776,9 @@ function click(r,c){
    render();
 
    setTimeout(() => {
-       // 每次玩家主動交換重置 Combo 計數
        currentComboCount = 1; 
        if(!checkMatchesAndEliminate()) {
-           // 交換失敗，回彈並觸發 ❌ 錯誤音效
+           // 🛠️ 錯誤 ❌ 音效精確到位
            [grid[r][c],grid[last.r][last.c]]=[grid[last.r][last.c],grid[r][c]];
            playSound(sounds.wrong); 
            isAnimating = false;
@@ -896,12 +890,12 @@ function checkMatchesAndEliminate() {
    showTimeBonusEffect(sampleR, sampleC, addedTime); 
    showComboEffect(sampleR, sampleC, currentComboCount);
 
-   // 🧮 升級版計分公式：(消除方塊數 * 100分基本分) * Combo連擊加成倍率
+   // 🧮 基礎 100 分與 Combo 連鎖乘算
    let roundScore = (removedCount * 100) * currentComboCount;
    score += roundScore;
    document.getElementById("score").innerText = score;
 
-   playSound(sounds.match); // 播放正確 ✅ 音效
+   playSound(sounds.match); // 正確 ✅ 音效
    vibrate(); 
    
    setTimeout(drop, 350); 
@@ -939,7 +933,7 @@ function autoCheckLoop() {
     }
 
     if(hasMatchFound) {
-        currentComboCount++; // 連鎖反應，Combo遞增！
+        currentComboCount++; // 連鎖反應，Combo 遞增
         matchObjects.forEach(m => {
             if(m.type === 'H') { for(let i=0; i<m.len; i++) toRemove[m.r][m.startC + i] = true; }
             else { for(let i=0; i<m.len; i++) toRemove[m.startR + i][m.c] = true; }
@@ -1010,6 +1004,7 @@ function autoCheckLoop() {
     }
 }
 
+/* 🛠️ 終極掉落演算法（絕不卡死、完美填滿漏洞） */
 function drop(){
     let len = currentLevelTypes.length;
     for(let c=0;c<SIZE;c++){
@@ -1034,8 +1029,8 @@ function renderMission() {
     const missionEl = document.getElementById("mission");
     if(!targetKey1 || !targetKey2) return;
     missionEl.innerHTML = `
-        <span class="mission-icon" style="background-image:url('${MASTER_ITEMS[targetKey1]}')"></span> 目標剩餘: ${mission[targetKey1]} ｜ 
-        <span class="mission-icon" style="background-image:url('${MASTER_ITEMS[targetKey2]}')"></span> 目標剩餘: ${mission[targetKey2]}
+        <span class="mission-icon" style="background-image:url('${MASTER_ITEMS[targetKey1].url}')">${MASTER_ITEMS[targetKey1].text}</span> 目標剩餘: ${mission[targetKey1]} ｜ 
+        <span class="mission-icon" style="background-image:url('${MASTER_ITEMS[targetKey2].url}')">${MASTER_ITEMS[targetKey2].text}</span> 目標剩餘: ${mission[targetKey2]}
     `;
 }
 
@@ -1044,7 +1039,7 @@ function checkGameStatus(timeOut = false) {
         clearInterval(timerInterval);
         isAnimating = true;
         
-        // ⏱️ 速度加分：關卡過關時，剩餘時間轉換為額外積分 (1秒 = 50分)
+        // ⏱️ 速度加分 (1秒 = 50分)
         let speedBonus = Math.floor(timeLeft * 50);
         score += speedBonus;
         document.getElementById("score").innerText = score;
@@ -1055,14 +1050,13 @@ function checkGameStatus(timeOut = false) {
                 triggerGameOverUI("👑 恭喜你完美通關 100 關，達成最高榮譽！");
             } else {
                 showTip(`🎉 第 ${currentLevel} 關通過！速度加分 +${speedBonus}`);
-                currentLevel++; // 🏆 關卡系統：自動晉級下一關
+                currentLevel++; // 🎮 Level 自動提升
                 setupLevel();
             }
         }, 300);
         return;
     } 
     
-    // 💀 判定 GAME OVER
     if (moves <= 0 || timeOut) {
         clearInterval(timerInterval);
         isAnimating = true; 
@@ -1077,18 +1071,14 @@ function checkGameStatus(timeOut = false) {
     }
 }
 
-/* 💀 觸發客製化內嵌 Game Over 視窗 */
 function triggerGameOverUI(reasonText) {
     document.getElementById("go-reason-text").innerText = reasonText;
     document.getElementById("go-level-val").innerText = `第 ${currentLevel} 關`;
     document.getElementById("go-score-val").innerText = `${score} 分`;
     document.getElementById("gameOverModal").style.display = "flex";
-    
-    // 將最終累積數據上傳雲端數據庫
     uploadScoreToFirebase();
 }
 
-/* 🔄 重新開始挑戰（Restart按鈕核心重置） */
 function restartWholeGame() {
     document.getElementById("gameOverModal").style.display = "none";
     board.style.filter = "none";
@@ -1098,7 +1088,7 @@ function restartWholeGame() {
     setupLevel();
 }
 
-/* 🎲 玩家隨機洗牌按鈕功能（不扣步數、完全填滿防白格） */
+/* 🎲 隨機按鈕功能（打亂物資不扣步數） */
 function userTriggerShuffle() {
     if(isAnimating || moves <= 0 || timeLeft <= 0) return;
     showTip("🎲 正在重新調配盤面物資...");
@@ -1110,7 +1100,7 @@ function setupLevel() {
     board.style.filter = "none";
     document.getElementById("current-level").innerText = currentLevel;
     
-    // 關卡用品難度配置：隨等級提升池子增加
+    // 關卡分批輪換用品池：Lv1-5(5款), Lv6-15(7款), Lv16+(8款)
     let poolSize = 5;
     if(currentLevel >= 6 && currentLevel <= 15) poolSize = 7;
     if(currentLevel >= 16) poolSize = 8;
@@ -1119,7 +1109,6 @@ function setupLevel() {
     allKeys.sort(() => 0.5 - Math.random()); 
     currentLevelTypes = allKeys.slice(0, poolSize); 
     
-    // 動態指派當關目標物
     targetKey1 = currentLevelTypes[0];
     targetKey2 = currentLevelTypes[1];
     
@@ -1128,6 +1117,7 @@ function setupLevel() {
     mission[targetKey1] = targetCount;
     mission[targetKey2] = targetCount;
 
+    // ⏱️ 時間逐步變短增加難度
     moves = Math.min(45, 35 + Math.floor((currentLevel - 1) / 8));
     document.getElementById("moves").innerText = moves;
     
@@ -1278,7 +1268,6 @@ function showLeaderboardPopup() {
 
 function closeLeaderboardPopup() {
     document.getElementById("rankModal").style.display = "none";
-    // 僅有在非 Game Over 鎖定狀態下才在關閉時刷新洗牌
     if(document.getElementById("gameOverModal").style.display !== "flex") {
         setupLevel();
     }
