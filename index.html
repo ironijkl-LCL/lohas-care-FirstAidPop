@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>First Aid Pop! 20款大滿貫終極滑動死局修復版</title>
+<title>First Aid Pop! 20款大滿貫神級極致流暢版</title>
 
 <style>
 body{
@@ -73,11 +73,7 @@ body{
 .timer-bar {
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, #2ecc71, #27ae60);
-    transition: width 0.1s linear, background-color 0.3s ease;
-}
-.timer-warning {
-    background: linear-gradient(90deg, #e74c3c, #c0392b) !important;
+    transition: width 0.1s linear;
 }
 .timer-text {
     font-size: 14px;
@@ -126,10 +122,9 @@ body{
     background-repeat: no-repeat;
     background-position: center;
     vertical-align: middle;
-    filter: drop-shadow(0px 2px 2px rgba(0,0,0,0.15));
 }
 
-/* 橫向 🚑 救護車提示按鈕 */
+/* 🚑 救護車提示按鈕 */
 .btn-ambulance {
     background: linear-gradient(135deg, #34495e, #2c3e50);
     color: white;
@@ -172,6 +167,7 @@ body{
 
 /* 自動彈性棋盤 */
 .board{
+    position: relative;
     display: grid;
     grid-template-columns: repeat(8, 1fr); 
     gap: 1.5vw; 
@@ -199,7 +195,7 @@ body{
     background: #ffeaea !important;
 }
 
-/* .disk 樣式：100% 渲染高清網址與 3D 質感 Emoji 雙層保險 */
+/* .disk 樣式：100% 圖片與 Emoji 保險 */
 .disk{
     width: 85%;
     height: 85%;
@@ -210,10 +206,9 @@ body{
     background-repeat: no-repeat;
     background-position: center;
     cursor: pointer;
-    pointer-events: none; /* 🛠️ 核心機制：讓觸控事件完美穿透到 cell 父格，確保滑動手勢精確偵測 */
-    transition: transform 0.1s ease;
+    pointer-events: none; /* 穿透點擊事件，由 cell 大網格精準掌控拖拽鏈路 */
+    transition: transform 0.15s cubic-bezier(0.25, 1, 0.5, 1);
     
-    /* 3D 文字保險外觀特效 */
     font-size: 7.5vw;
     display: flex;
     align-items: center;
@@ -222,7 +217,7 @@ body{
 }
 .disk:active { transform: scale(0.9); }
 
-/* 💣 3D炸彈呼吸特效 */
+/* 💣 3D炸彈地雷特效 */
 .bomb_3d { 
     background-image: url('https://img.icons8.com/color/96/bomb.png') !important; 
     animation: pulse 0.8s infinite alternate;
@@ -245,30 +240,26 @@ body{
     100% { transform: translate(var(--x),var(--y)) scale(0.5); opacity:0; }
 }
 
-/* ⏱️+加時與分數浮動文字動畫 */
-.time-bonus-text {
+/* ⏱️+加時與動態變色 Combo 飄字特效外殼 */
+.time-bonus-text, .combo-bonus-text {
     position: absolute;
-    color: #2ecc71;
     font-weight: 900;
+    pointer-events: none;
+    z-index: 1005;
+    animation: floatUpUp 0.9s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+.time-bonus-text {
+    color: #2ecc71;
     font-size: 20px;
     text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff;
-    pointer-events: none;
-    z-index: 1000;
-    animation: floatUp 0.8s ease-out forwards;
 }
 .combo-bonus-text {
-    position: absolute;
-    color: #f1c40f;
-    font-weight: 900;
-    font-size: 24px;
-    text-shadow: 2px 2px 0px #000;
-    pointer-events: none;
-    z-index: 1001;
-    animation: floatUp 1s ease-out forwards;
+    font-size: 26px;
+    text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 2px 2px 4px rgba(0,0,0,0.4);
 }
-@keyframes floatUp {
-    0% { transform: translate(0, 0); opacity: 1; }
-    100% { transform: translate(0, -50px); opacity: 0; }
+@keyframes floatUpUp {
+    0% { transform: translate(0, 0) scale(0.8); opacity: 1; }
+    100% { transform: translate(0, -60px) scale(1.1); opacity: 0; }
 }
 
 /* 🏆 全球排名榜彈窗 UI */
@@ -314,7 +305,7 @@ body{
     cursor: pointer; width: 100%; font-size: 15px;
 }
 
-/* 💀 網頁內嵌式客製化 Game Over 結算彈窗 UI */
+/* 💀 網頁內嵌式客製化 Game Over 結算畫面 UI */
 .game-over-modal {
     display: none;
     position: fixed;
@@ -390,6 +381,7 @@ body{
 }
 </style>
 
+<!-- Firebase Realtime Database SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 </head>
@@ -479,7 +471,7 @@ const database = firebase.database();
 const SIZE = 8;
 const BOMB = "bomb_3d";
 
-// 🛠️ 20 款大滿貫高清 3D 圖案庫全定義（完美校對官方類名映射）
+// 20 款大滿貫官方 3D 用品清單
 const MASTER_ITEMS = {
     "kit_3d": { url: "https://img.icons8.com/color/96/first-aid-kit.png", text: "🧰" },
     "bottle_3d": { url: "https://img.icons8.com/color/96/medicine-bottle.png", text: "🧪" },
@@ -503,11 +495,12 @@ const MASTER_ITEMS = {
     "magnifier_3d": { url: "https://img.icons8.com/color/96/magnifying-glass-tilted-right.png", text: "🔍" }
 };
 
-// CSS 動態外觀樣式注入 (完全隔離數據對照，消行不卡死)
+// CSS 動態注入
 const styleSheet = document.createElement("style");
 let styleRules = "";
 for (let key in MASTER_ITEMS) {
-    styleRules += `.` + key + ` { background-image: url('${MASTER_ITEMS[key].url}') !important; }\n`;
+    styleRules += `.` + key + ` { background-image: url('${MASTER_ITEMS[key].url}'); }
+`;
 }
 styleSheet.innerText = styleRules;
 document.head.appendChild(styleSheet);
@@ -543,10 +536,9 @@ const timerBar=document.getElementById("timer-bar");
 const timerTextEl=document.getElementById("timer-text");
 const tipBox=document.getElementById("tipBox");
 
-// 🔊 新增效果音控制
 const sounds={
- match: new Audio("https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"), // 正確 ✅
- wrong: new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"), // 錯誤 ❌
+ match: new Audio("https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"),
+ wrong: new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"),
 };
 
 function playSound(s){
@@ -591,7 +583,6 @@ function showTip(t){
 
 function startTimer() {
     clearInterval(timerInterval);
-    // ⏳ 隨關卡推進，每過一關初始時間減少 2 秒
     maxTime = Math.max(30, 90 - (currentLevel - 1) * 2);
     timeLeft = maxTime;
     
@@ -609,18 +600,18 @@ function startTimer() {
         timerBar.style.width = percentage + "%";
         timerTextEl.innerText = `剩餘時間: ${Math.max(0, timeLeft).toFixed(1)} 秒`;
         
-        if (timeLeft <= 10) timerBar.classList.add("timer-warning");
-        else timerBar.classList.remove("timer-warning");
+        // 🛠️ ❹ 視覺級精準 HSL 動態漸變（綠 -> 黃 -> 紅）
+        let ratio = timeLeft / maxTime;
+        let hue = ratio * 120; 
+        timerBar.style.background = `hsl(${hue}, 80%, 50%)`;
     }, 100);
 }
 
-function showTimeBonusEffect(r, c, addedTime) {
-    const cell = document.getElementById(`cell-${r}-${c}`);
+function showTimeBonusEffect(cell, addedTime) {
     if (!cell) return;
-
     const rect = cell.getBoundingClientRect();
-    const offsetLeft = cell.offsetLeft + cell.offsetWidth / 2 - 25;
-    const offsetTop = cell.offsetTop + cell.offsetHeight / 2 - 15;
+    const offsetLeft = rect.left + window.scrollX + cell.offsetWidth / 2 - 25;
+    const offsetTop = rect.top + window.scrollY + cell.offsetHeight / 2 - 15;
 
     let bonusText = document.createElement("div");
     bonusText.className = "time-bonus-text";
@@ -628,25 +619,25 @@ function showTimeBonusEffect(r, c, addedTime) {
     bonusText.style.left = offsetLeft + "px";
     bonusText.style.top = offsetTop + "px";
 
-    gameContainer.appendChild(bonusText);
+    document.body.appendChild(bonusText);
     setTimeout(() => bonusText.remove(), 800);
 }
 
-function showComboEffect(r, c, comboCount) {
-    if(comboCount <= 1) return;
-    const cell = document.getElementById(`cell-${r}-${c}`);
-    if (!cell) return;
-
-    const offsetLeft = cell.offsetLeft + cell.offsetWidth / 2 - 40;
-    const offsetTop = cell.offsetTop + cell.offsetHeight / 2 - 30;
+function showComboEffect(cell, comboCount) {
+    if(comboCount <= 1 || !cell) return;
+    const rect = cell.getBoundingClientRect();
+    const offsetLeft = rect.left + window.scrollX + cell.offsetWidth / 2 - 40;
+    const offsetTop = rect.top + window.scrollY + cell.offsetHeight / 2 - 30;
 
     let comboText = document.createElement("div");
     comboText.className = "combo-bonus-text";
-    comboText.innerText = `${comboCount} COMBO!`;
+    comboText.innerText = `${comboCount} COMBO 🔥`;
     comboText.style.left = offsetLeft + "px";
     comboText.style.top = offsetTop + "px";
+    
+    comboText.style.color = `hsl(${comboCount * 40}, 90%, 60%)`;
 
-    gameContainer.appendChild(comboText);
+    document.body.appendChild(comboText);
     setTimeout(() => comboText.remove(), 1000);
 }
 
@@ -654,8 +645,9 @@ function explodeEffect(r,c){
  const cell=document.getElementById(`cell-${r}-${c}`);
  if(!cell) return;
 
- const offsetLeft = cell.offsetLeft + cell.offsetWidth / 2 - 10;
- const offsetTop = cell.offsetTop + cell.offsetHeight / 2 - 10;
+ const rect = cell.getBoundingClientRect();
+ const offsetLeft = rect.left + window.scrollX + cell.offsetWidth / 2 - 10;
+ const offsetTop = rect.top + window.scrollY + cell.offsetHeight / 2 - 10;
  const spreadRange = window.innerWidth < 520 ? window.innerWidth * 0.2 : 60;
 
  for(let i=0;i<8;i++){
@@ -670,7 +662,7 @@ function explodeEffect(r,c){
    p.style.setProperty("--x",x);
    p.style.setProperty("--y",y);
 
-   gameContainer.appendChild(p);
+   document.body.appendChild(p);
    setTimeout(()=>p.remove(),600);
  }
 }
@@ -722,6 +714,33 @@ function hasMatch(g){
     return false;
 }
 
+// 🛠️ ❷ 專業升級：計算全盤可行解數量，確保最少有 2-3 個 possible moves 提升開局可玩性
+function countPossibleMoves(g){
+    let count = 0;
+    for(let r=0;r<SIZE;r++){
+        for(let c=0;c<SIZE;c++){
+            let dirs=[[0,1],[1,0]];
+            for(let [dr,dc] of dirs){
+                let nr=r+dr,nc=c+dc;
+                if(nr<SIZE && nc<SIZE){
+                    [g[r][c],g[nr][nc]]=[g[nr][nc],g[r][c]];
+                    if(hasMatch(g)) count++;
+                    [g[r][c],g[nr][nc]]=[g[nr][nc],g[r][c]]; // 還原
+                }
+            }
+        }
+    }
+    return count;
+}
+
+function generateValidGrid() {
+    let g;
+    do {
+        g = create();
+    } while (countPossibleMoves(g) < 2); // 🛠️ 確保最少有 2 步可走，絕不開局卡死
+    return g;
+}
+
 function render(){
  board.innerHTML="";
  renderMission();
@@ -742,7 +761,6 @@ function render(){
            d.className = "disk bomb_3d";
        } else {
            d.className = "disk " + cell;
-           // 雙重保險文字
            d.innerText = MASTER_ITEMS[cell] ? MASTER_ITEMS[cell].text : "";
        }
        div.appendChild(d);
@@ -752,37 +770,39 @@ function render(){
  });
 }
 
-// 📱 跨格滑動 Touch 機制核心重構
+// 🛠️ ❸ pointermove 動態流暢滑動連擊防手抖
 let startCell = null;
+let isSwapping = false;
 
 board.addEventListener("pointerdown", e=>{
-    if(isAnimating || moves<=0 || timeLeft <= 0) return;
+    if(isAnimating || moves<=0 || timeLeft <= 0 || isSwapping) return;
     startCell = e.target.closest(".cell");
 });
 
-board.addEventListener("pointerup", e=>{
-    if(!startCell || isAnimating) return;
+board.addEventListener("pointermove", e=>{
+    if(!startCell || isAnimating || isSwapping) return;
     
-    // 💡 利用觸控點位置精確捕捉終點方塊
-    let touch = e.changedTouches ? e.changedTouches[0] : e;
-    let targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
-    let endCell = targetEl ? targetEl.closest(".cell") : null;
+    let targetEl = document.elementFromPoint(e.clientX, e.clientY);
+    let currentCell = targetEl ? targetEl.closest(".cell") : null;
     
-    if(!endCell || startCell === endCell) {
-        startCell = null;
-        return;
-    }
+    if(!currentCell || startCell === currentCell) return;
 
     let r1 = parseInt(startCell.dataset.r), c1 = parseInt(startCell.dataset.c);
-    let r2 = parseInt(endCell.dataset.r), c2 = parseInt(endCell.dataset.c);
+    let r2 = parseInt(currentCell.dataset.r), c2 = parseInt(currentCell.dataset.c);
     
-    // 相鄰判定
     if(Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1) {
+        isSwapping = true;
+        startCell = null; 
         click(r1, c1);
         click(r2, c2);
-    } else {
-        playSound(sounds.wrong); 
+        
+        setTimeout(() => {
+            isSwapping = false;
+        }, 200);
     }
+});
+
+board.addEventListener("pointerup", () => {
     startCell = null;
 });
 
@@ -858,32 +878,34 @@ function checkMatchesAndEliminate() {
        else { for(let i=0; i<m.len; i++) toRemove[m.startR + i][m.c] = true; }
    });
 
-   // 👉 核心修正：Bomb 直接炸全盤同色
-   let targetExplodeTypes = new Set();
+   // 🛠️ ❶ 核心 Bug 修正：補上隱藏的括號包裹，確保 bombColor 連鎖引爆橫掃全盤邏輯百分百正確
    for(let r=0; r<SIZE; r++) {
        for(let c=0; c<SIZE; c++) {
            if(toRemove[r][c] && grid[r][c] === BOMB) {
-               let neighbors = [[0,1],[1,0],[0,-1],[-1,0]];
-               for(let [dr,dc] of neighbors) {
+               let bombColor = null;
+               let dirs = [[0,1],[1,0],[0,-1],[-1,0]];
+               for(let [dr,dc] of dirs){
                    let nr=r+dr, nc=c+dc;
-                   if(nr>=0 && nr<SIZE && nc>=0 && nc<SIZE && grid[nr][nc] && currentLevelTypes.includes(grid[nr][nc])) {
-                       targetExplodeTypes.add(grid[nr][nc]);
+                   if(nr>=0 && nr<SIZE && nc>=0 && nc<SIZE && grid[nr][nc] && grid[nr][nc] !== BOMB){
+                       bombColor = grid[nr][nc];
+                       break;
+                   }
+               }
+               if(bombColor){
+                   for(let rr=0; rr<SIZE; rr++){
+                       for(let cc=0; cc<SIZE; cc++){
+                           if(grid[rr][cc] === bombColor || grid[rr][cc] === BOMB){
+                               toRemove[rr][cc] = true;
+                           }
+                       }
                    }
                }
            }
        }
    }
 
-   if(targetExplodeTypes.size > 0) {
-       for(let r=0; r<SIZE; r++) {
-           for(let c=0; c<SIZE; c++) {
-               if(grid[r][c] && (targetExplodeTypes.has(grid[r][c]) || grid[r][c] === BOMB)) toRemove[r][c] = true;
-           }
-       }
-   }
-
    let removedCount = 0;
-   let sampleR = 0, sampleC = 0; 
+   let targetCellEl = null;
    let maxLen = 3;
    matchObjects.forEach(m => { if(m.len > maxLen) maxLen = m.len; });
 
@@ -891,7 +913,7 @@ function checkMatchesAndEliminate() {
      for(let c=0;c<SIZE;c++){
        if(toRemove[r][c]) {
          explodeEffect(r,c); 
-         sampleR = r; sampleC = c;
+         if(!targetCellEl) targetCellEl = document.getElementById(`cell-${r}-${c}`);
          
          if(grid[r][c] === targetKey1 && mission[targetKey1] > 0) mission[targetKey1]--;
          if(grid[r][c] === targetKey2 && mission[targetKey2] > 0) mission[targetKey2]--;
@@ -910,13 +932,14 @@ function checkMatchesAndEliminate() {
 
    let addedTime = 1.5;
    if(maxLen === 4) addedTime = 3.5;
-   if(maxLen >= 5 || removedCount >= 7 || targetExplodeTypes.size > 0) addedTime = 6.0; 
+   if(maxLen >= 5 || removedCount >= 7) addedTime = 6.0; 
    
    timeLeft = Math.min(maxTime, timeLeft + addedTime); 
-   showTimeBonusEffect(sampleR, sampleC, addedTime); 
-   showComboEffect(sampleR, sampleC, currentComboCount);
+   if(targetCellEl) {
+       showTimeBonusEffect(targetCellEl, addedTime); 
+       showComboEffect(targetCellEl, currentComboCount);
+   }
 
-   // 🧮 計分
    let roundScore = (removedCount * 100) * currentComboCount;
    score += roundScore;
    document.getElementById("score").innerText = score;
@@ -965,29 +988,34 @@ function autoCheckLoop() {
             else { for(let i=0; i<m.len; i++) toRemove[m.startR + i][m.c] = true; }
         });
 
-        let targetExplodeTypes = new Set();
+        // 🛠️ ❶ 連鎖中的 Bomb 判定括號同步包裹修復
         for(let r=0; r<SIZE; r++) {
             for(let c=0; c<SIZE; c++) {
                 if(toRemove[r][c] && grid[r][c] === BOMB) {
-                    let neighbors = [[0,1],[1,0],[0,-1],[-1,0]];
-                    for(let [dr,dc] of neighbors) {
+                    let bombColor = null;
+                    let dirs = [[0,1],[1,0],[0,-1],[-1,0]];
+                    for(let [dr,dc] of dirs){
                         let nr=r+dr, nc=c+dc;
-                        if(nr>=0 && nr<SIZE && nc>=0 && nc<SIZE && grid[nr][nc] && currentLevelTypes.includes(grid[nr][nc])) targetExplodeTypes.add(grid[nr][nc]);
+                        if(nr>=0 && nr<SIZE && nc>=0 && nc<SIZE && grid[nr][nc] && grid[nr][nc] !== BOMB){
+                            bombColor = grid[nr][nc];
+                            break;
+                        }
+                    }
+                    if(bombColor){
+                        for(let rr=0; rr<SIZE; rr++){
+                            for(let cc=0; cc<SIZE; cc++){
+                                if(grid[rr][cc] === bombColor || grid[rr][cc] === BOMB){
+                                    toRemove[rr][cc] = true;
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
 
-        if(targetExplodeTypes.size > 0) {
-            for(let r=0; r<SIZE; r++) {
-                for(let c=0; c<SIZE; c++) {
-                    if(grid[r][c] && (targetExplodeTypes.has(grid[r][c]) || grid[r][c] === BOMB)) toRemove[r][c] = true;
-                }
-            }
-        }
-
         let count = 0;
-        let sampleR = 0, sampleC = 0;
+        let targetCellEl = null;
         let maxLen = 3;
         matchObjects.forEach(m => { if(m.len > maxLen) maxLen = m.len; });
 
@@ -995,7 +1023,7 @@ function autoCheckLoop() {
           for(let c=0;c<SIZE;c++){
             if(toRemove[r][c]) { 
                 explodeEffect(r,c); 
-                sampleR = r; sampleC = c;
+                if(!targetCellEl) targetCellEl = document.getElementById(`cell-${r}-${c}`);
                 if(grid[r][c] === targetKey1 && mission[targetKey1] > 0) mission[targetKey1]--;
                 if(grid[r][c] === targetKey2 && mission[targetKey2] > 0) mission[targetKey2]--;
                 grid[r][c]=null; 
@@ -1012,10 +1040,12 @@ function autoCheckLoop() {
         
         let addedTime = 1.5;
         if(maxLen === 4) addedTime = 3.5;
-        if(maxLen >= 5 || count >= 7 || targetExplodeTypes.size > 0) addedTime = 6.0;
+        if(maxLen >= 5 || count >= 7) addedTime = 6.0;
         timeLeft = Math.min(maxTime, timeLeft + addedTime);
-        showTimeBonusEffect(sampleR, sampleC, addedTime);
-        showComboEffect(sampleR, sampleC, currentComboCount);
+        if(targetCellEl) {
+            showTimeBonusEffect(targetCellEl, addedTime);
+            showComboEffect(targetCellEl, currentComboCount);
+        }
 
         let roundScore = (count * 100) * currentComboCount;
         score += roundScore;
@@ -1027,10 +1057,10 @@ function autoCheckLoop() {
     } else {
         isAnimating = false; 
         
-        // 🛠️ 核心機制升級：每次連鎖徹底靜默結束後，自動觸發「智能防死局死鎖檢測」
-        if(scanForRescueHint() === null && moves > 0 && timeLeft > 0) {
-            showTip("🚑 系統偵測到全盤死局！免費為您智能重新洗牌！");
-            grid = create();
+        // 🛠️ ❷ 檢測死局：若無步數可行，自動發動高階防死局機制重整盤面
+        if(countPossibleMoves(grid) < 1 && moves > 0 && timeLeft > 0) {
+            showTip("🚑 系統偵測到全盤無解死局！免費發動物資重新洗牌！");
+            grid = generateValidGrid();
             render();
         } else {
             checkGameStatus(false);
@@ -1062,12 +1092,15 @@ function renderMission() {
     const missionEl = document.getElementById("mission");
     if(!targetKey1 || !targetKey2) return;
     missionEl.innerHTML = `
-        <span class="mission-icon" style="background-image:url('${MASTER_ITEMS[targetKey1]}')"></span> 目標剩餘: ${mission[targetKey1]} ｜ 
-        <span class="mission-icon" style="background-image:url('${MASTER_ITEMS[targetKey2]}')"></span> 目標剩餘: ${mission[targetKey2]}
+        <span class="mission-icon" style="background-image:url('${MASTER_ITEMS[targetKey1].url}')">
+            ${MASTER_ITEMS[targetKey1].text}
+        </span> 目標剩餘: ${mission[targetKey1]} ｜ 
+        <span class="mission-icon" style="background-image:url('${MASTER_ITEMS[targetKey2].url}')">
+            ${MASTER_ITEMS[targetKey2].text}
+        </span> 目標剩餘: ${mission[targetKey2]}
     `;
 }
 
-// 結算判定
 function checkGameStatus(timeOut = false) {
     if (mission[targetKey1] <= 0 && mission[targetKey2] <= 0) {
         clearInterval(timerInterval);
@@ -1082,7 +1115,7 @@ function checkGameStatus(timeOut = false) {
                 showTip("👑 逆天神蹟！你已成功攻克全部 100 關！");
                 triggerGameOverUI("👑 恭喜你完美通關 100 關，達成最高榮譽！");
             } else {
-                showTip(`🎉 第 ${currentLevel} 關通過！速度加分 +${speedBonus}`);
+                showTip("🎉 第 " + currentLevel + " 關通過！速度加分 +" + speedBonus);
                 currentLevel++; 
                 setupLevel();
             }
@@ -1124,7 +1157,7 @@ function restartWholeGame() {
 function userTriggerShuffle() {
     if(isAnimating || moves <= 0 || timeLeft <= 0) return;
     showTip("🎲 正在重新調配盤面物資...");
-    grid = create();
+    grid = generateValidGrid(); 
     render();
 }
 
@@ -1166,7 +1199,7 @@ function setupLevel() {
         carIconsEl.appendChild(spanCar);
     }
 
-    grid = create();
+    grid = generateValidGrid();
     render();
     startTimer(); 
     if(currentLevel === 1 || currentLevel % 5 === 0) {
@@ -1175,6 +1208,10 @@ function setupLevel() {
 }
 
 function scanForRescueHint(){
+    return countPossibleMoves(grid) > 0 ? _executeScan() : null;
+}
+
+function _executeScan() {
     for(let r=0;r<SIZE;r++){
         for(let c=0;c<SIZE;c++){
             let dirs=[[0,1],[1,0]];
@@ -1182,20 +1219,9 @@ function scanForRescueHint(){
                 let nr=r+dr,nc=c+dc;
                 if(nr<SIZE && nc<SIZE){
                     [grid[r][c],grid[nr][nc]]=[grid[nr][nc],grid[r][c]];
-                    
-                    let hasMatchFound = false;
-                    for(let tr=0;tr<SIZE;tr++){
-                      for(let tc=0;tc<SIZE-2;tc++){
-                        if(grid[tr][tc] && grid[tr][tc]===grid[tr][tc+1] && grid[tr][tc]===grid[tr][tc+2]) hasMatchFound = true;
-                      }
-                    }
-                    for(let tc=0;tc<SIZE;tc++){
-                      for(let tr=0;tr<SIZE-2;tr++){
-                        if(grid[tr][tc] && grid[tr][tc]===grid[tr+1][tc] && grid[tr][tc]&&grid[tr][tc]===grid[tr+2][tc]) hasMatchFound = true;
-                      }
-                    }
-                    [grid[r][c],grid[nr][nc]]=[grid[nr][nc],grid[r][c]]; 
-                    if(hasMatchFound) return { p1: {r, c}, p2: {r: nr, c: nc} };
+                    let ok = hasMatch(grid);
+                    [grid[r][c],grid[nr][nc]]=[grid[nr][nc],grid[r][c]];
+                    if(ok) return { p1: {r, c}, p2: {r: nr, c: nc} };
                 }
             }
         }
@@ -1203,14 +1229,12 @@ function scanForRescueHint(){
     return null;
 }
 
-/* 🚑 智能解法掃描：點擊救護車依然可以獲取高光黃金閃爍提示 */
 function useAmbulanceRescue() {
     if(rescueMovesLeft <= 0 || isAnimating || moves <= 0 || timeLeft <= 0) return;
     let hint = scanForRescueHint();
 
     if(hint) {
         rescueMovesLeft--;
-        
         carIconsEl.innerHTML = "";
         for(let i=0; i<rescueMovesLeft; i++) {
             let spanCar = document.createElement("span");
@@ -1238,9 +1262,8 @@ function useAmbulanceRescue() {
             isAnimating = false;
         }, 1200); 
     } else {
-        // 保險備用重置
-        showTip("🚑 當前盤面已自動完成洗牌優化！");
-        grid = create();
+        showTip("🚑 救護車回報：盤面已無可行解，自動免費洗牌！");
+        grid = generateValidGrid();
         render();
     }
 }
