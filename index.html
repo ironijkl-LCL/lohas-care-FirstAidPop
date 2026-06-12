@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>First Aid Pop! 20款大滿貫神級極致流暢版</title>
+<title>First Aid Pop! 20款大滿貫神級極致流暢音樂版</title>
 
 <style>
 body{
@@ -559,52 +559,156 @@ const timerTextEl=document.getElementById("timer-text");
 const tipBox=document.getElementById("tipBox");
 const fxLayer = document.getElementById("fx-layer");
 
-// 🔊 雙重效果音
-const sounds={
- match: new Audio("https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"), 
- wrong: new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"), 
-};
-function playSound(s){
- try {
-     let a=s.cloneNode(); a.volume=0.4; a.play();
- } catch(e) {}
+// ==========================================
+[span_3](start_span)// 🎵 移植自《掌上茶記》的原生 Web Audio API 核心八音盒音軌層[span_3](end_span)
+// ==========================================
+let audioCtx = null;
+let bgmTimer = null;
+let bgmStep = 0;
+
+[span_4](start_span)// 經典廣東歌旋律音高點矩陣數據[span_4](end_span)
+[span_5](start_span)const EASON_MELODY = [329.63, 349.23, 392.00, 523.25, 440.00, 392.00, 349.23, 392.00, 440.00, 587.33, 523.25, 440.00, 392.00, 349.23, 329.63, 392.00, 349.23, 329.63, 293.66, 329.63, 349.23, 440.00, 392.00, 392.00, 523.25, 493.88, 523.25, 587.33, 659.25, 587.33, 523.25, 440.00, 493.88, 523.25, 392.00, 392.00, 440.00, 493.88, 523.25, 440.00, 349.23, 329.63, 293.66, 349.23, 329.63, 261.63, 261.63, 261.63];[span_5](end_span)
+
+function tryInitAudio() {
+    try {
+        if (!audioCtx) {
+            [span_6](start_span)audioCtx = new (window.AudioContext || window.webkitAudioContext)();[span_6](end_span)
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+            [span_7](start_span)audioCtx.resume();[span_7](end_span)
+        }
+    } catch(e) {
+        console.error("AudioContext 建立失敗: ", e);
+    }
 }
 
-const bgm = new Audio("https://assets.mixkit.co/music/preview/mixkit-game-level-music-689.mp3");
-bgm.loop = true;
-bgm.volume = 0.3;
+function startBGM() {
+    [span_8](start_span)if (!audioCtx) return;[span_8](end_span)
+    [span_9](start_span)if (bgmTimer) clearInterval(bgmTimer);[span_9](end_span)
+    
+    [span_10](start_span)// 依據關卡難度進行底層速度動態乘積變調控制[span_10](end_span)
+    let tempoFactor = 1.0 + (currentLevel - 1) * 0.05; 
+    let tempo = Math.max(220 / tempoFactor, 120);
+    
+    bgmTimer = setInterval(() => {
+        [span_11](start_span)if (isGameOver() || musicUserToggled || !audioCtx) return;[span_11](end_span)
+        try {
+            [span_12](start_span)const osc = audioCtx.createOscillator();[span_12](end_span)
+            [span_13](start_span)const gain = audioCtx.createGain();[span_13](end_span)
+            [span_14](start_span)osc.connect(gain);[span_14](end_span)
+            [span_15](start_span)gain.connect(audioCtx.destination);[span_15](end_span)
+            
+            [span_16](start_span)osc.type = 'sine';[span_16](end_span)
+            [span_17](start_span)let freq = EASON_MELODY[bgmStep % EASON_MELODY.length];[span_17](end_span)
+            
+            [span_18](start_span)// 每 6 步引入一次深沉和弦低音軌[span_18](end_span)
+            if (bgmStep % 6 === 0) {
+                [span_19](start_span)const bassOsc = audioCtx.createOscillator();[span_19](end_span)
+                [span_20](start_span)const bassGain = audioCtx.createGain();[span_20](end_span)
+                [span_21](start_span)bassOsc.connect(bassGain);[span_21](end_span)
+                [span_22](start_span)bassGain.connect(audioCtx.destination);[span_22](end_span)
+                [span_23](start_span)bassOsc.type = 'triangle';[span_23](end_span)
+                [span_24](start_span)bassOsc.frequency.setValueAtTime(freq / 2, audioCtx.currentTime);[span_24](end_span)
+                [span_25](start_span)bassGain.gain.setValueAtTime(0.04, audioCtx.currentTime);[span_25](end_span)
+                [span_26](start_span)bassGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (tempo / 1000) * 1.8);[span_26](end_span)
+                [span_27](start_span)bassOsc.start();[span_27](end_span)
+                [span_28](start_span)bassOsc.stop(audioCtx.currentTime + (tempo / 1000) * 1.8);[span_28](end_span)
+            }
+            
+            [span_29](start_span)osc.frequency.setValueAtTime(freq, audioCtx.currentTime);[span_29](end_span)
+            [span_30](start_span)gain.gain.setValueAtTime(0.05, audioCtx.currentTime);[span_30](end_span)
+            [span_31](start_span)gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (tempo / 1000) * 0.95);[span_31](end_span)
+            
+            [span_32](start_span)osc.start();[span_32](end_span)
+            [span_33](start_span)osc.stop(audioCtx.currentTime + (tempo / 1000) * 0.95);[span_33](end_span)
+            [span_34](start_span)bgmStep++;[span_34](end_span)
+        } catch(e){}
+    [span_35](start_span)}, tempo);[span_35](end_span)
+}
 
-// 🛠️ 核心防禦優化：強化解鎖機制，成功播放後立即自動清理全域監聽器，防止重複堆疊與潛在衝突
+function stopBGM() {
+    if (bgmTimer) {
+        [span_36](start_span)clearInterval(bgmTimer);[span_36](end_span)
+        [span_37](start_span)bgmTimer = null;[span_37](end_span)
+    }
+}
+
+[span_38](start_span)// 🔊 優化：全本土化合成動態交互音效，不調用任何外部音訊網址[span_38](end_span)
+function playCustomSound(type) {
+    [span_39](start_span)if (!audioCtx) return;[span_39](end_span)
+    try {
+        [span_40](start_span)const osc = audioCtx.createOscillator();[span_40](end_span)
+        [span_41](start_span)const gain = audioCtx.createGain();[span_41](end_span)
+        [span_42](start_span)osc.connect(gain);[span_42](end_span)
+        [span_43](start_span)gain.connect(audioCtx.destination);[span_43](end_span)
+        [span_44](start_span)const now = audioCtx.currentTime;[span_44](end_span)
+        
+        if (type === 'match') {
+            [span_45](start_span)// 普通三消：清脆高音[span_45](end_span)
+            [span_46](start_span)[span_47](start_span)let comboFactor = 1 + (currentComboCount * 0.15);[span_46](end_span)[span_47](end_span)
+            [span_48](start_span)osc.type = 'sine';[span_48](end_span)
+            [span_49](start_span)osc.frequency.setValueAtTime(783.99 * comboFactor, now);[span_49](end_span)
+            [span_50](start_span)gain.gain.setValueAtTime(0.25, now);[span_50](end_span)
+            [span_51](start_span)gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);[span_51](end_span)
+            [span_52](start_span)osc.start(now);[span_52](end_span)
+            [span_53](start_span)osc.stop(now + 0.25);[span_53](end_span)
+        } else if (type === 'wrong') {
+            [span_54](start_span)[span_55](start_span)// 無效滑動：低沉彈回[span_54](end_span)[span_55](end_span)
+            [span_56](start_span)osc.type = 'triangle';[span_56](end_span)
+            [span_57](start_span)osc.frequency.setValueAtTime(150, now);[span_57](end_span)
+            [span_58](start_span)osc.frequency.linearRampToValueAtTime(60, now + 0.1);[span_58](end_span)
+            [span_59](start_span)gain.gain.setValueAtTime(0.2, now);[span_59](end_span)
+            [span_60](start_span)gain.gain.linearRampToValueAtTime(0.01, now + 0.1);[span_60](end_span)
+            [span_61](start_span)osc.start(now);[span_61](end_span)
+            [span_62](start_span)osc.stop(now + 0.1);[span_62](end_span)
+        } else if (type === 'special_clear') {
+            [span_63](start_span)// 大道具爆破：琶音階梯特效[span_63](end_span)
+            [span_64](start_span)let comboFactor = 1 + (currentComboCount * 0.1);[span_64](end_span)
+            [span_65](start_span)[523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {[span_65](end_span)
+                [span_66](start_span)const o = audioCtx.createOscillator();[span_66](end_span)
+                [span_67](start_span)const g = audioCtx.createGain();[span_67](end_span)
+                [span_68](start_span)o.connect(g);[span_68](end_span)
+                [span_69](start_span)g.connect(audioCtx.destination);[span_69](end_span)
+                [span_70](start_span)o.type = 'sine';[span_70](end_span)
+                [span_71](start_span)o.frequency.setValueAtTime(f * comboFactor, now + i * 0.04);[span_71](end_span)
+                [span_72](start_span)g.gain.setValueAtTime(0.15, now + i * 0.04);[span_72](end_span)
+                [span_73](start_span)g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.04 + 0.25);[span_73](end_span)
+                [span_74](start_span)o.start(now + i * 0.04);[span_74](end_span)
+                [span_75](start_span)o.stop(now + i * 0.04 + 0.25);[span_75](end_span)
+            });
+        }
+    } catch(e){}
+}
+
+function isGameOver() {
+    return timerInterval === null || timeLeft <= 0 || moves <= 0;
+}
+
 function autoPlayMusic() {
-    if (bgm.paused && !musicUserToggled) {
-        bgm.play()
-        .then(() => {
-            document.removeEventListener("click", autoPlayMusic);
-            document.removeEventListener("pointerdown", autoPlayMusic);
-            document.removeEventListener("touchstart", autoPlayMusic);
-        })
-        .catch((err)=>{
-            console.log("網頁載入暫無音訊權限，等待用戶點擊或觸控：", err);
-        });
+    tryInitAudio();
+    if (audioCtx && !musicUserToggled) {
+        startBGM();
+        // 成功解鎖播放後，立即移除所有全域監聽器，防止重複呼叫
+        document.removeEventListener("click", autoPlayMusic);
+        document.removeEventListener("pointerdown", autoPlayMusic);
+        document.removeEventListener("touchstart", autoPlayMusic);
     }
 }
 
 function toggleMusic(){
-    if(bgm.paused) {
-        bgm.play()
-        .then(() => {
-            musicUserToggled = false;
-        })
-        .catch((err)=>{ 
-            alert("瀏覽器政策已阻擋自動音訊。請先點擊或觸摸遊戲盤面任意位置，再手動開啟音樂。"); 
-        });
+    tryInitAudio();
+    if(!audioCtx) return;
+    
+    if(bgmTimer === null) {
+        musicUserToggled = false;
+        startBGM();
     } else {
-        bgm.pause();
+        stopBGM();
         musicUserToggled = true; 
     }
 }
 
-// 綁定全域交互事件，讓玩家不論是滑動方塊還是點擊盤面，皆能瞬時解鎖 AudioContext
+// 綁定全域互動事件
 document.addEventListener("pointerdown", autoPlayMusic, { passive: true });
 document.addEventListener("touchstart", autoPlayMusic, { passive: true });
 document.addEventListener("click", autoPlayMusic, { passive: true });
@@ -892,7 +996,7 @@ function click(r,c){
 
        if(!checkMatchesAndEliminate()) {
            [grid[r][c],grid[last.r][last.c]]=[grid[last.r][last.c],grid[r][c]];
-           playSound(sounds.wrong); 
+           playCustomSound('wrong'); 
            isAnimating = false;
            last = null;
            render();
@@ -1019,7 +1123,12 @@ function executeEliminationStep(toRemove, maxLen, matchObjects = []) {
    let newScore = score + roundScore;
    animateScore(newScore); 
 
-   playSound(sounds.match); 
+   // 動態音效觸發
+   if (maxLen >= 4) {
+       playCustomSound('special_clear');
+   } else {
+       playCustomSound('match');
+   }
    vibrate(); 
    
    setTimeout(drop, 350);
@@ -1174,7 +1283,7 @@ function checkGameStatus(timeOut = false) {
         isAnimating = true; 
         board.style.filter = "grayscale(100%) opacity(60%)";
         board.style.transition = "filter 0.5s ease";
-        bgm.pause();
+        stopBGM();
 
         let reason = timeOut ? "⏱️ 時間到！急救失敗！" : "😢 步數用盡！傷患未能及時送醫！";
         setTimeout(() => {
@@ -1244,6 +1353,13 @@ function setupLevel() {
     grid = generateValidGrid();
     render();
     startTimer(); 
+    
+    // 初始化或換關時自動重啟或調速八音盒
+    tryInitAudio();
+    if(audioCtx && !musicUserToggled) {
+        startBGM();
+    }
+
     if(currentLevel === 1 || currentLevel % 5 === 0) {
         showTip(tips[Math.floor(Math.random()*tips.length)]);
     }
@@ -1366,6 +1482,7 @@ function closeLeaderboardPopup() {
     document.getElementById("rankModal").style.display = "none";
 }
 
+// 啟動首關
 setupLevel();
 </script>
 </body>
