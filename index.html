@@ -11,10 +11,14 @@ body{
     background:#d8f1ff;
     text-align:center;
     font-family: 'Arial Black', Arial, sans-serif;
-    /* 強制全局停用雙擊放大與手勢縮放，徹底根治防誤觸 */
-    touch-action: manipulation !important;
+    /* 🛠️ 強制全局停用雙擊放大與手勢縮放，徹底根治防誤觸 */
+    touch-action: none !important;
     user-select: none;
     -webkit-user-select: none;
+    overflow: hidden; /* 防止整個遊戲頁面產生隨手指下滑滾動 */
+    overscroll-behavior: none; /* 徹底禁止現代行動裝置的橡皮筋回彈效果 */
+    width: 100vw;
+    height: 100vh;
     padding: 10px;
     box-sizing: border-box;
 }
@@ -165,6 +169,7 @@ body{
     width: 100%;
     max-width: 520px; 
     box-sizing: border-box;
+    touch-action: none !important; /* 確保滑動方塊時不會引發整頁位移 */
 }
 
 /* 自動彈性棋盤 */
@@ -178,7 +183,7 @@ body{
     padding: 10px;
     border-radius: 16px;
     box-shadow: 0 6px 20px rgba(0,0,0,0.05);
-    touch-action: manipulation !important;
+    touch-action: none !important; /* 格子盤面鎖定防誤觸下滑與放大 */
 }
 
 /* 完美正方形格子自適應螢幕 */
@@ -190,7 +195,7 @@ body{
     position: relative;
     box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
     box-sizing: border-box;
-    touch-action: manipulation !important;
+    touch-action: none !important;
 }
 
 /* 點選高亮框 */
@@ -564,12 +569,13 @@ const tipBox=document.getElementById("tipBox");
 const fxLayer = document.getElementById("fx-layer");
 
 // ==========================================
-// 🎵 100% 原生 Web Audio API 八音盒引擎（加強硬體解鎖優化版）
+// 🎵 100% 原生 Web Audio API 八音盒引擎（加強硬件路由解鎖與自癒）
 // ==========================================
 let audioCtx = null;
 let bgmTimer = null;
 let bgmStep = 0;
 
+// 經典廣東歌複音旋律數值陣列
 const EASON_MELODY = [329.63, 349.23, 392.00, 523.25, 440.00, 392.00, 349.23, 392.00, 440.00, 587.33, 523.25, 440.00, 392.00, 349.23, 329.63, 392.00, 349.23, 329.63, 293.66, 329.63, 349.23, 440.00, 392.00, 392.00, 523.25, 493.88, 523.25, 587.33, 659.25, 587.33, 523.25, 440.00, 493.88, 523.25, 392.00, 392.00, 440.00, 493.88, 523.25, 440.00, 349.23, 329.63, 293.66, 349.23, 329.63, 261.63, 261.63, 261.63];
 
 function tryInitAudio() {
@@ -582,13 +588,13 @@ function tryInitAudio() {
         }
         
         /* 🛠️ 強效防禦修正：靜音預熱（Warmup）技術 */
-        /* 在用戶點擊的瞬間，強行向揚聲器管道推送一個無損的微秒靜音波形，破除耳機鎖定限制 */
+        /* 在玩家點擊或觸控的瞬間，向底層硬體管道推播一個微秒的靜音波形，破除必須戴耳機的限制 */
         if (audioCtx && audioCtx.state === 'running') {
             const dummyOsc = audioCtx.createOscillator();
             const dummyGain = audioCtx.createGain();
             dummyOsc.connect(dummyGain);
             dummyGain.connect(audioCtx.destination);
-            dummyGain.gain.setValueAtTime(0.0001, audioCtx.currentTime); // 接近絕對靜音
+            dummyGain.gain.setValueAtTime(0.0001, audioCtx.currentTime); 
             dummyOsc.start();
             dummyOsc.stop(audioCtx.currentTime + 0.01);
         }
@@ -601,10 +607,11 @@ function startBGM() {
     if (!audioCtx) return;
     if (bgmTimer) clearInterval(bgmTimer);
     
+    // 隨關卡推進動態提升主奏旋律拍子調速，優化緊湊感
     let tempoFactor = 1.0 + (currentLevel - 1) * 0.04; 
     let tempo = Math.max(200 / tempoFactor, 100);
     
-    /* 🛠️ 硬件自癒機制：如果因為插入/拔出耳機導致音軌被中斷，自動重連自癒 */
+    /* 🛠️ 硬件路由自癒機制：如果因為耳機拔插或系統切換導致音軌被中斷，自動重連自癒 */
     audioCtx.onstatechange = function() {
         if (audioCtx && audioCtx.state === 'suspended' && !musicUserToggled) {
             audioCtx.resume();
@@ -622,6 +629,7 @@ function startBGM() {
             osc.type = 'sine';
             let freq = EASON_MELODY[bgmStep % EASON_MELODY.length];
             
+            // 每 6 步在三角形波同步灌注一次雙倍低音聲部和弦
             if (bgmStep % 6 === 0) {
                 const bassOsc = audioCtx.createOscillator();
                 const bassGain = audioCtx.createGain();
@@ -653,6 +661,7 @@ function stopBGM() {
     }
 }
 
+// 🔊 採用正弦波頻率動態合成全新本地效果音
 function playSynthesizedSound(type) {
     if (!audioCtx) return;
     try {
@@ -1239,6 +1248,7 @@ function drop(){
     setTimeout(autoCheckLoop, 150);
 }
 
+// 滾動跳數效果
 function animateScore(newScore){
     let start = score;
     let diff = newScore - start;
