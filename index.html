@@ -2,7 +2,7 @@
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>First Aid Pop! 20款大滿貫神級極致流暢版</title>
 
 <style>
@@ -11,8 +11,10 @@ body{
     background:#d8f1ff;
     text-align:center;
     font-family: 'Arial Black', Arial, sans-serif;
-    touch-action: none;
+    /* 🛠️ 強制全局停用雙擊放大與手勢縮放，徹底根治防誤觸 */
+    touch-action: manipulation !important;
     user-select: none;
+    -webkit-user-select: none;
     padding: 10px;
     box-sizing: border-box;
 }
@@ -176,6 +178,8 @@ body{
     padding: 10px;
     border-radius: 16px;
     box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    /* 🛠️ 格子盤面同樣強制鎖定防誤觸放大行為 */
+    touch-action: manipulation !important;
 }
 
 /* 完美正方形格子自適應螢幕 */
@@ -187,6 +191,8 @@ body{
     position: relative;
     box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
     box-sizing: border-box;
+    /* 🛠️ 格子本身也加上防放大鎖定 */
+    touch-action: manipulation !important;
 }
 
 /* 點選高亮框 */
@@ -676,7 +682,6 @@ function playSynthesizedSound(type) {
     } catch(e){}
 }
 
-// 🛠️ 核心修復：修正原本錯誤調用了 board.style 的變數名稱衝突，正確指向本地狀態判定
 function isLocalGameOver() {
     return timerInterval === null || timeLeft <= 0 || moves <= 0;
 }
@@ -1079,8 +1084,8 @@ function executeEliminationStep(toRemove, maxLen, matchObjects = []) {
    let removedCount = 0;
    let targetCellEl = null;
 
-   for(let r=0;r<SIZE;r++){
-     for(let c=0;c<SIZE;c++){
+   for(let r=0; r<SIZE; r++){
+     for(let c=0; c<SIZE; c++){
        if(toRemove[r][c]) {
          explodeEffect(r,c);
          if(!targetCellEl) targetCellEl = document.getElementById(`cell-${r}-${c}`);
@@ -1133,9 +1138,9 @@ function autoCheckLoop() {
     let hasMatchFound = false;
     let matchObjects = [];
 
-    for(let r=0;r<SIZE;r++){
+    for(let r=0; r<SIZE; r++){
       let cnt = 1;
-      for(let c=1;c<SIZE;c++){
+      for(let c=1; c<SIZE; c++){
         if(grid[r][c] && grid[r][c] === grid[r][c-1] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW) cnt++;
         else {
           if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: c-cnt, len: cnt}); hasMatchFound=true; }
@@ -1144,9 +1149,9 @@ function autoCheckLoop() {
       }
       if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: SIZE-cnt, len: cnt}); hasMatchFound=true; }
     }
-    for(let c=0;c<SIZE;c++){
+    for(let c=0; c<SIZE; c++){
       let cnt = 1;
-      for(let r=1;r<SIZE;r++){
+      for(let r=1; r<SIZE; r++){
         if(grid[r][c] && grid[r][c] === grid[r-1][c] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW) cnt++;
         else {
           if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: r-cnt, len: cnt}); hasMatchFound=true; }
@@ -1363,8 +1368,8 @@ function scanForRescueHint(){
 }
 
 function _executeScan() {
-    for(let r=0;r<SIZE;r++){
-        for(let c=0;c<SIZE;c++){
+    for(let r=0; r<SIZE; r++){
+        for(let c=0; c<SIZE; c++){
             let dirs=[[0,1],[1,0]];
             for(let [dr,dc] of dirs){
                 let nr=r+dr,nc=c+dc;
