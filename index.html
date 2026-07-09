@@ -6,31 +6,47 @@
 <title>First Aid Pop! 20款大滿貫神級極致流暢版</title>
 
 <style>
-body{
-    margin:0;
-    background:#d8f1ff;
-    text-align:center;
-    font-family: 'Arial Black', Arial, sans-serif;
-    /* 🛠️ 強制全局停用雙擊放大與手勢縮放，徹底根治防誤觸 */
-    touch-action: none !important;
+:root {
+    --apple-bg: #f5f5f7;
+    --oasis-green: #5a8f76;
+    --oasis-green-light: #eef5f1;
+    --apple-dark: #1d1d1f;
+    --apple-gray: #86868b;
+    --apple-card-bg: rgba(255, 255, 255, 0.75);
+    --apple-border: rgba(255, 255, 255, 0.6);
+    --apple-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+    --apple-radius: 18px;
+    --system-red: #ff3b30;
+    --system-orange: #ff9500;
+    --system-purple: #af52de;
+}
+
+body {
+    margin: 0;
+    background: linear-gradient(135deg, #e3ede7 0%, #e2ebf0 100%);
+    background-attachment: fixed;
+    text-align: center;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    color: var(--apple-dark);
+    touch-action: manipulation !important;
     user-select: none;
     -webkit-user-select: none;
-    overflow: hidden; /* 防止整個遊戲頁面產生隨手指下滑滾動 */
-    overscroll-behavior: none; /* 徹底禁止現代行動裝置的橡皮筋回彈效果 */
-    width: 100vw;
-    height: 100vh;
-    padding: 10px;
+    padding: 16px 12px;
     box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
 }
 
 /* 遊戲招牌 Logo */
 .game-title {
-    margin: 5px 0 0 0;
-    color: #e74c3c;
-    font-size: 26px;
-    font-weight: 900;
-    text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 2px -2px 0px #fff, -2px 2px 0px #fff, 3px 3px 5px rgba(0,0,0,0.2);
-    letter-spacing: 1px;
+    margin: 10px 0 15px 0;
+    color: var(--apple-dark);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 /* 關卡資訊與控制面板 */
@@ -39,90 +55,123 @@ body{
     justify-content: space-between;
     align-items: center;
     max-width: 520px;
-    margin: 5px auto;
-    padding: 0 10px;
+    margin: 0 auto 12px auto;
+    padding: 0 4px;
 }
+
 .level-badge {
-    background: #9b59b6;
-    color: white;
-    padding: 5px 15px;
-    border-radius: 15px;
-    font-size: 16px;
-    font-weight: bold;
-    box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+    background: var(--apple-card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: var(--apple-dark);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border: 1px solid var(--apple-border);
+    box-shadow: var(--apple-shadow);
 }
-.music-btn, .rank-toggle-btn, .shuffle-btn{
-    padding: 6px 12px;
-    border: none; border-radius: 15px;
-    background: #2ecc71; color: #fff; font-weight: bold;
-    cursor: pointer; box-shadow: 0 3px 5px rgba(0,0,0,0.1);
+
+.btn-group {
+    display: flex;
+    gap: 6px;
+}
+
+.music-btn, .rank-toggle-btn, .shuffle-btn {
+    padding: 7px 14px;
+    border: 1px solid var(--apple-border);
+    border-radius: 20px;
+    background: var(--apple-card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    color: var(--apple-dark);
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--apple-shadow);
     font-size: 13px;
-    font-family: Arial, sans-serif;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.rank-toggle-btn { background: #f39c12; margin-left: 5px; }
-.shuffle-btn { background: #9b59b6; margin-left: 5px; }
-.music-btn:active, .rank-toggle-btn:active, .shuffle-btn:active { transform: scale(0.95); }
+
+.music-btn { color: var(--oasis-green); }
+.rank-toggle-btn { color: var(--system-orange); }
+.shuffle-btn { color: var(--system-purple); }
+
+.music-btn:active, .rank-toggle-btn:active, .shuffle-btn:active {
+    transform: scale(0.96);
+    background: rgba(255, 255, 255, 0.9);
+}
 
 /* ⏱️ 倒計時進度條外殼 */
 .timer-container {
-    width: 90%;
-    max-width: 480px;
-    background: #bdc3c7;
-    height: 14px;
-    border-radius: 7px;
-    margin: 8px auto;
+    width: 100%;
+    max-width: 520px;
+    background: rgba(0, 0, 0, 0.05);
+    height: 6px;
+    border-radius: 3px;
+    margin: 12px auto;
     overflow: hidden;
     position: relative;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
+
 /* ⏱️ 倒計時動態進度條本體 */
 .timer-bar {
     width: 100%;
     height: 100%;
-    transition: width 0.1s linear;
+    background: var(--oasis-green);
+    border-radius: 3px;
+    transition: width 0.1s linear, background-color 0.3s ease;
 }
+
 .timer-text {
-    font-size: 14px;
-    font-weight: bold;
-    color: #2c3e50;
-    margin-top: -3px;
-    font-family: Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--apple-gray);
+    margin: -4px 0 12px 0;
+    letter-spacing: -0.1px;
 }
 
 /* 頂部數據欄 */
 .info-bar { 
-    font-size: 16px; 
-    font-weight: bold; 
-    margin: 6px 0; 
-    color: #2c3e50; 
-    font-family: Arial, sans-serif;
+    font-size: 15px; 
+    font-weight: 600; 
+    margin: 12px 0; 
+    color: var(--apple-dark); 
+    display: flex;
+    justify-content: center;
+    gap: 12px;
 }
+
 .info-bar span {
-    background: #fff;
-    padding: 3px 10px;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    background: var(--apple-card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--apple-border);
+    box-shadow: var(--apple-shadow);
 }
 
 /* 任務目標欄 */
 #mission {
-    background: #fff;
-    padding: 8px 15px;
-    border-radius: 12px;
+    background: var(--apple-card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 10px 20px;
+    border-radius: var(--apple-radius);
     display: inline-flex;
-    gap: 15px;
+    gap: 16px;
     justify-content: center;
     align-items: center;
-    font-weight: bold;
+    font-weight: 600;
     font-size: 14px;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.05);
-    margin: 2px auto 8px auto;
-    border: 2px solid #3498db;
-    font-family: Arial, sans-serif;
+    box-shadow: var(--apple-shadow);
+    margin: 4px auto 12px auto;
+    border: 1px solid var(--apple-border);
 }
+
 .mission-icon {
-    width: 26px;
-    height: 26px;
+    width: 24px;
+    height: 24px;
     display: inline-block;
     background-size: contain;
     background-repeat: no-repeat;
@@ -132,33 +181,51 @@ body{
 
 /* 🚑 救護車提示按鈕 */
 .btn-ambulance {
-    background: linear-gradient(135deg, #34495e, #2c3e50);
+    background: var(--apple-dark);
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 12px 24px;
     font-size: 14px;
-    font-weight: bold;
-    border-radius: 20px;
+    font-weight: 600;
+    border-radius: 24px;
     cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    margin-bottom: 8px;
-    transition: 0.2s;
-    width: 85%;
-    max-width: 320px;
-    font-family: Arial, sans-serif;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    margin-bottom: 16px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    width: 100%;
+    max-width: 520px;
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
 }
-.btn-ambulance:active { transform: scale(0.95); }
-.btn-ambulance:disabled { background: #95a5a6; cursor: not-allowed; box-shadow: none; opacity: 0.6; }
+
+.btn-ambulance:active { 
+    transform: scale(0.98); 
+    opacity: 0.9;
+}
+
+.btn-ambulance:disabled { 
+    background: #cbd5e1; 
+    color: #94a3b8;
+    cursor: not-allowed; 
+    box-shadow: none; 
+    opacity: 0.7; 
+}
 
 /* 💡 提示閃爍動畫 */
-.hint-flash { animation: flash-glow 0.4s ease-in-out 3; }
+.hint-flash { 
+    animation: flash-glow 0.4s ease-in-out 3;
+}
+
 @keyframes flash-glow {
     0%, 100% { background-color: #fff; }
-    50% { background-color: #f1c40f; transform: scale(1.05); border-radius: 18%; box-shadow: 0 0 15px #f1c40f; }
+    50% { 
+        background-color: #fef08a;
+        transform: scale(1.03); 
+        border-radius: var(--apple-radius); 
+        box-shadow: 0 0 15px rgba(234, 179, 8, 0.3); 
+    }
 }
 
 /* RWD 棋盤外層容器 */
@@ -169,79 +236,86 @@ body{
     width: 100%;
     max-width: 520px; 
     box-sizing: border-box;
-    touch-action: none !important; /* 確保滑動方塊時不會引發整頁位移 */
 }
 
 /* 自動彈性棋盤 */
-.board{
+.board {
     position: relative;
     display: grid;
     grid-template-columns: repeat(8, 1fr); 
-    gap: 1.5vw; 
+    gap: 8px; 
     justify-content: center;
-    background: rgba(255, 255, 255, 0.4);
-    padding: 10px;
-    border-radius: 16px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
-    touch-action: none !important; /* 格子盤面鎖定防誤觸下滑與放大 */
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    padding: 12px;
+    border-radius: 24px;
+    box-shadow: var(--apple-shadow);
+    border: 1px solid var(--apple-border);
+    touch-action: manipulation !important;
 }
 
 /* 完美正方形格子自適應螢幕 */
-.cell{
+.cell {
     width: 100%;
     aspect-ratio: 1; 
-    background: #fff;
-    border-radius: 18%;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: var(--apple-radius);
     position: relative;
-    box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+    box-shadow: inset 0 0 2px rgba(0,0,0,0.05);
     box-sizing: border-box;
-    touch-action: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    touch-action: manipulation !important;
+    transition: background-color 0.2s ease;
 }
 
 /* 點選高亮框 */
 .selected {
-    border: 3px solid #e74c3c !important;
-    background: #ffeaea !important;
+    border: 2px solid var(--apple-dark) !important;
+    background: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 /* 🛠️ Swap fail 彈回與手感回彈特效優化 */
-.disk{
-    width: 85%;
-    height: 85%;
+.disk {
+    width: 82%;
+    height: 82%;
     position: absolute;
-    top: 7.5%;
-    left: 7.5%;
+    top: 9%;
+    left: 9%;
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
     cursor: pointer;
     pointer-events: none; 
-    transition: transform 0.18s cubic-bezier(.3, 1.5, .5, 1);
+    transition: transform 0.22s cubic-bezier(.34, 1.56, .64, 1);
     font-size: 7.5vw;
     display: flex;
     align-items: center;
     justify-content: center;
-    filter: drop-shadow(0px 4px 3px rgba(0,0,0,0.22));
+    filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.08));
 }
 
 /* 💣 3D炸彈呼吸特效 */
 .bomb_3d { 
     background-image: url('https://img.icons8.com/color/96/bomb.png') !important; 
-    animation: pulse 0.8s infinite alternate;
+    animation: pulse 0.8s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
 }
+
 @keyframes pulse {
-    0% { transform: scale(1); filter: drop-shadow(0 0 2px #e74c3c); }
-    100% { transform: scale(1.1); filter: drop-shadow(0 0 10px #e74c3c); }
+    0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 59, 48, 0.2)); }
+    100% { transform: scale(1.08); filter: drop-shadow(0 0 12px rgba(255, 59, 48, 0.5)); }
 }
 
 /* 🌈 彩虹球（5連特製樣式） */
 .rainbow_3d {
     background-image: url('https://img.icons8.com/color/96/rainbow.png') !important;
-    animation: rainbowPulse 0.6s infinite alternate;
+    animation: rainbowPulse 0.6s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
 }
+
 @keyframes rainbowPulse {
-    0% { transform: scale(1); filter: drop-shadow(0 0 4px #f1c40f); }
-    100% { transform: scale(1.15); filter: drop-shadow(0 0 12px #9b59b6); }
+    0% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(255, 149, 0, 0.3)); }
+    100% { transform: scale(1.12); filter: drop-shadow(0 0 14px rgba(175, 82, 222, 0.6)); }
 }
 
 /* 🛠️ 爆炸動畫效能隔離管理層 (fx-layer) */
@@ -262,152 +336,214 @@ body{
     z-index: 999;
     animation: explode 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
 }
-@keyframes explode{
+
+@keyframes explode {
     0% { transform: translate(0, 0) scale(1); opacity: 1; }
-    100% { transform: translate(var(--x),var(--y)) scale(0.5); opacity:0; }
+    100% { transform: translate(var(--x),var(--y)) scale(0.4); opacity: 0; }
 }
 
 /* ⏱️+加時與分數飄字特效外殼 */
 .time-bonus-text, .combo-bonus-text {
     position: absolute;
-    font-weight: 900;
+    font-weight: 700;
     pointer-events: none;
     z-index: 1005;
-    animation: floatUpUp 0.9s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    animation: floatUpUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
 .time-bonus-text {
-    color: #2ecc71;
-    font-size: 20px;
-    text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff;
+    color: var(--oasis-green);
+    font-size: 18px;
+    text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff;
 }
+
 /* Combo文字立體縮放爆發質感 */
 .combo-bonus-text {
-    font-size: 26px;
-    text-shadow: 2px 2px 0px #fff, -2px -2px 0px #fff, 2px 2px 4px rgba(0,0,0,0.4);
-    transform: scale(1.3);
+    font-size: 24px;
+    text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff, 0px 4px 8px rgba(0,0,0,0.1);
+    transform: scale(1.2);
 }
+
 @keyframes floatUpUp {
     0% { transform: translate(0, 0) scale(0.9); opacity: 1; }
-    100% { transform: translate(0, -60px) scale(1.1); opacity: 0; }
+    100% { transform: translate(0, -50px) scale(1.05); opacity: 0; }
 }
 
 /* 🏆 全球排名榜彈窗 UI */
 .rank-modal {
     display: none;
     position: fixed;
-    top: 0; left: 0; width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.7);
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     z-index: 2000;
     justify-content: center;
     align-items: center;
 }
+
 .rank-content {
-    background: white;
-    width: 85%;
+    background: var(--apple-card-bg);
+    border: 1px solid var(--apple-border);
+    width: 88%;
     max-width: 400px;
-    border-radius: 20px;
-    padding: 20px;
+    border-radius: 28px;
+    padding: 24px;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    animation: modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .rank-title {
-    font-size: 22px;
-    color: #2c3e50;
-    margin-bottom: 15px;
-    font-weight: 900;
+    font-size: 20px;
+    color: var(--apple-dark);
+    margin-bottom: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
 }
+
 .rank-table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 15px;
-    font-size: 15px;
+    margin-bottom: 20px;
+    font-size: 14px;
 }
-.rank-table th { background: #34495e; color: white; padding: 6px; }
-.rank-table td { padding: 8px 6px; border-bottom: 1px solid #eee; font-weight: bold; }
-.rank-table tr:nth-child(2) td { color: #f1c40f; } 
-.rank-table tr:nth-child(3) td { color: #95a5a6; } 
-.rank-table tr:nth-child(4) td { color: #d35400; } 
+
+.rank-table th { 
+    background: rgba(0,0,0,0.04); 
+    color: var(--apple-gray); 
+    padding: 8px;
+    font-weight: 600;
+    border-radius: 6px;
+}
+
+.rank-table td { 
+    padding: 10px 8px; 
+    border-bottom: 1px solid rgba(0,0,0,0.04); 
+    font-weight: 600; 
+}
+
 .close-rank-btn {
-    background: #e74c3c; color: white; border: none;
-    padding: 8px 20px; border-radius: 15px; font-weight: bold;
-    cursor: pointer; width: 100%; font-size: 15px;
+    background: var(--apple-dark); 
+    color: white; 
+    border: none;
+    padding: 12px 20px; 
+    border-radius: 20px; 
+    font-weight: 600;
+    cursor: pointer; 
+    width: 100%; 
+    font-size: 15px;
+    transition: opacity 0.2s;
 }
+
+.close-rank-btn:active { opacity: 0.8; }
 
 /* 💀 網頁內嵌式客製化 Game Over 結算畫面 UI */
 .game-over-modal {
     display: none;
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(44, 62, 80, 0.85);
-    backdrop-filter: blur(5px);
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     z-index: 3000;
     justify-content: center;
     align-items: center;
 }
+
 .game-over-content {
-    background: radial-gradient(circle, #ffffff 60%, #f5faff 100%);
-    width: 85%;
+    background: var(--apple-card-bg);
+    border: 1px solid var(--apple-border);
+    width: 88%;
     max-width: 420px;
-    border-radius: 24px;
-    padding: 30px 20px;
+    border-radius: 32px;
+    padding: 32px 24px;
     box-sizing: border-box;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-    border: 3px solid #e74c3c;
-    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+    animation: modalPop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
-@keyframes popIn {
-    0% { transform: scale(0.7); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
+
+@keyframes modalPop {
+    0% { transform: scale(0.9) translateY(10px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
 }
+
 .go-title {
-    font-size: 28px;
-    color: #e74c3c;
-    font-weight: 900;
-    margin-bottom: 10px;
+    font-size: 26px;
+    color: var(--system-red);
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
 }
+
 .go-reason {
-    font-size: 15px;
-    color: #7f8c8d;
-    margin-bottom: 20px;
-    font-weight: bold;
+    font-size: 14px;
+    color: var(--apple-gray);
+    margin-bottom: 24px;
+    font-weight: 500;
 }
+
 .go-stats {
-    background: #f8f9fa;
-    border-radius: 16px;
-    padding: 15px;
-    margin-bottom: 25px;
+    background: rgba(0,0,0,0.03);
+    border-radius: 20px;
+    padding: 16px;
+    margin-bottom: 28px;
     text-align: left;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.02);
 }
+
 .go-stat-row {
     display: flex;
     justify-content: space-between;
-    font-size: 17px;
-    margin: 8px 0;
-    color: #2c3e50;
-    font-weight: bold;
+    font-size: 16px;
+    margin: 10px 0;
+    color: var(--apple-dark);
+    font-weight: 600;
 }
+
 .btn-restart {
-    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    background: var(--apple-dark);
     color: white;
     border: none;
-    padding: 12px 25px;
-    font-size: 18px;
-    font-weight: 900;
-    border-radius: 20px;
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 24px;
     cursor: pointer;
     width: 100%;
-    box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
-    transition: 0.2s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.2s;
 }
-.btn-restart:active { transform: scale(0.96); box-shadow: none; }
+
+.btn-restart:active { 
+    transform: scale(0.98); 
+    opacity: 0.9; 
+}
+
+/* 提示訊息輕量化 */
+#tipBox {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 4000;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
 
 @media (min-width: 520px) {
-    .board { gap: 6px; }
+    .board { gap: 8px; padding: 16px; }
     .disk { font-size: 34px; }
     .particle { font-size: 20px; }
+    body { padding: 24px; }
 }
 </style>
 
@@ -421,7 +557,7 @@ body{
 
 <div class="control-panel">
     <div class="level-badge">第 <span id="current-level">1</span> / 100 關</div>
-    <div>
+    <div class="btn-group">
         <button class="music-btn" onclick="toggleMusic()">🎵 音樂</button>
         <button class="shuffle-btn" onclick="userTriggerShuffle()">🎲 洗牌</button>
         <button class="rank-toggle-btn" onclick="showLeaderboardPopup()">🏆 排名</button>
@@ -434,15 +570,15 @@ body{
 <div id="timer-text" class="timer-text">剩餘時間: 90.0 秒</div>
 
 <div class="info-bar">
-    <span>得分: <span id="score" style="color:#e74c3c;">0</span></span> 
-    <span>步數: <span id="moves" style="color:#2ecc71;">35</span></span>
+    <span>得分: <span id="score" style="color:var(--system-red);">0</span></span> 
+    <span>步數: <span id="moves" style="color:var(--oasis-green);">35</span></span>
 </div>
 
 <div id="mission"></div>
 <br>
 
 <button id="ambulance-btn" class="btn-ambulance" onclick="useAmbulanceRescue()">
-    出動救護車：<span id="car-icons" style="display:inline-flex; gap:2px; vertical-align:middle;"></span>
+    出動救護車：<span id="car-icons" style="display:inline-flex; gap:3px; vertical-align:middle;"></span>
 </button>
 
 <div class="board-container" id="game-container">
@@ -476,11 +612,11 @@ body{
         <div class="go-stats">
             <div class="go-stat-row">
                 <span>🚨 停留於關卡：</span>
-                <span id="go-level-val" style="color:#9b59b6;">第 1 關</span>
+                <span id="go-level-val" style="color:var(--system-purple);">第 1 關</span>
             </div>
             <div class="go-stat-row">
                 <span>🏆 最終結算總分：</span>
-                <span id="go-score-val" style="color:#e74c3c;">0 分</span>
+                <span id="go-score-val" style="color:var(--system-red);">0 分</span>
             </div>
         </div>
         <button class="btn-restart" onclick="restartWholeGame()">🔄 重新開始挑戰</button>
@@ -569,13 +705,12 @@ const tipBox=document.getElementById("tipBox");
 const fxLayer = document.getElementById("fx-layer");
 
 // ==========================================
-// 🎵 100% 原生 Web Audio API 八音盒引擎（加強硬件路由解鎖與自癒）
+// 🎵 100% 原生 Web Audio API 八音盒引擎
 // ==========================================
 let audioCtx = null;
 let bgmTimer = null;
 let bgmStep = 0;
 
-// 經典廣東歌複音旋律數值陣列
 const EASON_MELODY = [329.63, 349.23, 392.00, 523.25, 440.00, 392.00, 349.23, 392.00, 440.00, 587.33, 523.25, 440.00, 392.00, 349.23, 329.63, 392.00, 349.23, 329.63, 293.66, 329.63, 349.23, 440.00, 392.00, 392.00, 523.25, 493.88, 523.25, 587.33, 659.25, 587.33, 523.25, 440.00, 493.88, 523.25, 392.00, 392.00, 440.00, 493.88, 523.25, 440.00, 349.23, 329.63, 293.66, 349.23, 329.63, 261.63, 261.63, 261.63];
 
 function tryInitAudio() {
@@ -586,15 +721,12 @@ function tryInitAudio() {
         if (audioCtx && audioCtx.state === 'suspended') {
             audioCtx.resume();
         }
-        
-        /* 🛠️ 強效防禦修正：靜音預熱（Warmup）技術 */
-        /* 在玩家點擊或觸控的瞬間，向底層硬體管道推播一個微秒的靜音波形，破除必須戴耳機的限制 */
         if (audioCtx && audioCtx.state === 'running') {
             const dummyOsc = audioCtx.createOscillator();
             const dummyGain = audioCtx.createGain();
             dummyOsc.connect(dummyGain);
             dummyGain.connect(audioCtx.destination);
-            dummyGain.gain.setValueAtTime(0.0001, audioCtx.currentTime); 
+            dummyGain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
             dummyOsc.start();
             dummyOsc.stop(audioCtx.currentTime + 0.01);
         }
@@ -606,12 +738,8 @@ function tryInitAudio() {
 function startBGM() {
     if (!audioCtx) return;
     if (bgmTimer) clearInterval(bgmTimer);
-    
-    // 隨關卡推進動態提升主奏旋律拍子調速，優化緊湊感
     let tempoFactor = 1.0 + (currentLevel - 1) * 0.04; 
     let tempo = Math.max(200 / tempoFactor, 100);
-    
-    /* 🛠️ 硬件路由自癒機制：如果因為耳機拔插或系統切換導致音軌被中斷，自動重連自癒 */
     audioCtx.onstatechange = function() {
         if (audioCtx && audioCtx.state === 'suspended' && !musicUserToggled) {
             audioCtx.resume();
@@ -629,7 +757,6 @@ function startBGM() {
             osc.type = 'sine';
             let freq = EASON_MELODY[bgmStep % EASON_MELODY.length];
             
-            // 每 6 步在三角形波同步灌注一次雙倍低音聲部和弦
             if (bgmStep % 6 === 0) {
                 const bassOsc = audioCtx.createOscillator();
                 const bassGain = audioCtx.createGain();
@@ -661,7 +788,6 @@ function stopBGM() {
     }
 }
 
-// 🔊 採用正弦波頻率動態合成全新本地效果音
 function playSynthesizedSound(type) {
     if (!audioCtx) return;
     try {
@@ -721,13 +847,12 @@ function autoPlayMusic() {
 function toggleMusic(){
     tryInitAudio();
     if(!audioCtx) return;
-    
     if(bgmTimer === null) {
         musicUserToggled = false;
         startBGM();
     } else {
         stopBGM();
-        musicUserToggled = true; 
+        musicUserToggled = true;
     }
 }
 
@@ -736,7 +861,7 @@ document.addEventListener("touchstart", autoPlayMusic, { passive: true });
 document.addEventListener("click", autoPlayMusic, { passive: true });
 
 function vibrate(){
- if(navigator.vibrate){ navigator.vibrate(60); }
+    if(navigator.vibrate){ navigator.vibrate(60); }
 }
 
 function showTip(t){
@@ -751,21 +876,15 @@ function startTimer() {
     timeLeft = maxTime;
     timerInterval = setInterval(() => {
         if (isAnimating) return; 
-        
         timeLeft -= 0.1;
         if (timeLeft <= 0) {
             timeLeft = 0;
             clearInterval(timerInterval);
             checkGameStatus(true); 
         }
-        
         const percentage = (timeLeft / maxTime) * 100;
         timerBar.style.width = percentage + "%";
         timerTextEl.innerText = `剩餘時間: ${Math.max(0, timeLeft).toFixed(1)} 秒`;
-        
-        let ratio = timeLeft / maxTime;
-        let hue = ratio * 120; 
-        timerBar.style.background = `hsl(${hue}, 80%, 50%)`;
     }, 100);
 }
 
@@ -797,35 +916,34 @@ function showComboEffect(cell, comboCount) {
     comboText.style.left = offsetLeft + "px";
     comboText.style.top = offsetTop + "px";
     comboText.style.color = `hsl(${comboCount * 40}, 90%, 60%)`;
-    comboText.style.transform = "scale(1.3)";
     document.body.appendChild(comboText);
     setTimeout(() => comboText.remove(), 1000);
 }
 
 function explodeEffect(r,c){
- const cell=document.getElementById(`cell-${r}-${c}`);
- if(!cell) return;
+    const cell=document.getElementById(`cell-${r}-${c}`);
+    if(!cell) return;
 
- const rect = cell.getBoundingClientRect();
- const offsetLeft = rect.left + window.scrollX + cell.offsetWidth / 2 - 10;
- const offsetTop = rect.top + window.scrollY + cell.offsetHeight / 2 - 10;
- const spreadRange = window.innerWidth < 520 ? window.innerWidth * 0.2 : 60;
+    const rect = cell.getBoundingClientRect();
+    const offsetLeft = rect.left + window.scrollX + cell.offsetWidth / 2 - 10;
+    const offsetTop = rect.top + window.scrollY + cell.offsetHeight / 2 - 10;
+    const spreadRange = window.innerWidth < 520 ? window.innerWidth * 0.2 : 60;
 
- for(let i=0;i<8;i++){
-   let p=document.createElement("div");
-   p.className="particle";
-   p.innerText= ["✨","💥","✨"][Math.floor(Math.random()*3)]; 
-   p.style.left = offsetLeft + "px";
-   p.style.top = offsetTop + "px";
+    for(let i=0;i<8;i++){
+        let p=document.createElement("div");
+        p.className="particle";
+        p.innerText= ["✨","💥","✨"][Math.floor(Math.random()*3)]; 
+        p.style.left = offsetLeft + "px";
+        p.style.top = offsetTop + "px";
 
-   let x=(Math.random() * (spreadRange * 2) - spreadRange) + "px";
-   let y=(Math.random() * (spreadRange * 2) - spreadRange) + "px";
-   p.style.setProperty("--x",x);
-   p.style.setProperty("--y",y);
+        let x=(Math.random() * (spreadRange * 2) - spreadRange) + "px";
+        let y=(Math.random() * (spreadRange * 2) - spreadRange) + "px";
+        p.style.setProperty("--x",x);
+        p.style.setProperty("--y",y);
 
-   fxLayer.appendChild(p); 
-   setTimeout(()=>p.remove(),600);
- }
+        fxLayer.appendChild(p); 
+        setTimeout(()=>p.remove(),600);
+    }
 }
 
 function create(){
@@ -835,11 +953,11 @@ function create(){
     while (attempts < 200) {
         g = [];
         for(let r=0;r<SIZE;r++){
-           let row=[];
-           for(let c=0;c<SIZE;c++) {
-               row.push(currentLevelTypes[Math.floor(Math.random()*len)]);
-           }
-           g.push(row);
+            let row=[];
+            for(let c=0;c<SIZE;c++) {
+                row.push(currentLevelTypes[Math.floor(Math.random()*len)]);
+            }
+            g.push(row);
         }
         if (!hasMatch(g)) {
             return g;
@@ -903,33 +1021,33 @@ function generateValidGrid() {
 }
 
 function render(){
- board.innerHTML="";
- renderMission();
- grid.forEach((row,r)=>{
-   row.forEach((cell,c)=>{
-     let div=document.createElement("div");
-     div.className="cell";
-     div.id=`cell-${r}-${c}`;
-     div.dataset.r=r;
-     div.dataset.c=c;
+    board.innerHTML="";
+    renderMission();
+    grid.forEach((row,r)=>{
+        row.forEach((cell,c)=>{
+            let div=document.createElement("div");
+            div.className="cell";
+            div.id=`cell-${r}-${c}`;
+            div.dataset.r=r;
+            div.dataset.c=c;
 
-     if(last && last.r === r && last.c === c) div.classList.add("selected");
+            if(last && last.r === r && last.c === c) div.classList.add("selected");
 
-     if(cell){
-       let d=document.createElement("div");
-       if (cell === BOMB) {
-           d.className = "disk bomb_3d";
-       } else if (cell === RAINBOW) {
-           d.className = "disk rainbow_3d"; 
-       } else {
-           d.className = "disk " + cell;
-           d.innerText = MASTER_ITEMS[cell] ? MASTER_ITEMS[cell].text : "";
-       }
-       div.appendChild(d);
-     }
-     board.appendChild(div);
-   });
- });
+            if(cell){
+                let d=document.createElement("div");
+                if (cell === BOMB) {
+                    d.className = "disk bomb_3d";
+                } else if (cell === RAINBOW) {
+                    d.className = "disk rainbow_3d"; 
+                } else {
+                    d.className = "disk " + cell;
+                    d.innerText = MASTER_ITEMS[cell] ? MASTER_ITEMS[cell].text : "";
+                }
+                div.appendChild(d);
+            }
+            board.appendChild(div);
+        });
+    });
 }
 
 let startCell = null;
@@ -938,6 +1056,7 @@ board.addEventListener("pointerdown", e=>{
     if(isAnimating || moves<=0 || timeLeft <= 0 || isSwapping) return;
     startCell = e.target.closest(".cell");
 });
+
 board.addEventListener("pointermove", e=>{
     if(!startCell || isAnimating || isSwapping) return;
     
@@ -966,6 +1085,7 @@ board.addEventListener("pointermove", e=>{
         }, 200);
     }
 });
+
 board.addEventListener("pointerup", () => {
     startCell = null;
 });
@@ -994,165 +1114,160 @@ function triggerRainbowExplode(r1, c1, r2, c2) {
 }
 
 function click(r,c){
- if(!last){
-     last={r,c}; 
-     render(); 
-     return;
- }
+    if(!last){
+        last={r,c}; 
+        render(); 
+        return;
+    }
 
- let dr=Math.abs(last.r-r);
- let dc=Math.abs(last.c-c);
- if(dr+dc==1){
-   isAnimating = true;
-   [grid[r][c],grid[last.r][last.c]]=[grid[last.r][last.c],grid[r][c]];
-   render();
+    let dr=Math.abs(last.r-r);
+    let dc=Math.abs(last.c-c);
+    if(dr+dc==1){
+        isAnimating = true;
+        [grid[r][c],grid[last.r][last.c]]=[grid[last.r][last.c],grid[r][c]];
+        render();
 
-   setTimeout(() => {
-       currentComboCount = 1; 
-       
-       if(grid[r][c] === RAINBOW || grid[last.r][last.c] === RAINBOW) {
-           triggerRainbowExplode(r, c, last.r, last.c);
-           last = null;
-           return;
-       }
+        setTimeout(() => {
+            currentComboCount = 1; 
+            
+            if(grid[r][c] === RAINBOW || grid[last.r][last.c] === RAINBOW) {
+                triggerRainbowExplode(r, c, last.r, last.c);
+                last = null;
+                return;
+            }
 
-       if(!checkMatchesAndEliminate()) {
-           [grid[r][c],grid[last.r][last.c]]=[grid[last.r][last.c],grid[r][c]];
-           playSynthesizedSound('wrong'); 
-           isAnimating = false;
-           last = null;
-           render();
-       } else {
-           moves--;
-           document.getElementById("moves").innerText = moves;
-           last = null;
-       }
-   }, 150);
- } else {
-   last={r,c};
-   render();
- }
+            if(!checkMatchesAndEliminate()) {
+                [grid[r][c],grid[last.r][last.c]]=[grid[last.r][last.c],grid[r][c]];
+                playSynthesizedSound('wrong'); 
+                isAnimating = false;
+                last = null;
+                render();
+            } else {
+                moves--;
+                document.getElementById("moves").innerText = moves;
+                last = null;
+            }
+        }, 150);
+    } else {
+        last={r,c};
+        render();
+    }
 }
 
 function checkMatchesAndEliminate() {
- let toRemove = Array.from({length: SIZE}, () => Array(SIZE).fill(false));
- let hasMatchFound = false;
- let matchObjects = [];
- for(let r=0; r<SIZE; r++){
-   let cnt = 1;
-   for(let c=1; c<SIZE; c++){
-     if(grid[r][c] && grid[r][c] === grid[r][c-1] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW){
-       cnt++;
-     } else {
-       if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: c-cnt, len: cnt}); hasMatchFound = true; }
-       cnt = 1;
-     }
-   }
-   if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: SIZE-cnt, len: cnt}); hasMatchFound = true; }
- }
+    let toRemove = Array.from({length: SIZE}, () => Array(SIZE).fill(false));
+    let hasMatchFound = false;
+    let matchObjects = [];
+    for(let r=0; r<SIZE; r++){
+        let cnt = 1;
+        for(let c=1; c<SIZE; c++){
+            if(grid[r][c] && grid[r][c] === grid[r][c-1] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW){
+                cnt++;
+            } else {
+                if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: c-cnt, len: cnt}); hasMatchFound = true; }
+                cnt = 1;
+            }
+        }
+        if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: SIZE-cnt, len: cnt}); hasMatchFound = true; }
+    }
 
- for(let c=0; c<SIZE; c++){
-   let cnt = 1;
-   for(let r=1; r<SIZE; r++){
-     if(grid[r][c] && grid[r][c] === grid[r-1][c] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW){
-       cnt++;
-     } else {
-       if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: r-cnt, len: cnt}); hasMatchFound = true; }
-       cnt = 1;
-     }
-   }
-   if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: SIZE-cnt, len: cnt}); hasMatchFound = true; }
- }
+    for(let c=0; c<SIZE; c++){
+        let cnt = 1;
+        for(let r=1; r<SIZE; r++){
+            if(grid[r][c] && grid[r][c] === grid[r-1][c] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW){
+                cnt++;
+            } else {
+                if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: r-cnt, len: cnt}); hasMatchFound = true; }
+                cnt = 1;
+            }
+        }
+        if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: SIZE-cnt, len: cnt}); hasMatchFound = true; }
+    }
 
- if(hasMatchFound){
-   matchObjects.forEach(m => {
-       if(m.type === 'H') { for(let i=0; i<m.len; i++) toRemove[m.r][m.startC + i] = true; }
-       else { for(let i=0; i<m.len; i++) toRemove[m.startR + i][m.c] = true; }
-   });
-   for(let r=0; r<SIZE; r++) {
-       for(let c=0; c<SIZE; c++) {
-           if(toRemove[r][c] && grid[r][c] === BOMB) {
-               let bombColor = null;
-               let dirs = [[0,1],[1,0],[0,-1],[-1,0]];
-               for(let [dr,dc] of dirs){
-                   let nr=r+dr, nc=c+dc;
-                   if(nr>=0 && nr<SIZE && nc>=0 && nc<SIZE && grid[nr][nc] && grid[nr][nc] !== BOMB && grid[nr][nc] !== RAINBOW){
-                       bombColor = grid[nr][nc];
-                       break;
-                   }
-               }
-               if(bombColor){
-                   for(let rr=0; rr<SIZE; rr++){
-                       for(let cc=0; cc<SIZE; cc++){
-                           if(grid[rr][cc] === bombColor || grid[rr][cc] === BOMB){
-                               toRemove[rr][cc] = true;
-                           }
-                       }
-                   }
-               }
-           }
-       }
-   }
+    if(hasMatchFound){
+        matchObjects.forEach(m => {
+            if(m.type === 'H') { for(let i=0; i<m.len; i++) toRemove[m.r][m.startC + i] = true; }
+            else { for(let i=0; i<m.len; i++) toRemove[m.startR + i][m.c] = true; }
+        });
+        for(let r=0; r<SIZE; r++) {
+            for(let c=0; c<SIZE; c++) {
+                if(toRemove[r][c] && grid[r][c] === BOMB) {
+                    let bombColor = null;
+                    let dirs = [[0,1],[1,0],[0,-1],[-1,0]];
+                    for(let [dr,dc] of dirs){
+                        let nr=r+dr, nc=c+dc;
+                        if(nr>=0 && nr<SIZE && nc>=0 && nc<SIZE && grid[nr][nc] && grid[nr][nc] !== BOMB && grid[nr][nc] !== RAINBOW){
+                            bombColor = grid[nr][nc];
+                            break;
+                        }
+                    }
+                    if(bombColor){
+                        for(let rr=0; rr<SIZE; rr++){
+                            for(let cc=0; cc<SIZE; cc++){
+                                if(grid[rr][cc] === bombColor || grid[rr][cc] === BOMB){
+                                    toRemove[rr][cc] = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
-   let maxLen = 3;
-   matchObjects.forEach(m => { if(m.len > maxLen) maxLen = m.len; });
-   executeEliminationStep(toRemove, maxLen, matchObjects);
-   return true;
- }
- return false;
+        let maxLen = 3;
+        matchObjects.forEach(m => { if(m.len > maxLen) maxLen = m.len; });
+        executeEliminationStep(toRemove, maxLen, matchObjects);
+        return true;
+    }
+    return false;
 }
 
 function executeEliminationStep(toRemove, maxLen, matchObjects = []) {
-   let removedCount = 0;
-   let targetCellEl = null;
+    let removedCount = 0;
+    let targetCellEl = null;
+    for(let r=0; r<SIZE; r++){
+        for(let c=0; c<SIZE; c++){
+            if(toRemove[r][c]) {
+                explodeEffect(r,c);
+                if(!targetCellEl) targetCellEl = document.getElementById(`cell-${r}-${c}`);
+                if(grid[r][c] === targetKey1 && mission[targetKey1] > 0) mission[targetKey1]--;
+                if(grid[r][c] === targetKey2 && mission[targetKey2] > 0) mission[targetKey2]--;
+                grid[r][c]=null; 
+                removedCount++;
+            }
+        }
+    }
 
-   for(let r=0; r<SIZE; r++){
-     for(let c=0; c<SIZE; c++){
-       if(toRemove[r][c]) {
-         explodeEffect(r,c);
-         if(!targetCellEl) targetCellEl = document.getElementById(`cell-${r}-${c}`);
-         
-         if(grid[r][c] === targetKey1 && mission[targetKey1] > 0) mission[targetKey1]--;
-         if(grid[r][c] === targetKey2 && mission[targetKey2] > 0) mission[targetKey2]--;
-         grid[r][c]=null; 
-         removedCount++;
-       }
-     }
-   }
+    matchObjects.forEach(m => {
+        let spawnR = m.type === 'H' ? m.r : m.startR;
+        let spawnC = m.type === 'H' ? m.startC : m.c;
+        if(grid[spawnR][spawnC] === null) {
+            if(m.len === 4) {
+                grid[spawnR][spawnC] = BOMB; 
+            } else if(m.len >= 5) {
+                grid[spawnR][spawnC] = RAINBOW; 
+            }
+        }
+    });
+    let addedTime = 1.5;
+    if(maxLen === 4) addedTime = 3.5;
+    if(maxLen >= 5 || removedCount >= 7) addedTime = 6.0;
+    timeLeft = Math.min(maxTime, timeLeft + addedTime); 
+    if(targetCellEl) {
+        showTimeBonusEffect(targetCellEl, addedTime); 
+        showComboEffect(targetCellEl, currentComboCount);
+    }
 
-   matchObjects.forEach(m => {
-       let spawnR = m.type === 'H' ? m.r : m.startR;
-       let spawnC = m.type === 'H' ? m.startC : m.c;
-       
-       if(grid[spawnR][spawnC] === null) {
-           if(m.len === 4) {
-               grid[spawnR][spawnC] = BOMB; 
-           } else if(m.len >= 5) {
-               grid[spawnR][spawnC] = RAINBOW; 
-           }
-       }
-   });
-   let addedTime = 1.5;
-   if(maxLen === 4) addedTime = 3.5;
-   if(maxLen >= 5 || removedCount >= 7) addedTime = 6.0;
-   timeLeft = Math.min(maxTime, timeLeft + addedTime); 
-   if(targetCellEl) {
-       showTimeBonusEffect(targetCellEl, addedTime); 
-       showComboEffect(targetCellEl, currentComboCount);
-   }
-
-   let roundScore = (removedCount * 100) * currentComboCount;
-   let newScore = score + roundScore;
-   animateScore(newScore); 
-
-   if (maxLen >= 4 || removedCount >= 6) {
-       playSynthesizedSound('special');
-   } else {
-       playSynthesizedSound('match');
-   }
-   vibrate(); 
-   
-   setTimeout(drop, 350);
+    let roundScore = (removedCount * 100) * currentComboCount;
+    let newScore = score + roundScore;
+    animateScore(newScore);
+    if (maxLen >= 4 || removedCount >= 6) {
+        playSynthesizedSound('special');
+    } else {
+        playSynthesizedSound('match');
+    }
+    vibrate(); 
+    setTimeout(drop, 350);
 }
 
 function autoCheckLoop() {
@@ -1161,26 +1276,26 @@ function autoCheckLoop() {
     let matchObjects = [];
 
     for(let r=0; r<SIZE; r++){
-      let cnt = 1;
-      for(let c=1; c<SIZE; c++){
-        if(grid[r][c] && grid[r][c] === grid[r][c-1] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW) cnt++;
-        else {
-          if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: c-cnt, len: cnt}); hasMatchFound=true; }
-          cnt = 1;
+        let cnt = 1;
+        for(let c=1; c<SIZE; c++){
+            if(grid[r][c] && grid[r][c] === grid[r][c-1] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW) cnt++;
+            else {
+                if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: c-cnt, len: cnt}); hasMatchFound=true; }
+                cnt = 1;
+            }
         }
-      }
-      if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: SIZE-cnt, len: cnt}); hasMatchFound=true; }
+        if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: SIZE-cnt, len: cnt}); hasMatchFound=true; }
     }
     for(let c=0; c<SIZE; c++){
-      let cnt = 1;
-      for(let r=1; r<SIZE; r++){
-        if(grid[r][c] && grid[r][c] === grid[r-1][c] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW) cnt++;
-        else {
-          if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: r-cnt, len: cnt}); hasMatchFound=true; }
-          cnt = 1;
+        let cnt = 1;
+        for(let r=1; r<SIZE; r++){
+            if(grid[r][c] && grid[r][c] === grid[r-1][c] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW) cnt++;
+            else {
+                if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: r-cnt, len: cnt}); hasMatchFound=true; }
+                cnt = 1;
+            }
         }
-      }
-      if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: SIZE-cnt, len: cnt}); hasMatchFound=true; }
+        if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: SIZE-cnt, len: cnt}); hasMatchFound=true; }
     }
 
     if(hasMatchFound) {
@@ -1248,7 +1363,6 @@ function drop(){
     setTimeout(autoCheckLoop, 150);
 }
 
-// 滾動跳數效果
 function animateScore(newScore){
     let start = score;
     let diff = newScore - start;
@@ -1492,7 +1606,7 @@ function showLeaderboardPopup() {
                 <td>${rankMedal}</td>
                 <td style="max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${player.name}</td>
                 <td>${showLevelText}</td>
-                <td style="color:#e74c3c;">${player.score}</td>
+                <td style="color:var(--system-red);">${player.score}</td>
             `;
             tbody.appendChild(tr);
         });
