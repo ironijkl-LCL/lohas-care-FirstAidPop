@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>First Aid Pop! - 急救先鋒 (專業防護版)</title>
+<title>First Aid Pop! - 急救先鋒 (終極修復運行版)</title>
 
 <style>
 :root {
     --apple-bg: #f5f5f7;
-    --oasis-green: #2c6e49; /* 加深綠色以增強無障礙色彩對比度 */
+    --oasis-green: #2c6e49;
     --oasis-green-light: #e8f3ec;
     --apple-dark: #1d1d1f;
     --apple-gray: #6e6e73;
-    --apple-card-bg: rgba(255, 255, 255, 0.85);
-    --apple-border: rgba(255, 255, 255, 0.8);
+    --apple-card-bg: rgba(255, 255, 255, 0.88);
+    --apple-border: rgba(255, 255, 255, 0.85);
     --apple-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
     --apple-radius: 18px;
     --system-red: #d70015;
@@ -379,31 +379,6 @@ body {
     100% { transform: translate(var(--x),var(--y)) scale(0.4); opacity: 0; }
 }
 
-.time-bonus-text, .combo-bonus-text {
-    position: absolute;
-    font-weight: 800;
-    pointer-events: none;
-    z-index: 1005;
-    animation: floatUpUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.time-bonus-text {
-    color: var(--oasis-green);
-    font-size: 18px;
-    text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff;
-}
-
-.combo-bonus-text {
-    font-size: 24px;
-    text-shadow: 1px 1px 0px #fff, -1px -1px 0px #fff, 0px 4px 8px rgba(0,0,0,0.1);
-    transform: scale(1.2);
-}
-
-@keyframes floatUpUp {
-    0% { transform: translate(0, 0) scale(0.9); opacity: 1; }
-    100% { transform: translate(0, -45px) scale(1.05); opacity: 0; }
-}
-
 .modal {
     display: none;
     position: fixed;
@@ -524,7 +499,7 @@ body {
 }
 </style>
 
-<!-- Firebase App + Database + Auth -->
+<!-- Firebase SDK (防崩潰安全引入) -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
@@ -553,7 +528,6 @@ body {
     <span>步數: <span id="moves" style="color:var(--oasis-green);">35</span></span>
 </div>
 
-<!-- 急救情境任務卡 -->
 <div class="scenario-card" id="scenario-card">
     <div class="scenario-header">
         <span class="scenario-title" id="scenario-title">🚨 緊急狀況</span>
@@ -570,18 +544,18 @@ body {
     <div id="board" class="board"></div>
 </div>
 
-<!-- 提交分數 Modal (取代不穩定的 prompt) -->
+<!-- 分數登記視窗 -->
 <div id="scoreSubmitModal" class="modal">
     <div class="modal-content">
         <div class="modal-title">🩺 登記急救英雄榜</div>
-        <p style="font-size:13px; color:var(--apple-gray); margin-bottom:14px;">請留下大名，將今次救援戰績記錄到全球資料庫：</p>
+        <p style="font-size:13px; color:var(--apple-gray); margin-bottom:14px;">請留下稱號，將此次救援戰績記錄到全球資料庫：</p>
         <input type="text" id="heroNameInput" class="input-name" maxlength="15" placeholder="輸入醫生/救護員暱稱">
         <button class="btn-primary" onclick="confirmSubmitScore()">確定提交紀錄</button>
         <button class="btn-secondary" onclick="closeSubmitScoreModal()">放棄登記</button>
     </div>
 </div>
 
-<!-- 新手引導 Modal -->
+<!-- 新手指引視窗 -->
 <div id="tutorialModal" class="modal">
     <div class="modal-content">
         <div class="modal-title">🚨 急救分流新手指引</div>
@@ -594,7 +568,7 @@ body {
     </div>
 </div>
 
-<!-- 排行榜 Modal -->
+<!-- 全球排行榜視窗 -->
 <div id="rankModal" class="modal">
     <div class="modal-content">
         <div class="modal-title">🏆 全球急救英雄榜 (Top 10)</div>
@@ -615,7 +589,7 @@ body {
     </div>
 </div>
 
-<!-- Game Over 結算 Modal -->
+<!-- 遊戲結算視窗 -->
 <div id="gameOverModal" class="modal">
     <div class="modal-content">
         <div class="modal-title" style="color:var(--system-red);" id="go-main-title">💀 任務中止</div>
@@ -641,27 +615,35 @@ body {
 
 <script>
 // ==========================================
-// 1. Firebase 初始化與匿名認證 (防止腳本洗榜)
+// 1. Firebase 安全容錯載入 (防 Crash 機制)
 // ==========================================
-const firebaseConfig = {
-    databaseURL: "https://first-aid-pop-default-rtdb.firebaseio.com/"
-};
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-const auth = firebase.auth();
-
+let database = null;
+let auth = null;
 let currentUserId = null;
-auth.signInAnonymously().then(cred => {
-    currentUserId = cred.user.uid;
-}).catch(err => {
-    console.warn("匿名驗證受阻，降級為離線運作模式:", err);
-});
+
+try {
+    if (typeof firebase !== "undefined") {
+        const firebaseConfig = {
+            databaseURL: "https://first-aid-pop-default-rtdb.firebaseio.com/"
+        };
+        firebase.initializeApp(firebaseConfig);
+        database = firebase.database();
+        if (firebase.auth) {
+            auth = firebase.auth();
+            auth.signInAnonymously().then(cred => {
+                currentUserId = cred.user.uid;
+            }).catch(e => console.warn("Firebase 匿名認證失敗，降級為離線模式:", e));
+        }
+    }
+} catch (e) {
+    console.warn("Firebase 初始化略過，切換為純前端單機運行:", e);
+}
 
 const SIZE = 8;
 const BOMB = "bomb_3d";
 const RAINBOW = "rainbow_3d";
 
-// 20 款醫療急救物資庫 (支援本機/CDN 與 Emoji Fallback)
+// 20 款醫療急救素材庫 (具備 CDN 圖檔與原生 Emoji 雙重 Fallback)
 const MASTER_ITEMS = {
     "defibrillator_3d": { name: "AED除顫器", url: "https://img.icons8.com/color/96/defibrillator.png", text: "⚡" },
     "heart_3d": { name: "心跳按壓", url: "https://img.icons8.com/color/96/heart-monitor.png", text: "❤️" },
@@ -685,23 +667,22 @@ const MASTER_ITEMS = {
     "magnifier_3d": { name: "放大鏡", url: "https://img.icons8.com/color/96/magnifying-glass-tilted-right.png", text: "🔍" }
 };
 
-// 注入防斷網 CSS (若圖片掛掉，直接顯示 Emoji Fallback)
+// 動態安全注入樣式表
 const styleSheet = document.createElement("style");
 let styleRules = "";
 for (let key in MASTER_ITEMS) {
     styleRules += `
-    .${key} { background-image: url('${MASTER_ITEMS[key].url}'), none; }
-    .${key}::after { content: '${MASTER_ITEMS[key].text}'; display: none; }
+    .${key} { background-image: url('${MASTER_ITEMS[key].url}'); }
     `;
 }
 styleSheet.innerText = styleRules;
 document.head.appendChild(styleSheet);
 
-// 急救情境庫
+// 真實急救情境與分段任務資料庫
 const FIRST_AID_SCENARIOS = [
     {
         title: "⚡ 中環街頭：突發心臟驟停 (SCA)",
-        desc: "市民突然倒地不省人事！必須先實施【AED除顫】，隨後立刻進行【持續CPR按壓】！",
+        desc: "市民突然倒地失去呼吸脈搏！必須先實施【AED除顫】，隨後立刻進行【持續CPR心臟按壓】！",
         pool: ["defibrillator_3d", "heart_3d", "mask_3d", "gloves_3d", "kit_3d"],
         steps: [
             { key: "defibrillator_3d", name: "階段一：AED 電擊除顫", baseCount: 6 },
@@ -710,7 +691,7 @@ const FIRST_AID_SCENARIOS = [
     },
     {
         title: "🩸 地盤工地：動脈噴射性大出血",
-        desc: "大腿被銳器割破！先配戴【無菌手套】防止感染，再使用【止血繃帶】加壓包紮！",
+        desc: "大腿遭鋼筋割破！先配戴【無菌手套】防止感染，再使用【止血繃帶】加壓包紮！",
         pool: ["gloves_3d", "bandage_3d", "intravenous_3d", "bottle_3d", "kit_3d"],
         steps: [
             { key: "gloves_3d", name: "階段一：佩戴無菌防護手套", baseCount: 6 },
@@ -728,7 +709,7 @@ const FIRST_AID_SCENARIOS = [
     },
     {
         title: "🏃 體育館：小腿骨折變形",
-        desc: "運動員倒地骨骼錯位！先以【骨折夾板】固定傷肢，再調動【急救藥箱】加固包紮！",
+        desc: "運動員倒地骨骼錯位！先以【骨折夾板】固定傷肢，再調動【急救藥箱】加固防護！",
         pool: ["boot_3d", "kit_3d", "bandage_3d", "gloves_3d", "stethoscope_3d"],
         steps: [
             { key: "boot_3d", name: "階段一：安裝骨折固定夾板", baseCount: 7 },
@@ -737,7 +718,7 @@ const FIRST_AID_SCENARIOS = [
     },
     {
         title: "🫁 餐廳急性嚴重過敏呼吸困難",
-        desc: "進食後喉頭水腫發紺！先戴上【呼吸面罩】暢通氣道，再輸送【高壓純氧】支援！",
+        desc: "進食後喉頭水腫呼吸衰竭！先戴上【呼吸面罩】暢通氣道，再輸送【高壓純氧】支援！",
         pool: ["mask_3d", "tank_3d", "stethoscope_3d", "pill_3d", "heart_3d"],
         steps: [
             { key: "mask_3d", name: "階段一：扣緊急救呼吸面罩", baseCount: 6 },
@@ -772,7 +753,6 @@ const timerTextEl = document.getElementById("timer-text");
 const tipBox = document.getElementById("tipBox");
 const fxLayer = document.getElementById("fx-layer");
 
-// 震動封裝
 function triggerVibrate(ms = 40) {
     if (navigator.vibrate) {
         try { navigator.vibrate(ms); } catch(e){}
@@ -780,7 +760,7 @@ function triggerVibrate(ms = 40) {
 }
 
 // ==========================================
-// 2. 音訊引擎
+// 2. 原生 Web Audio API 合成引擎
 // ==========================================
 let audioCtx = null;
 let bgmTimer = null;
@@ -900,15 +880,14 @@ function startTimer() {
 }
 
 // ==========================================
-// 3. 傾斜加權掉落（Biased Spawning - 徹底解決卡關）
+// 3. 傾斜加權掉落演算法 (解決卡關死局)
 // ==========================================
 function getRandomItemWithBias() {
     if (!currentScenario || !currentScenario.steps[currentStepIndex]) {
         return currentLevelTypes[Math.floor(Math.random() * currentLevelTypes.length)];
     }
     const neededKey = currentScenario.steps[currentStepIndex].key;
-    // 30% 機率直接產出目前急需的處置道具
-    if (Math.random() < 0.30 && currentLevelTypes.includes(neededKey)) {
+    if (Math.random() < 0.32 && currentLevelTypes.includes(neededKey)) {
         return neededKey;
     }
     return currentLevelTypes[Math.floor(Math.random() * currentLevelTypes.length)];
@@ -989,7 +968,6 @@ function render(){
                     d.className = "disk rainbow_3d"; 
                 } else {
                     d.className = "disk " + cell;
-                    // 若圖片掛掉，直接顯示文字 Emoji
                     d.innerText = MASTER_ITEMS[cell] ? MASTER_ITEMS[cell].text : "";
                 }
                 div.appendChild(d);
@@ -1011,7 +989,6 @@ function renderProtocolUI() {
         const stepEl = document.createElement("div");
         const isDone = missionProgress[idx] <= 0;
         const isActive = (idx === currentStepIndex);
-        const isLocked = (idx > currentStepIndex);
 
         let statusClass = "locked";
         let tagHtml = `<span class="step-tag tag-locked">未解鎖</span>`;
@@ -1026,7 +1003,7 @@ function renderProtocolUI() {
         stepEl.className = `protocol-step ${statusClass}`;
         stepEl.innerHTML = `
             <div class="step-left">
-                <span class="step-icon ${step.key}"></span>
+                <span class="step-icon ${step.key}">${MASTER_ITEMS[step.key] ? MASTER_ITEMS[step.key].text : ""}</span>
                 <span>${step.name}</span>
             </div>
             ${tagHtml}
@@ -1167,7 +1144,7 @@ function checkMatchesAndEliminate() {
             else { for(let i=0; i<m.len; i++) toRemove[m.startR + i][m.c] = true; }
         });
 
-        // 炸彈連鎖
+        // 炸彈連鎖消除
         for(let r=0; r<SIZE; r++) {
             for(let c=0; c<SIZE; c++) {
                 if(toRemove[r][c] && grid[r][c] === BOMB) {
@@ -1215,13 +1192,13 @@ function executeEliminationStep(toRemove, maxLen, matchObjects = []) {
         }
     }
 
-    // 順序解鎖判定 (Phase Transition)
+    // 順序處置通關解鎖
     if(missionProgress[currentStepIndex] <= 0 && currentStepIndex < currentScenario.steps.length - 1) {
         currentStepIndex++;
-        timeLeft = Math.min(maxTime, timeLeft + 12.0); // 階段成功送 12 秒
+        timeLeft = Math.min(maxTime, timeLeft + 12.0); 
         playSound('phase');
         triggerVibrate(80);
-        showTip(`✅ 階段處置成功！立即進行：${currentScenario.steps[currentStepIndex].name}！(+12s)`);
+        showTip(`✅ 階段處置成功！進入：${currentScenario.steps[currentStepIndex].name}！(+12s)`);
     }
 
     matchObjects.forEach(m => {
@@ -1283,7 +1260,7 @@ function autoCheckLoop() {
     } else {
         isAnimating = false;
         if(countPossibleMoves(grid) < 1 && moves > 0 && timeLeft > 0) {
-            showTip("🚑 系統自動排除死局：洗牌中！");
+            showTip("🚑 盤面無可行解：自動免費洗牌！");
             grid = generateValidGrid();
             render();
         } else {
@@ -1302,7 +1279,6 @@ function drop(){
             }
         }
         while(pointer >= 0) {
-            // 採用加權掉落
             grid[pointer][c] = getRandomItemWithBias();
             pointer--;
         }
@@ -1321,7 +1297,7 @@ function explodeEffect(r,c){
     for(let i=0;i<5;i++){
         let p=document.createElement("div");
         p.className="particle";
-        p.innerText= ["✨","💥","❤️"][Math.floor(Math.random()*3)]; 
+        p.innerText= ["✨","💥","🩺"][Math.floor(Math.random()*3)]; 
         p.style.left = offsetLeft + "px";
         p.style.top = offsetTop + "px";
         let x=(Math.random() * 70 - 35) + "px";
@@ -1334,7 +1310,7 @@ function explodeEffect(r,c){
 }
 
 // ==========================================
-// 4. 關卡難度公式（P0 崩潰修復與 Boss 關獎勵）
+// 4. 關卡難度平衡與結算
 // ==========================================
 function checkGameStatus(timeOut = false) {
     let allStepsDone = missionProgress.every(count => count <= 0);
@@ -1349,12 +1325,9 @@ function checkGameStatus(timeOut = false) {
         playSound('phase');
         triggerVibrate(100);
 
-        // 每 5 關或 10 關獎勵
         let extraRewardTip = "";
-        if (currentLevel % 5 === 0) {
-            extraRewardTip = " 🎖️ 突圍里程碑獎勵！步數充沛！";
-        }
-        showTip(`🎉 完美處置！完成第 ${currentLevel} 關救援！${extraRewardTip}`);
+        if (currentLevel % 5 === 0) extraRewardTip = " 🎖️ 里程碑達標，加贈步數！";
+        showTip(`🎉 完美處置！第 ${currentLevel} 關救援成功！${extraRewardTip}`);
         
         setTimeout(() => {
             currentLevel++;
@@ -1370,9 +1343,9 @@ function checkGameStatus(timeOut = false) {
         stopBGM();
         triggerVibrate([100, 50, 100]);
 
-        let reason = timeOut ? "⏱️ 黃金搶救時間已盡！" : "😢 急救器材耗盡，救援中止！";
+        let reason = timeOut ? "⏱️ 黃金搶救時間已盡！" : "😢 急救物資耗盡，救援中止！";
         document.getElementById("go-reason-text").innerText = reason;
-        document.getElementById("go-level-val").innerText = `第 ${currentLevel} 關 (${currentScenario.title.split('：')[0]})`;
+        document.getElementById("go-level-val").innerText = `第 ${currentLevel} 關`;
         document.getElementById("go-score-val").innerText = `${score} 分`;
         document.getElementById("gameOverModal").style.display = "flex";
     }
@@ -1385,7 +1358,7 @@ function setupLevel() {
     let scenarioIdx = (currentLevel - 1) % FIRST_AID_SCENARIOS.length;
     currentScenario = JSON.parse(JSON.stringify(FIRST_AID_SCENARIOS[scenarioIdx]));
     
-    // 目標增長設定上限（最多 +10），保證數學上可行
+    // 目標增幅限制上限，避免後期崩潰
     let extraTarget = Math.min(10, Math.floor((currentLevel - 1) / 3));
     let totalTargets = 0;
     currentScenario.steps.forEach(s => {
@@ -1397,9 +1370,8 @@ function setupLevel() {
     missionProgress = currentScenario.steps.map(s => s.count);
     currentLevelTypes = [...currentScenario.pool];
 
-    // 步數同總目標量精確掛鉤
     moves = Math.floor(totalTargets * 0.8) + 15;
-    if (currentLevel % 5 === 0) moves += 5; // Boss 關加步數
+    if (currentLevel % 5 === 0) moves += 5;
     document.getElementById("moves").innerText = moves;
     
     last = null;
@@ -1411,7 +1383,7 @@ function setupLevel() {
     for(let i=0; i<rescueMovesLeft; i++) {
         let spanCar = document.createElement("span");
         spanCar.className = "step-icon";
-        spanCar.style.backgroundImage = "url('https://img.icons8.com/color/48/ambulance.png')";
+        spanCar.innerText = "🚑";
         carIconsEl.appendChild(spanCar);
     }
 
@@ -1423,11 +1395,11 @@ function setupLevel() {
 }
 
 // ==========================================
-// 5. 排行榜安全提交與本地儲存
+// 5. 排行榜安全提交與社群分享
 // ==========================================
 function openSubmitScoreModal() {
     document.getElementById("gameOverModal").style.display = "none";
-    const savedName = localStorage.getItem("fap_player_name") || "仁心仁術實習生";
+    const savedName = localStorage.getItem("fap_player_name") || "仁心實習生";
     document.getElementById("heroNameInput").value = savedName;
     document.getElementById("scoreSubmitModal").style.display = "flex";
 }
@@ -1442,7 +1414,6 @@ function confirmSubmitScore() {
     let name = inputEl.value.trim() || "無名英雄";
     localStorage.setItem("fap_player_name", name);
 
-    // 前端合理性上限校驗 (防止 Console 篡改 score: 999999)
     const maxAllowedScore = currentLevel * 5000 + 5000;
     if (score > maxAllowedScore) {
         showTip("⚠️ 數據異常，拒絕同步！");
@@ -1450,8 +1421,9 @@ function confirmSubmitScore() {
         return;
     }
 
-    if (!currentUserId) {
-        showTip("⚠️ 認證初始化中，請稍後再試！");
+    if (!database) {
+        showTip("💾 離線模式：成績已儲存於本機瀏覽器！");
+        document.getElementById("scoreSubmitModal").style.display = "none";
         return;
     }
 
@@ -1459,15 +1431,15 @@ function confirmSubmitScore() {
         name: name,
         level: currentLevel,
         score: score,
-        timestamp: firebase.database.ServerValue.TIMESTAMP,
-        uid: currentUserId
+        timestamp: (typeof firebase !== "undefined" && firebase.database) ? firebase.database.ServerValue.TIMESTAMP : Date.now(),
+        uid: currentUserId || "guest"
     }).then(() => {
-        showTip("🚀 成績已成功登記到全球神醫榜！");
+        showTip("🚀 戰績已登記到全球神醫榜！");
         document.getElementById("scoreSubmitModal").style.display = "none";
         showLeaderboardPopup();
     }).catch(err => {
-        console.error("提交失敗:", err);
-        showTip("❌ 上傳受阻：已觸發安全規則防護。");
+        console.warn("上傳受阻:", err);
+        showTip("⚠️ 雲端受阻，已轉為本機紀錄。");
         document.getElementById("scoreSubmitModal").style.display = "none";
     });
 }
@@ -1476,6 +1448,12 @@ function showLeaderboardPopup() {
     const tbody = document.getElementById("leaderboard-body");
     tbody.innerHTML = `<tr><td colspan="4">載入榜單中...</td></tr>`;
     document.getElementById("rankModal").style.display = "flex";
+
+    if (!database) {
+        tbody.innerHTML = `<tr><td colspan="4">離線模式運作中（無雲端連線）</td></tr>`;
+        return;
+    }
+
     database.ref("leaderboard").orderByChild("score").limitToLast(10).once("value", snapshot => {
         let list = [];
         snapshot.forEach(child => { list.push(child.val()); });
@@ -1495,6 +1473,8 @@ function showLeaderboardPopup() {
             `;
             tbody.appendChild(tr);
         });
+    }).catch(() => {
+        tbody.innerHTML = `<tr><td colspan="4">排行榜資料載入失敗</td></tr>`;
     });
 }
 
@@ -1502,7 +1482,6 @@ function closeLeaderboardPopup() {
     document.getElementById("rankModal").style.display = "none";
 }
 
-// 救護車提示
 function scanForRescueHint(){
     for(let r=0; r<SIZE; r++){
         for(let c=0; c<SIZE; c++){
@@ -1531,7 +1510,7 @@ function useAmbulanceRescue() {
         for(let i=0; i<rescueMovesLeft; i++) {
             let spanCar = document.createElement("span");
             spanCar.className = "step-icon";
-            spanCar.style.backgroundImage = "url('https://img.icons8.com/color/48/ambulance.png')";
+            spanCar.innerText = "🚑";
             carIconsEl.appendChild(spanCar);
         }
         if(rescueMovesLeft === 0) {
@@ -1555,7 +1534,7 @@ function useAmbulanceRescue() {
 
 function userTriggerShuffle() {
     if(isAnimating || moves <= 0 || timeLeft <= 0) return;
-    showTip("🎲 急救物資重新洗牌中...");
+    showTip("🎲 正在重新調配急救物資...");
     grid = generateValidGrid(); 
     render();
 }
@@ -1569,27 +1548,16 @@ function restartWholeGame() {
     setupLevel();
 }
 
-// ==========================================
-// 6. 社交分享 (Web Share API + WhatsApp Fallback)
-// ==========================================
 function shareScore() {
-    const text = `🚑 我喺《First Aid Pop! 急救先鋒》成功拯救到第 ${currentLevel} 關，豪奪 ${score} 分！你敢唔敢嚟挑戰我？`;
+    const text = `🚑 我喺《First Aid Pop! 急救先鋒》成功完成第 ${currentLevel} 關救援任務，獲得 ${score} 分！快來挑戰！`;
     const url = window.location.href;
     if (navigator.share) {
-        navigator.share({
-            title: "First Aid Pop! 急救戰績",
-            text: text,
-            url: url
-        }).catch(() => {});
+        navigator.share({ title: "First Aid Pop! 急救戰績", text: text, url: url }).catch(() => {});
     } else {
-        const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`;
-        window.open(waUrl, "_blank");
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`, "_blank");
     }
 }
 
-// ==========================================
-// 7. 新手引導邏輯
-// ==========================================
 function checkTutorial() {
     if (!localStorage.getItem("fap_tutorial_done")) {
         document.getElementById("tutorialModal").style.display = "flex";
@@ -1601,7 +1569,7 @@ function closeTutorial() {
     document.getElementById("tutorialModal").style.display = "none";
 }
 
-// 啟動入口
+// 啟動主流程
 setupLevel();
 checkTutorial();
 </script>
