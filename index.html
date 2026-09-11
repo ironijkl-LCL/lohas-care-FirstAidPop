@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>First Aid Pop! - 急救先鋒 (終極修復運行版)</title>
+<title>First Aid Pop! - 急救先鋒 (QTE+處置懲罰試驗版)</title>
 
 <style>
 :root {
@@ -22,14 +22,6 @@
     --system-blue: #0062cc;
 }
 
-@media (prefers-contrast: more) {
-    :root {
-        --oasis-green: #14462a;
-        --apple-gray: #333336;
-        --system-red: #a3000f;
-    }
-}
-
 body {
     margin: 0;
     background: linear-gradient(135deg, #d8e5dd 0%, #d5e0e6 100%);
@@ -43,6 +35,19 @@ body {
     padding: 14px 10px;
     box-sizing: border-box;
     -webkit-font-smoothing: antialiased;
+    transition: background-color 0.3s;
+}
+
+/* ⚠️ 處置失誤全屏警示閃爍 */
+body.penalty-flash {
+    background: #ffbaba !important;
+    animation: screenShake 0.3s ease;
+}
+
+@keyframes screenShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
 }
 
 .game-title {
@@ -69,7 +74,6 @@ body {
 .level-badge {
     background: var(--apple-card-bg);
     backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     color: var(--apple-dark);
     padding: 6px 14px;
     border-radius: 20px;
@@ -87,7 +91,6 @@ body {
     border-radius: 20px;
     background: var(--apple-card-bg);
     backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     font-weight: 700;
     cursor: pointer;
     box-shadow: var(--apple-shadow);
@@ -98,11 +101,6 @@ body {
 .music-btn { color: var(--oasis-green); }
 .rank-toggle-btn { color: var(--system-orange); }
 .shuffle-btn { color: var(--system-purple); }
-
-.music-btn:active, .rank-toggle-btn:active, .shuffle-btn:active {
-    transform: scale(0.96);
-    background: rgba(255, 255, 255, 0.95);
-}
 
 .timer-container {
     width: 100%;
@@ -143,7 +141,6 @@ body {
 .info-bar span {
     background: var(--apple-card-bg);
     backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     padding: 5px 14px;
     border-radius: 18px;
     border: 1px solid var(--apple-border);
@@ -153,7 +150,6 @@ body {
 .scenario-card {
     background: var(--apple-card-bg);
     backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     border-radius: var(--apple-radius);
     padding: 12px 14px;
     max-width: 500px;
@@ -188,11 +184,7 @@ body {
     font-weight: 500;
 }
 
-.protocol-steps {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
+.protocol-steps { display: flex; flex-direction: column; gap: 6px; }
 
 .protocol-step {
     display: flex;
@@ -224,31 +216,9 @@ body {
     background: rgba(0, 0, 0, 0.04);
 }
 
-.step-left {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.step-icon {
-    width: 22px;
-    height: 22px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-}
-
-.step-tag {
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-weight: 800;
-}
-
+.step-left { display: flex; align-items: center; gap: 8px; }
+.step-icon { width: 22px; height: 22px; font-size: 16px; display: inline-flex; align-items: center; justify-content: center; }
+.step-tag { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 800; }
 .tag-active { background: #e0edff; color: var(--system-blue); }
 .tag-done { background: #dff0e6; color: var(--oasis-green); }
 .tag-locked { background: #eee; color: #777; }
@@ -273,9 +243,6 @@ body {
     gap: 6px;
 }
 
-.btn-ambulance:active { transform: scale(0.98); opacity: 0.9; }
-.btn-ambulance:disabled { background: #cbd5e1; color: #94a3b8; cursor: not-allowed; }
-
 .board-container {
     position: relative;
     display: block;
@@ -293,7 +260,6 @@ body {
     justify-content: center;
     background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
     padding: 10px;
     border-radius: 22px;
     box-shadow: var(--apple-shadow);
@@ -311,14 +277,9 @@ body {
     box-sizing: border-box;
     border: 1px solid rgba(255, 255, 255, 0.6);
     touch-action: manipulation !important;
-    transition: background-color 0.2s ease;
 }
 
-.selected {
-    border: 2px solid var(--apple-dark) !important;
-    background: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
+.selected { border: 2px solid var(--apple-dark) !important; background: #ffffff !important; }
 
 .disk {
     width: 82%;
@@ -336,47 +297,84 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.08));
 }
 
-.bomb_3d { 
-    background-image: url('https://img.icons8.com/color/96/bomb.png') !important; 
-    animation: pulse 0.8s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
+.bomb_3d { background-image: url('https://img.icons8.com/color/96/bomb.png') !important; }
+.rainbow_3d { background-image: url('https://img.icons8.com/color/96/rainbow.png') !important; }
+
+/* 💓 CPR 110 bpm 節奏按壓 QTE 專屬面板 */
+#cpr-stage-container {
+    display: none;
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    background: var(--apple-card-bg);
+    border: 2px solid var(--system-red);
+    border-radius: 24px;
+    padding: 24px 16px;
+    box-sizing: border-box;
+    box-shadow: 0 12px 36px rgba(215, 0, 21, 0.15);
+    animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes pulse {
-    0% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(215, 0, 21, 0.3)); }
-    100% { transform: scale(1.08); filter: drop-shadow(0 0 12px rgba(215, 0, 21, 0.6)); }
+.cpr-title { font-size: 18px; font-weight: 800; color: var(--system-red); margin-bottom: 6px; }
+.cpr-sub { font-size: 13px; color: var(--apple-gray); margin-bottom: 20px; font-weight: 600; }
+
+.cpr-heart-wrapper {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 18px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.rainbow_3d {
-    background-image: url('https://img.icons8.com/color/96/rainbow.png') !important;
-    animation: rainbowPulse 0.6s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
+.cpr-heart-btn {
+    width: 110px;
+    height: 110px;
+    background: linear-gradient(135deg, #ff453a 0%, #d70015 100%);
+    border-radius: 50%;
+    border: none;
+    font-size: 46px;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(215, 0, 21, 0.35);
+    transition: transform 0.08s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    touch-action: manipulation;
 }
 
-@keyframes rainbowPulse {
-    0% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(201, 52, 0, 0.3)); }
-    100% { transform: scale(1.12); filter: drop-shadow(0 0 14px rgba(137, 68, 171, 0.6)); }
-}
+.cpr-heart-btn:active { transform: scale(0.9); }
 
-#fx-layer {
-    position: fixed;
-    left: 0; top: 0; width: 100%; height: 100%;
-    pointer-events: none;
-    z-index: 999;
-}
-
-.particle {
+/* 110 bpm 節拍光環 */
+.cpr-beat-pulse {
     position: absolute;
-    font-size: 5vw; 
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid var(--system-red);
+    opacity: 0;
     pointer-events: none;
-    z-index: 999;
-    animation: explode 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
 }
 
-@keyframes explode {
-    0% { transform: translate(0, 0) scale(1); opacity: 1; }
-    100% { transform: translate(var(--x),var(--y)) scale(0.4); opacity: 0; }
+.pulse-anim {
+    animation: ringPulse 0.545s ease-out infinite; /* 110 bpm 週期約 0.545s */
+}
+
+@keyframes ringPulse {
+    0% { transform: scale(0.8); opacity: 0.9; }
+    100% { transform: scale(1.35); opacity: 0; }
+}
+
+.cpr-counter {
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--apple-dark);
+    margin-bottom: 4px;
 }
 
 .modal {
@@ -385,7 +383,6 @@ body {
     top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
     z-index: 3000;
     justify-content: center;
     align-items: center;
@@ -409,67 +406,13 @@ body {
 }
 
 .modal-title { font-size: 20px; color: var(--apple-dark); margin-bottom: 12px; font-weight: 800; }
-.input-name {
-    width: 100%;
-    padding: 12px 14px;
-    border-radius: 14px;
-    border: 1.5px solid rgba(0,0,0,0.15);
-    background: #fff;
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 16px;
-    box-sizing: border-box;
-    text-align: center;
-    outline: none;
-}
-.input-name:focus { border-color: var(--system-blue); }
-
 .btn-primary {
-    background: var(--apple-dark);
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 20px;
-    font-weight: 700;
-    cursor: pointer;
-    width: 100%;
-    font-size: 15px;
-    transition: opacity 0.2s;
+    background: var(--apple-dark); color: white; border: none; padding: 12px 20px;
+    border-radius: 20px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px;
 }
-.btn-primary:active { opacity: 0.8; }
-
 .btn-secondary {
-    background: rgba(0,0,0,0.06);
-    color: var(--apple-dark);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 20px;
-    font-weight: 700;
-    cursor: pointer;
-    width: 100%;
-    font-size: 14px;
-    margin-top: 8px;
-}
-
-.share-btn {
-    background: var(--oasis-green);
-    color: white;
-    margin-top: 8px;
-}
-
-.rank-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 13px; }
-.rank-table th { background: rgba(0,0,0,0.04); color: var(--apple-gray); padding: 8px; font-weight: 700; }
-.rank-table td { padding: 10px 8px; border-bottom: 1px solid rgba(0,0,0,0.04); font-weight: 700; }
-
-.hint-flash { animation: flash-glow 0.4s ease-in-out 3; }
-@keyframes flash-glow {
-    0%, 100% { background-color: #fff; }
-    50% { 
-        background-color: #fef08a;
-        transform: scale(1.04); 
-        border-radius: var(--apple-radius); 
-        box-shadow: 0 0 15px rgba(234, 179, 8, 0.4); 
-    }
+    background: rgba(0,0,0,0.06); color: var(--apple-dark); border: none; padding: 10px 20px;
+    border-radius: 20px; font-weight: 700; cursor: pointer; width: 100%; font-size: 14px; margin-top: 8px;
 }
 
 #tipBox {
@@ -487,22 +430,27 @@ body {
     opacity: 0;
     transition: opacity 0.3s ease;
     z-index: 4000;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
     max-width: 90%;
+}
+
+.hint-flash { animation: flash-glow 0.4s ease-in-out 3; }
+@keyframes flash-glow {
+    0%, 100% { background-color: #fff; }
+    50% { background-color: #fef08a; transform: scale(1.04); }
+}
+
+#fx-layer { position: fixed; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; }
+.particle { position: absolute; font-size: 5vw; animation: explode 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
+@keyframes explode {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--x),var(--y)) scale(0.4); opacity: 0; }
 }
 
 @media (min-width: 500px) {
     .board { gap: 8px; padding: 14px; }
     .disk { font-size: 32px; }
-    .particle { font-size: 20px; }
-    body { padding: 20px; }
 }
 </style>
-
-<!-- Firebase SDK (防崩潰安全引入) -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 </head>
 
 <body>
@@ -514,7 +462,6 @@ body {
     <div class="btn-group">
         <button class="music-btn" onclick="toggleMusic()">🎵 音樂</button>
         <button class="shuffle-btn" onclick="userTriggerShuffle()">🎲 洗牌</button>
-        <button class="rank-toggle-btn" onclick="showLeaderboardPopup()">🏆 排名</button>
     </div>
 </div>
 
@@ -537,59 +484,29 @@ body {
 </div>
 
 <button id="ambulance-btn" class="btn-ambulance" onclick="useAmbulanceRescue()">
-    出動救護車支援：<span id="car-icons" style="display:inline-flex; gap:3px; vertical-align:middle;"></span>
+    出動救護車支援：<span id="car-icons" style="display:inline-flex; gap:3px;"></span>
 </button>
 
-<div class="board-container" id="game-container">
+<!-- 棋盤容器 -->
+<div class="board-container" id="board-wrap">
     <div id="board" class="board"></div>
 </div>
 
-<!-- 分數登記視窗 -->
-<div id="scoreSubmitModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-title">🩺 登記急救英雄榜</div>
-        <p style="font-size:13px; color:var(--apple-gray); margin-bottom:14px;">請留下稱號，將此次救援戰績記錄到全球資料庫：</p>
-        <input type="text" id="heroNameInput" class="input-name" maxlength="15" placeholder="輸入醫生/救護員暱稱">
-        <button class="btn-primary" onclick="confirmSubmitScore()">確定提交紀錄</button>
-        <button class="btn-secondary" onclick="closeSubmitScoreModal()">放棄登記</button>
+<!-- 💓 創新改革：第二階段 CPR 110 bpm 按壓 QTE 容器 -->
+<div id="cpr-stage-container">
+    <div class="cpr-title">⚡ 緊急 CPR 110 bpm 胸外按壓！</div>
+    <div class="cpr-sub">跟隨紅色光環節奏，快速按壓心臟恢復傷者心跳！</div>
+    
+    <div class="cpr-heart-wrapper">
+        <div id="cpr-pulse-ring" class="cpr-beat-pulse pulse-anim"></div>
+        <button class="cpr-heart-btn" id="cprHeartBtn" onclick="handleCprPress()">❤️</button>
     </div>
+    
+    <div class="cpr-counter"><span id="cpr-press-left">15</span> 次按壓</div>
+    <div style="font-size:12px; color:var(--oasis-green); font-weight:700;">標準按壓速率：100 - 120 次/分鐘</div>
 </div>
 
-<!-- 新手指引視窗 -->
-<div id="tutorialModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-title">🚨 急救分流新手指引</div>
-        <div style="text-align:left; font-size:13px; line-height:1.6; color:var(--apple-dark); margin:12px 0;">
-            <p>1️⃣ <b>嚴格依序急救</b>：頂部藍色高亮者為當前處置。例如心跳驟停，必須<b>先</b>消足夠【AED】，才會進入【心臟按壓】！</p>
-            <p>2️⃣ <b>操作方式</b>：點擊兩顆相鄰道具或直接拖曳即可交換。</p>
-            <p>3️⃣ <b>救援連鎖</b>：四連成炸彈，五連成彩虹球，善用救護車可獲得提示！</p>
-        </div>
-        <button class="btn-primary" onclick="closeTutorial()">我明白了，立即救人！</button>
-    </div>
-</div>
-
-<!-- 全球排行榜視窗 -->
-<div id="rankModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-title">🏆 全球急救英雄榜 (Top 10)</div>
-        <table class="rank-table">
-            <thead>
-                <tr>
-                    <th>名次</th>
-                    <th>神醫暱稱</th>
-                    <th>關卡</th>
-                    <th>總得分</th>
-                </tr>
-            </thead>
-            <tbody id="leaderboard-body">
-                <tr><td colspan="4">載入數據中...</td></tr>
-            </tbody>
-        </table>
-        <button class="btn-primary" onclick="closeLeaderboardPopup()">返回急救現場</button>
-    </div>
-</div>
-
-<!-- 遊戲結算視窗 -->
+<!-- 結算彈窗 -->
 <div id="gameOverModal" class="modal">
     <div class="modal-content">
         <div class="modal-title" style="color:var(--system-red);" id="go-main-title">💀 任務中止</div>
@@ -604,9 +521,7 @@ body {
                 <span id="go-score-val" style="color:var(--system-red);">0 分</span>
             </div>
         </div>
-        <button class="btn-primary" onclick="openSubmitScoreModal()">📝 登記成績到全球排行榜</button>
-        <button class="btn-primary share-btn" onclick="shareScore()">📤 一鍵分享戰績給朋友</button>
-        <button class="btn-secondary" onclick="restartWholeGame()">🔄 重新開始挑戰</button>
+        <button class="btn-primary" onclick="restartWholeGame()">🔄 重新開始挑戰</button>
     </div>
 </div>
 
@@ -614,115 +529,49 @@ body {
 <div id="tipBox"></div>
 
 <script>
-// ==========================================
-// 1. Firebase 安全容錯載入 (防 Crash 機制)
-// ==========================================
-let database = null;
-let auth = null;
-let currentUserId = null;
-
-try {
-    if (typeof firebase !== "undefined") {
-        const firebaseConfig = {
-            databaseURL: "https://first-aid-pop-default-rtdb.firebaseio.com/"
-        };
-        firebase.initializeApp(firebaseConfig);
-        database = firebase.database();
-        if (firebase.auth) {
-            auth = firebase.auth();
-            auth.signInAnonymously().then(cred => {
-                currentUserId = cred.user.uid;
-            }).catch(e => console.warn("Firebase 匿名認證失敗，降級為離線模式:", e));
-        }
-    }
-} catch (e) {
-    console.warn("Firebase 初始化略過，切換為純前端單機運行:", e);
-}
-
 const SIZE = 8;
 const BOMB = "bomb_3d";
 const RAINBOW = "rainbow_3d";
 
-// 20 款醫療急救素材庫 (具備 CDN 圖檔與原生 Emoji 雙重 Fallback)
 const MASTER_ITEMS = {
     "defibrillator_3d": { name: "AED除顫器", url: "https://img.icons8.com/color/96/defibrillator.png", text: "⚡" },
-    "heart_3d": { name: "心跳按壓", url: "https://img.icons8.com/color/96/heart-monitor.png", text: "❤️" },
     "bandage_3d": { name: "止血繃帶", url: "https://img.icons8.com/color/96/adhesive-bandage.png", text: "🩹" },
     "gloves_3d": { name: "無菌手套", url: "https://img.icons8.com/color/96/gloves.png", text: "🧤" },
     "tank_3d": { name: "氧氣樽", url: "https://img.icons8.com/color/96/gas-cylinder.png", text: "🍾" },
     "mask_3d": { name: "呼吸面罩", url: "https://img.icons8.com/color/96/medical-mask.png", text: "🎭" },
     "boot_3d": { name: "骨折夾板", url: "https://img.icons8.com/color/96/broken-leg.png", text: "🧦" },
-    "thermometer_3d": { name: "體溫降溫計", url: "https://img.icons8.com/color/96/thermometer.png", text: "🌡️" },
+    "thermometer_3d": { name: "降溫計", url: "https://img.icons8.com/color/96/thermometer.png", text: "🌡️" },
     "bottle_3d": { name: "生理鹽水", url: "https://img.icons8.com/color/96/medicine-bottle.png", text: "🧪" },
     "kit_3d": { name: "急救箱", url: "https://img.icons8.com/color/96/first-aid-kit.png", text: "🧰" },
-    "intravenous_3d": { name: "輸血袋", url: "https://img.icons8.com/color/96/blood-bag.png", text: "💧" },
-    "syringe_3d": { name: "強心針劑", url: "https://img.icons8.com/color/96/syringe.png", text: "💉" },
-    "stethoscope_3d": { name: "聽診器", url: "https://img.icons8.com/color/96/stethoscope.png", text: "🩺" },
-    "pill_3d": { name: "抗敏藥丸", url: "https://img.icons8.com/color/96/pill.png", text: "💊" },
-    "digital_3d": { name: "維生儀器", url: "https://img.icons8.com/color/96/clinical-thermometer.png", text: "📟" },
-    "scalpel_3d": { name: "清創刀", url: "https://img.icons8.com/color/96/scalpel--v1.png", text: "🔪" },
-    "microscope_3d": { name: "毒理分析", url: "https://img.icons8.com/color/96/microscope.png", text: "🔬" },
-    "dna_3d": { name: "配血型", url: "https://img.icons8.com/color/96/dna-helix.png", text: "🧬" },
-    "headband_3d": { name: "探查頭燈", url: "https://img.icons8.com/color/96/doctor-at-work.png", text: "⭕" },
-    "magnifier_3d": { name: "放大鏡", url: "https://img.icons8.com/color/96/magnifying-glass-tilted-right.png", text: "🔍" }
+    "scalpel_3d": { name: "手術刀", url: "https://img.icons8.com/color/96/scalpel--v1.png", text: "🔪" }
 };
 
-// 動態安全注入樣式表
 const styleSheet = document.createElement("style");
 let styleRules = "";
 for (let key in MASTER_ITEMS) {
-    styleRules += `
-    .${key} { background-image: url('${MASTER_ITEMS[key].url}'); }
-    `;
+    styleRules += `.${key} { background-image: url('${MASTER_ITEMS[key].url}'); }\n`;
 }
 styleSheet.innerText = styleRules;
 document.head.appendChild(styleSheet);
 
-// 真實急救情境與分段任務資料庫
+// 急救情境庫（整合 QTE 模式）
 const FIRST_AID_SCENARIOS = [
     {
         title: "⚡ 中環街頭：突發心臟驟停 (SCA)",
-        desc: "市民突然倒地失去呼吸脈搏！必須先實施【AED除顫】，隨後立刻進行【持續CPR心臟按壓】！",
-        pool: ["defibrillator_3d", "heart_3d", "mask_3d", "gloves_3d", "kit_3d"],
+        desc: "市民突然倒地無心跳！【先】消滅 5 組 AED 電擊，【再】啟動 110 bpm 胸外按壓 QTE！",
+        pool: ["defibrillator_3d", "mask_3d", "gloves_3d", "kit_3d", "scalpel_3d"],
         steps: [
-            { key: "defibrillator_3d", name: "階段一：AED 電擊除顫", baseCount: 6 },
-            { key: "heart_3d", name: "階段二：持續 CPR 胸外按壓", baseCount: 8 }
+            { key: "defibrillator_3d", name: "階段一：AED 電擊去顫", baseCount: 5 },
+            { key: "CPR_QTE", name: "階段二：110 bpm 心肺復甦按壓 (QTE)", baseCount: 15 }
         ]
     },
     {
         title: "🩸 地盤工地：動脈噴射性大出血",
-        desc: "大腿遭鋼筋割破！先配戴【無菌手套】防止感染，再使用【止血繃帶】加壓包紮！",
-        pool: ["gloves_3d", "bandage_3d", "intravenous_3d", "bottle_3d", "kit_3d"],
+        desc: "工人大量失血！【先】配戴無菌手套，【再】使用止血繃帶！切勿誤用手術刀！",
+        pool: ["gloves_3d", "bandage_3d", "bottle_3d", "kit_3d", "scalpel_3d"],
         steps: [
-            { key: "gloves_3d", name: "階段一：佩戴無菌防護手套", baseCount: 6 },
-            { key: "bandage_3d", name: "階段二：緊壓止血繃帶", baseCount: 9 }
-        ]
-    },
-    {
-        title: "⛰️ 麥理浩徑：重度熱衰竭中暑",
-        desc: "行山人士神智不清體溫過高！先實施【精準測溫降溫】，再給予【補充電解質】！",
-        pool: ["thermometer_3d", "bottle_3d", "mask_3d", "kit_3d", "digital_3d"],
-        steps: [
-            { key: "thermometer_3d", name: "階段一：精準監測體溫降溫", baseCount: 7 },
-            { key: "bottle_3d", name: "階段二：補充電解生理鹽水", baseCount: 8 }
-        ]
-    },
-    {
-        title: "🏃 體育館：小腿骨折變形",
-        desc: "運動員倒地骨骼錯位！先以【骨折夾板】固定傷肢，再調動【急救藥箱】加固防護！",
-        pool: ["boot_3d", "kit_3d", "bandage_3d", "gloves_3d", "stethoscope_3d"],
-        steps: [
-            { key: "boot_3d", name: "階段一：安裝骨折固定夾板", baseCount: 7 },
-            { key: "kit_3d", name: "階段二：調配急救藥箱防護", baseCount: 8 }
-        ]
-    },
-    {
-        title: "🫁 餐廳急性嚴重過敏呼吸困難",
-        desc: "進食後喉頭水腫呼吸衰竭！先戴上【呼吸面罩】暢通氣道，再輸送【高壓純氧】支援！",
-        pool: ["mask_3d", "tank_3d", "stethoscope_3d", "pill_3d", "heart_3d"],
-        steps: [
-            { key: "mask_3d", name: "階段一：扣緊急救呼吸面罩", baseCount: 6 },
-            { key: "tank_3d", name: "階段二：輸送高壓純氧支援", baseCount: 8 }
+            { key: "gloves_3d", name: "階段一：佩戴無菌防護手套", baseCount: 5 },
+            { key: "bandage_3d", name: "階段二：緊壓止血繃帶包紮", baseCount: 7 }
         ]
     }
 ];
@@ -743,9 +592,14 @@ let maxTime = 90;
 let timeLeft = 90;
 let timerInterval = null;
 let musicUserToggled = false; 
-let currentComboCount = 0; 
+
+// CPR 節奏器音訊
+let cprMetronomeTimer = null;
+let cprPressNeeded = 15;
 
 const board = document.getElementById("board");
+const boardWrap = document.getElementById("board-wrap");
+const cprContainer = document.getElementById("cpr-stage-container");
 const ambulanceBtn = document.getElementById("ambulance-btn");
 const carIconsEl = document.getElementById("car-icons");
 const timerBar = document.getElementById("timer-bar");
@@ -754,52 +608,22 @@ const tipBox = document.getElementById("tipBox");
 const fxLayer = document.getElementById("fx-layer");
 
 function triggerVibrate(ms = 40) {
-    if (navigator.vibrate) {
-        try { navigator.vibrate(ms); } catch(e){}
-    }
+    if (navigator.vibrate) try { navigator.vibrate(ms); } catch(e){}
 }
 
 // ==========================================
-// 2. 原生 Web Audio API 合成引擎
+// 🎵 Web Audio 引擎（合成背景音與 110 bpm 節拍器）
 // ==========================================
 let audioCtx = null;
 let bgmTimer = null;
 let bgmStep = 0;
-const MELODY = [329.63, 349.23, 392.00, 523.25, 440.00, 392.00, 349.23, 392.00, 440.00, 587.33, 523.25, 440.00, 392.00, 349.23, 329.63, 392.00];
+const MELODY = [329.63, 349.23, 392.00, 523.25, 440.00, 392.00, 349.23, 392.00];
 
 function tryInitAudio() {
     try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     } catch(e) {}
-}
-
-function startBGM() {
-    if (!audioCtx) return;
-    if (bgmTimer) clearInterval(bgmTimer);
-    let tempo = Math.max(160, 220 - (currentLevel - 1) * 2);
-    
-    bgmTimer = setInterval(() => {
-        if (isLocalGameOver() || musicUserToggled || !audioCtx) return;
-        try {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.type = 'sine';
-            let freq = MELODY[bgmStep % MELODY.length];
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.035, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.2);
-            bgmStep++;
-        } catch(e){}
-    }, tempo);
-}
-
-function stopBGM() {
-    if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; }
 }
 
 function playSound(type) {
@@ -817,53 +641,60 @@ function playSound(type) {
             gain.gain.setValueAtTime(0.2, now);
             gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
             osc.start(now); osc.stop(now + 0.18);
-        } else if (type === 'phase') {
-            [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
-                const o = audioCtx.createOscillator();
-                const g = audioCtx.createGain();
-                o.connect(g); g.connect(audioCtx.destination);
-                o.type = 'triangle';
-                o.frequency.setValueAtTime(f, now + i * 0.07);
-                g.gain.setValueAtTime(0.2, now + i * 0.07);
-                g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.25);
-                o.start(now + i * 0.07); o.stop(now + i * 0.07 + 0.25);
-            });
-        } else if (type === 'wrong') {
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(150, now);
-            osc.frequency.linearRampToValueAtTime(60, now + 0.1);
-            gain.gain.setValueAtTime(0.18, now);
-            gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
-            osc.start(now); osc.stop(now + 0.1);
+        } else if (type === 'penalty') {
+            // 處置失誤低沉警報
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(120, now);
+            osc.frequency.linearRampToValueAtTime(40, now + 0.35);
+            gain.gain.setValueAtTime(0.3, now);
+            gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+            osc.start(now); osc.stop(now + 0.35);
+        } else if (type === 'cprBeat') {
+            // 110 bpm 節奏木魚/蜂鳴滴答聲
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, now);
+            gain.gain.setValueAtTime(0.25, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+            osc.start(now); osc.stop(now + 0.08);
         }
     } catch(e){}
 }
 
-function isLocalGameOver() {
-    return timerInterval === null || timeLeft <= 0 || moves <= 0;
+function startBGM() {
+    if (!audioCtx) return;
+    if (bgmTimer) clearInterval(bgmTimer);
+    bgmTimer = setInterval(() => {
+        if (timeLeft <= 0 || moves <= 0 || musicUserToggled || !audioCtx) return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(MELODY[bgmStep % MELODY.length], audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+            bgmStep++;
+        } catch(e){}
+    }, 220);
 }
 
 function toggleMusic(){
     tryInitAudio();
     if(!audioCtx) return;
-    if(bgmTimer === null) {
-        musicUserToggled = false;
-        startBGM();
-    } else {
-        stopBGM();
-        musicUserToggled = true;
-    }
+    if(bgmTimer === null) { musicUserToggled = false; startBGM(); }
+    else { clearInterval(bgmTimer); bgmTimer = null; musicUserToggled = true; }
 }
 
 function showTip(t){
     tipBox.innerText = t;
     tipBox.style.opacity = 1;
-    setTimeout(()=> tipBox.style.opacity = 0, 2400);
+    setTimeout(()=> tipBox.style.opacity = 0, 2200);
 }
 
 function startTimer() {
     clearInterval(timerInterval);
-    maxTime = Math.max(40, 90 - (currentLevel - 1) * 2);
+    maxTime = 90;
     timeLeft = maxTime;
     timerInterval = setInterval(() => {
         if (isAnimating) return; 
@@ -873,23 +704,15 @@ function startTimer() {
             clearInterval(timerInterval);
             checkGameStatus(true); 
         }
-        const percentage = (timeLeft / maxTime) * 100;
-        timerBar.style.width = percentage + "%";
+        timerBar.style.width = (timeLeft / maxTime * 100) + "%";
         timerTextEl.innerText = `剩餘時間: ${Math.max(0, timeLeft).toFixed(1)} 秒`;
     }, 100);
 }
 
-// ==========================================
-// 3. 傾斜加權掉落演算法 (解決卡關死局)
-// ==========================================
-function getRandomItemWithBias() {
-    if (!currentScenario || !currentScenario.steps[currentStepIndex]) {
-        return currentLevelTypes[Math.floor(Math.random() * currentLevelTypes.length)];
-    }
-    const neededKey = currentScenario.steps[currentStepIndex].key;
-    if (Math.random() < 0.32 && currentLevelTypes.includes(neededKey)) {
-        return neededKey;
-    }
+// 傾斜加權掉落
+function getRandomItem() {
+    const needed = currentScenario.steps[currentStepIndex].key;
+    if (Math.random() < 0.35 && currentLevelTypes.includes(needed)) return needed;
     return currentLevelTypes[Math.floor(Math.random() * currentLevelTypes.length)];
 }
 
@@ -898,14 +721,10 @@ function create(){
     for(let r=0; r<SIZE; r++){
         let row = [];
         for(let c=0; c<SIZE; c++) {
-            let validTypes = [...currentLevelTypes];
-            if (c >= 2 && row[c-1] === row[c-2]) {
-                validTypes = validTypes.filter(t => t !== row[c-1]);
-            }
-            if (r >= 2 && g[r-1][c] === g[r-2][c]) {
-                validTypes = validTypes.filter(t => t !== g[r-1][c]);
-            }
-            row.push(validTypes[Math.floor(Math.random() * validTypes.length)]);
+            let valid = [...currentLevelTypes];
+            if (c >= 2 && row[c-1] === row[c-2]) valid = valid.filter(t => t !== row[c-1]);
+            if (r >= 2 && g[r-1][c] === g[r-2][c]) valid = valid.filter(t => t !== g[r-1][c]);
+            row.push(valid[Math.floor(Math.random() * valid.length)]);
         }
         g.push(row);
     }
@@ -915,36 +734,11 @@ function create(){
 function hasMatch(g){
     for(let r=0;r<SIZE;r++){
         for(let c=0;c<SIZE;c++){
-            if(g[r][c] === BOMB || g[r][c] === RAINBOW) continue;
             if(c<=SIZE-3 && g[r][c] && g[r][c]===g[r][c+1] && g[r][c]===g[r][c+2]) return true;
             if(r<=SIZE-3 && g[r][c] && g[r][c]===g[r+1][c] && g[r][c]===g[r+2][c]) return true;
         }
     }
     return false;
-}
-
-function countPossibleMoves(g){
-    let count = 0;
-    for(let r=0;r<SIZE;r++){
-        for(let c=0;c<SIZE;c++){
-            let dirs=[[0,1],[1,0]];
-            for(let [dr,dc] of dirs){
-                let nr=r+dr, nc=c+dc;
-                if(nr<SIZE && nc<SIZE){
-                    [g[r][c],g[nr][nc]]=[g[nr][nc],g[r][c]];
-                    if(hasMatch(g)) count++;
-                    [g[r][c],g[nr][nc]]=[g[nr][nc],g[r][c]]; 
-                }
-            }
-        }
-    }
-    return count;
-}
-
-function generateValidGrid() {
-    let g;
-    do { g = create(); } while (countPossibleMoves(g) < 2); 
-    return g;
 }
 
 function render(){
@@ -955,21 +749,12 @@ function render(){
             let div=document.createElement("div");
             div.className="cell";
             div.id=`cell-${r}-${c}`;
-            div.dataset.r=r;
-            div.dataset.c=c;
-
+            div.dataset.r=r; div.dataset.c=c;
             if(last && last.r === r && last.c === c) div.classList.add("selected");
-
             if(cell){
                 let d=document.createElement("div");
-                if (cell === BOMB) {
-                    d.className = "disk bomb_3d";
-                } else if (cell === RAINBOW) {
-                    d.className = "disk rainbow_3d"; 
-                } else {
-                    d.className = "disk " + cell;
-                    d.innerText = MASTER_ITEMS[cell] ? MASTER_ITEMS[cell].text : "";
-                }
+                d.className = "disk " + cell;
+                d.innerText = MASTER_ITEMS[cell] ? MASTER_ITEMS[cell].text : "";
                 div.appendChild(d);
             }
             board.appendChild(div);
@@ -978,10 +763,8 @@ function render(){
 }
 
 function renderProtocolUI() {
-    if(!currentScenario) return;
     document.getElementById("scenario-title").innerText = currentScenario.title;
     document.getElementById("scenario-desc").innerText = currentScenario.desc;
-    
     const container = document.getElementById("protocol-steps");
     container.innerHTML = "";
 
@@ -990,20 +773,14 @@ function renderProtocolUI() {
         const isDone = missionProgress[idx] <= 0;
         const isActive = (idx === currentStepIndex);
 
-        let statusClass = "locked";
-        let tagHtml = `<span class="step-tag tag-locked">未解鎖</span>`;
-        if (isDone) {
-            statusClass = "completed";
-            tagHtml = `<span class="step-tag tag-done">✓ 處置完畢</span>`;
-        } else if (isActive) {
-            statusClass = "active";
-            tagHtml = `<span class="step-tag tag-active">進行中 (需 ${missionProgress[idx]})</span>`;
-        }
+        let statusClass = isDone ? "completed" : (isActive ? "active" : "locked");
+        let tagHtml = isDone ? `<span class="step-tag tag-done">✓ 處置完畢</span>` :
+                      (isActive ? `<span class="step-tag tag-active">進行中 (需 ${missionProgress[idx]})</span>` : `<span class="step-tag tag-locked">未解鎖</span>`);
 
         stepEl.className = `protocol-step ${statusClass}`;
         stepEl.innerHTML = `
             <div class="step-left">
-                <span class="step-icon ${step.key}">${MASTER_ITEMS[step.key] ? MASTER_ITEMS[step.key].text : ""}</span>
+                <span class="step-icon">${step.key === "CPR_QTE" ? "💓" : MASTER_ITEMS[step.key].text}</span>
                 <span>${step.name}</span>
             </div>
             ${tagHtml}
@@ -1012,17 +789,15 @@ function renderProtocolUI() {
     });
 }
 
-// 觸控交互
+// 點擊與滑動
 let startCell = null;
-let isSwapping = false;
-
 board.addEventListener("pointerdown", e=>{
-    if(isAnimating || moves<=0 || timeLeft <= 0 || isSwapping) return;
+    if(isAnimating || moves<=0 || timeLeft <= 0) return;
     startCell = e.target.closest(".cell");
 });
 
 board.addEventListener("pointermove", e=>{
-    if(!startCell || isAnimating || isSwapping) return;
+    if(!startCell || isAnimating) return;
     let targetEl = document.elementFromPoint(e.clientX, e.clientY);
     let currentCell = targetEl ? targetEl.closest(".cell") : null;
     if(!currentCell || startCell === currentCell) return;
@@ -1031,320 +806,176 @@ board.addEventListener("pointermove", e=>{
     let r2 = parseInt(currentCell.dataset.r), c2 = parseInt(currentCell.dataset.c);
     
     if(Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1) {
-        isSwapping = true;
-        startCell = null; 
-        
-        if(grid[r1][c1] === RAINBOW || grid[r2][c2] === RAINBOW) {
-            triggerRainbowExplode(r1, c1, r2, c2);
-        } else {
-            click(r1, c1);
-            click(r2, c2);
-        }
-        setTimeout(() => { isSwapping = false; }, 200);
+        startCell = null;
+        click(r1, c1);
+        click(r2, c2);
     }
 });
 
-board.addEventListener("pointerup", () => { startCell = null; });
-
-function triggerRainbowExplode(r1, c1, r2, c2) {
-    isAnimating = true;
-    let targetColor = (grid[r1][c1] === RAINBOW) ? grid[r2][c2] : grid[r1][c1];
-    if(!targetColor || targetColor === BOMB || targetColor === RAINBOW) {
-        targetColor = currentLevelTypes[Math.floor(Math.random() * currentLevelTypes.length)];
-    }
-
-    let toRemove = Array.from({length: SIZE}, () => Array(SIZE).fill(false));
-    toRemove[r1][c1] = true;
-    toRemove[r2][c2] = true;
-    for(let r=0; r<SIZE; r++) {
-        for(let c=0; c<SIZE; c++) {
-            if(grid[r][c] === targetColor || grid[r][c] === RAINBOW) toRemove[r][c] = true;
-        }
-    }
-    moves--;
-    document.getElementById("moves").innerText = moves;
-    executeEliminationStep(toRemove, 5); 
-}
-
 function click(r,c){
-    if(!last){
-        last={r,c}; 
-        render(); 
-        return;
-    }
-
-    let dr=Math.abs(last.r-r);
-    let dc=Math.abs(last.c-c);
+    if(!last){ last={r,c}; render(); return; }
+    let dr=Math.abs(last.r-r), dc=Math.abs(last.c-c);
     if(dr+dc==1){
         isAnimating = true;
         [grid[r][c],grid[last.r][last.c]]=[grid[last.r][last.c],grid[r][c]];
         render();
 
         setTimeout(() => {
-            currentComboCount = 1; 
-            if(grid[r][c] === RAINBOW || grid[last.r][last.c] === RAINBOW) {
-                triggerRainbowExplode(r, c, last.r, last.c);
-                last = null;
-                return;
-            }
-
             if(!checkMatchesAndEliminate()) {
                 [grid[r][c],grid[last.r][last.c]]=[grid[last.r][last.c],grid[r][c]];
-                playSound('wrong'); 
-                triggerVibrate(30);
-                isAnimating = false;
-                last = null;
-                render();
+                isAnimating = false; last = null; render();
             } else {
                 moves--;
                 document.getElementById("moves").innerText = moves;
                 last = null;
             }
         }, 150);
-    } else {
-        last={r,c};
-        render();
-    }
+    } else { last={r,c}; render(); }
 }
 
 function checkMatchesAndEliminate() {
     let toRemove = Array.from({length: SIZE}, () => Array(SIZE).fill(false));
     let hasMatchFound = false;
-    let matchObjects = [];
 
     for(let r=0; r<SIZE; r++){
         let cnt = 1;
         for(let c=1; c<SIZE; c++){
-            if(grid[r][c] && grid[r][c] === grid[r][c-1] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW){
-                cnt++;
-            } else {
-                if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: c-cnt, len: cnt}); hasMatchFound = true; }
+            if(grid[r][c] && grid[r][c] === grid[r][c-1]){ cnt++; }
+            else {
+                if(cnt >= 3) { for(let i=0; i<cnt; i++) toRemove[r][c-1-i]=true; hasMatchFound=true; }
                 cnt = 1;
             }
         }
-        if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: SIZE-cnt, len: cnt}); hasMatchFound = true; }
+        if(cnt >= 3) { for(let i=0; i<cnt; i++) toRemove[r][SIZE-1-i]=true; hasMatchFound=true; }
     }
 
     for(let c=0; c<SIZE; c++){
         let cnt = 1;
         for(let r=1; r<SIZE; r++){
-            if(grid[r][c] && grid[r][c] === grid[r-1][c] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW){
-                cnt++;
-            } else {
-                if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: r-cnt, len: cnt}); hasMatchFound = true; }
+            if(grid[r][c] && grid[r][c] === grid[r-1][c]){ cnt++; }
+            else {
+                if(cnt >= 3) { for(let i=0; i<cnt; i++) toRemove[r-1-i][c]=true; hasMatchFound=true; }
                 cnt = 1;
             }
         }
-        if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: SIZE-cnt, len: cnt}); hasMatchFound = true; }
+        if(cnt >= 3) { for(let i=0; i<cnt; i++) toRemove[SIZE-1-i][c]=true; hasMatchFound=true; }
     }
 
-    if(hasMatchFound){
-        matchObjects.forEach(m => {
-            if(m.type === 'H') { for(let i=0; i<m.len; i++) toRemove[m.r][m.startC + i] = true; }
-            else { for(let i=0; i<m.len; i++) toRemove[m.startR + i][m.c] = true; }
-        });
-
-        // 炸彈連鎖消除
-        for(let r=0; r<SIZE; r++) {
-            for(let c=0; c<SIZE; c++) {
-                if(toRemove[r][c] && grid[r][c] === BOMB) {
-                    let bombColor = null;
-                    let dirs = [[0,1],[1,0],[0,-1],[-1,0]];
-                    for(let [dr,dc] of dirs){
-                        let nr=r+dr, nc=c+dc;
-                        if(nr>=0 && nr<SIZE && nc>=0 && nc<SIZE && grid[nr][nc] && grid[nr][nc] !== BOMB && grid[nr][nc] !== RAINBOW){
-                            bombColor = grid[nr][nc]; break;
-                        }
-                    }
-                    if(bombColor){
-                        for(let rr=0; rr<SIZE; rr++){
-                            for(let cc=0; cc<SIZE; cc++){
-                                if(grid[rr][cc] === bombColor || grid[rr][cc] === BOMB) toRemove[rr][cc] = true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        let maxLen = 3;
-        matchObjects.forEach(m => { if(m.len > maxLen) maxLen = m.len; });
-        executeEliminationStep(toRemove, maxLen, matchObjects);
-        return true;
-    }
+    if(hasMatchFound) { executeElimination(toRemove); return true; }
     return false;
 }
 
-function executeEliminationStep(toRemove, maxLen, matchObjects = []) {
-    let removedCount = 0;
-    let currentTargetKey = currentScenario.steps[currentStepIndex].key;
+// ==========================================
+// ⚠️ 核心改革一：處置失誤扣時與全屏紅光懲罰
+// ==========================================
+function executeElimination(toRemove) {
+    let targetKey = currentScenario.steps[currentStepIndex].key;
+    let eliminatedKeys = [];
 
     for(let r=0; r<SIZE; r++){
         for(let c=0; c<SIZE; c++){
             if(toRemove[r][c]) {
-                explodeEffect(r,c);
-                if(grid[r][c] === currentTargetKey && missionProgress[currentStepIndex] > 0) {
-                    missionProgress[currentStepIndex]--;
-                }
-                grid[r][c] = null; 
-                removedCount++;
+                eliminatedKeys.push(grid[r][c]);
+                grid[r][c] = null;
             }
         }
     }
 
-    // 順序處置通關解鎖
-    if(missionProgress[currentStepIndex] <= 0 && currentStepIndex < currentScenario.steps.length - 1) {
-        currentStepIndex++;
-        timeLeft = Math.min(maxTime, timeLeft + 12.0); 
-        playSound('phase');
-        triggerVibrate(80);
-        showTip(`✅ 階段處置成功！進入：${currentScenario.steps[currentStepIndex].name}！(+12s)`);
-    }
-
-    matchObjects.forEach(m => {
-        let spawnR = m.type === 'H' ? m.r : m.startR;
-        let spawnC = m.type === 'H' ? m.startC : m.c;
-        if(grid[spawnR][spawnC] === null) {
-            if(m.len === 4) grid[spawnR][spawnC] = BOMB; 
-            else if(m.len >= 5) grid[spawnR][spawnC] = RAINBOW; 
-        }
-    });
-
-    let addedTime = maxLen >= 5 ? 4.0 : (maxLen === 4 ? 2.5 : 1.0);
-    timeLeft = Math.min(maxTime, timeLeft + addedTime);
-
-    let roundScore = (removedCount * 100) * currentComboCount;
-    score += roundScore;
-    document.getElementById("score").innerText = score;
-
-    playSound('match');
-    triggerVibrate(30);
-    setTimeout(drop, 350);
-}
-
-function autoCheckLoop() {
-    let toRemove = Array.from({length: SIZE}, () => Array(SIZE).fill(false));
-    let hasMatchFound = false;
-    let matchObjects = [];
-
-    for(let r=0; r<SIZE; r++){
-        let cnt = 1;
-        for(let c=1; c<SIZE; c++){
-            if(grid[r][c] && grid[r][c] === grid[r][c-1] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW) cnt++;
-            else {
-                if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: c-cnt, len: cnt}); hasMatchFound=true; }
-                cnt = 1;
-            }
-        }
-        if(cnt >= 3) { matchObjects.push({type: 'H', r, startC: SIZE-cnt, len: cnt}); hasMatchFound=true; }
-    }
-    for(let c=0; c<SIZE; c++){
-        let cnt = 1;
-        for(let r=1; r<SIZE; r++){
-            if(grid[r][c] && grid[r][c] === grid[r-1][c] && grid[r][c] !== BOMB && grid[r][c] !== RAINBOW) cnt++;
-            else {
-                if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: r-cnt, len: cnt}); hasMatchFound=true; }
-                cnt = 1;
-            }
-        }
-        if(cnt >= 3) { matchObjects.push({type: 'V', c, startR: SIZE-cnt, len: cnt}); hasMatchFound=true; }
-    }
-
-    if(hasMatchFound) {
-        currentComboCount++;
-        matchObjects.forEach(m => {
-            if(m.type === 'H') { for(let i=0; i<m.len; i++) toRemove[m.r][m.startC + i] = true; }
-            else { for(let i=0; i<m.len; i++) toRemove[m.startR + i][m.c] = true; }
-        });
-        executeEliminationStep(toRemove, 3, matchObjects);
+    // 檢查是否有消除指定目標
+    let targetMatches = eliminatedKeys.filter(k => k === targetKey).length;
+    if(targetMatches > 0 && missionProgress[currentStepIndex] > 0) {
+        missionProgress[currentStepIndex] = Math.max(0, missionProgress[currentStepIndex] - Math.floor(targetMatches / 3));
+        playSound('match');
     } else {
-        isAnimating = false;
-        if(countPossibleMoves(grid) < 1 && moves > 0 && timeLeft > 0) {
-            showTip("🚑 盤面無可行解：自動免費洗牌！");
-            grid = generateValidGrid();
-            render();
-        } else {
-            checkGameStatus(false);
+        // ⚠️ 處置失誤懲罰：消除了完全無關的道具
+        timeLeft = Math.max(0, timeLeft - 4.0); // 扣 4 秒
+        playSound('penalty');
+        triggerVibrate([80, 50, 80]);
+        document.body.classList.add("penalty-flash");
+        showTip("⚠️ 處置失當！傷患狀況惡化，扣減 4 秒黃金搶救時間！");
+        setTimeout(() => document.body.classList.remove("penalty-flash"), 350);
+    }
+
+    // 階段完成判定
+    if(missionProgress[currentStepIndex] <= 0) {
+        if(currentStepIndex === 0 && currentScenario.steps[1].key === "CPR_QTE") {
+            switchToCprQteMode();
+            return;
+        } else if (currentStepIndex < currentScenario.steps.length - 1) {
+            currentStepIndex++;
+            showTip(`✅ 階段處置完畢！立即進入下一階段！`);
         }
     }
+
+    score += eliminatedKeys.length * 100;
+    document.getElementById("score").innerText = score;
+    setTimeout(drop, 300);
 }
 
 function drop(){
     for(let c=0; c<SIZE; c++) {
-        let pointer = SIZE - 1;
+        let p = SIZE - 1;
         for(let r=SIZE-1; r>=0; r--) {
-            if(grid[r][c] !== null && grid[r][c] !== undefined && grid[r][c] !== "") {
-                grid[pointer][c] = grid[r][c];
-                pointer--;
-            }
+            if(grid[r][c] !== null) { grid[p][c] = grid[r][c]; p--; }
         }
-        while(pointer >= 0) {
-            grid[pointer][c] = getRandomItemWithBias();
-            pointer--;
-        }
+        while(p >= 0) { grid[p][c] = getRandomItem(); p--; }
     }
     render();
-    setTimeout(autoCheckLoop, 150);
-}
-
-function explodeEffect(r,c){
-    const cell=document.getElementById(`cell-${r}-${c}`);
-    if(!cell) return;
-    const rect = cell.getBoundingClientRect();
-    const offsetLeft = rect.left + window.scrollX + cell.offsetWidth / 2 - 10;
-    const offsetTop = rect.top + window.scrollY + cell.offsetHeight / 2 - 10;
-
-    for(let i=0;i<5;i++){
-        let p=document.createElement("div");
-        p.className="particle";
-        p.innerText= ["✨","💥","🩺"][Math.floor(Math.random()*3)]; 
-        p.style.left = offsetLeft + "px";
-        p.style.top = offsetTop + "px";
-        let x=(Math.random() * 70 - 35) + "px";
-        let y=(Math.random() * 70 - 35) + "px";
-        p.style.setProperty("--x",x);
-        p.style.setProperty("--y",y);
-        fxLayer.appendChild(p); 
-        setTimeout(()=>p.remove(), 600);
-    }
+    setTimeout(() => {
+        if(!checkMatchesAndEliminate()) { isAnimating = false; checkGameStatus(); }
+    }, 150);
 }
 
 // ==========================================
-// 4. 關卡難度平衡與結算
+// 💓 核心改革二：CPR 110 bpm 按壓 QTE 模式
 // ==========================================
-function checkGameStatus(timeOut = false) {
-    let allStepsDone = missionProgress.every(count => count <= 0);
+function switchToCprQteMode() {
+    isAnimating = true;
+    currentStepIndex = 1;
+    cprPressNeeded = currentScenario.steps[1].baseCount;
+    document.getElementById("cpr-press-left").innerText = cprPressNeeded;
+    
+    // 隱藏棋盤，展示 CPR 介面
+    boardWrap.style.display = "none";
+    ambulanceBtn.style.display = "none";
+    cprContainer.style.display = "block";
+    renderProtocolUI();
 
-    if (allStepsDone) {
-        clearInterval(timerInterval);
-        isAnimating = true;
-        let speedBonus = Math.floor(timeLeft * 50);
-        score += speedBonus;
-        document.getElementById("score").innerText = score;
-        
-        playSound('phase');
-        triggerVibrate(100);
+    showTip("🚨 AED 電擊完成！立即跟隨 110 bpm 節拍進行胸外按壓！");
+    
+    // 啟動 110 bpm 節拍音效 (每 545ms 一拍)
+    if(cprMetronomeTimer) clearInterval(cprMetronomeTimer);
+    cprMetronomeTimer = setInterval(() => {
+        playSound('cprBeat');
+    }, 545);
+}
 
-        let extraRewardTip = "";
-        if (currentLevel % 5 === 0) extraRewardTip = " 🎖️ 里程碑達標，加贈步數！";
-        showTip(`🎉 完美處置！第 ${currentLevel} 關救援成功！${extraRewardTip}`);
-        
+function handleCprPress() {
+    if(cprPressNeeded <= 0 || timeLeft <= 0) return;
+    
+    cprPressNeeded--;
+    missionProgress[1] = cprPressNeeded;
+    document.getElementById("cpr-press-left").innerText = cprPressNeeded;
+    triggerVibrate(30);
+    
+    // 按壓回饋
+    score += 200;
+    document.getElementById("score").innerText = score;
+
+    if(cprPressNeeded <= 0) {
+        clearInterval(cprMetronomeTimer);
+        showTip("🎉 心跳恢復！自主呼吸重啟，搶救成功！");
         setTimeout(() => {
             currentLevel++;
             setupLevel();
         }, 1200);
-        return;
-    } 
-    
+    }
+}
+
+function checkGameStatus(timeOut = false) {
     if (moves <= 0 || timeOut) {
         clearInterval(timerInterval);
-        isAnimating = true; 
-        board.style.filter = "grayscale(100%) opacity(60%)";
-        stopBGM();
-        triggerVibrate([100, 50, 100]);
-
-        let reason = timeOut ? "⏱️ 黃金搶救時間已盡！" : "😢 急救物資耗盡，救援中止！";
-        document.getElementById("go-reason-text").innerText = reason;
+        if(cprMetronomeTimer) clearInterval(cprMetronomeTimer);
         document.getElementById("go-level-val").innerText = `第 ${currentLevel} 關`;
         document.getElementById("go-score-val").innerText = `${score} 分`;
         document.getElementById("gameOverModal").style.display = "flex";
@@ -1352,226 +983,49 @@ function checkGameStatus(timeOut = false) {
 }
 
 function setupLevel() {
-    board.style.filter = "none";
+    boardWrap.style.display = "block";
+    ambulanceBtn.style.display = "inline-flex";
+    cprContainer.style.display = "none";
+    if(cprMetronomeTimer) clearInterval(cprMetronomeTimer);
+
     document.getElementById("current-level").innerText = currentLevel;
-    
     let scenarioIdx = (currentLevel - 1) % FIRST_AID_SCENARIOS.length;
     currentScenario = JSON.parse(JSON.stringify(FIRST_AID_SCENARIOS[scenarioIdx]));
     
-    // 目標增幅限制上限，避免後期崩潰
-    let extraTarget = Math.min(10, Math.floor((currentLevel - 1) / 3));
-    let totalTargets = 0;
-    currentScenario.steps.forEach(s => {
-        s.count = s.baseCount + extraTarget;
-        totalTargets += s.count;
-    });
-
     currentStepIndex = 0;
-    missionProgress = currentScenario.steps.map(s => s.count);
+    missionProgress = currentScenario.steps.map(s => s.baseCount);
     currentLevelTypes = [...currentScenario.pool];
 
-    moves = Math.floor(totalTargets * 0.8) + 15;
-    if (currentLevel % 5 === 0) moves += 5;
+    moves = 35;
     document.getElementById("moves").innerText = moves;
     
-    last = null;
-    isAnimating = false;
     rescueMovesLeft = 3;
-    ambulanceBtn.disabled = false;
-    
-    carIconsEl.innerHTML = "";
-    for(let i=0; i<rescueMovesLeft; i++) {
-        let spanCar = document.createElement("span");
-        spanCar.className = "step-icon";
-        spanCar.innerText = "🚑";
-        carIconsEl.appendChild(spanCar);
-    }
+    carIconsEl.innerHTML = "🚑 🚑 🚑";
 
-    grid = generateValidGrid();
+    grid = create();
     render();
-    startTimer(); 
+    startTimer();
     tryInitAudio();
-    if(audioCtx && !musicUserToggled) startBGM();
-}
-
-// ==========================================
-// 5. 排行榜安全提交與社群分享
-// ==========================================
-function openSubmitScoreModal() {
-    document.getElementById("gameOverModal").style.display = "none";
-    const savedName = localStorage.getItem("fap_player_name") || "仁心實習生";
-    document.getElementById("heroNameInput").value = savedName;
-    document.getElementById("scoreSubmitModal").style.display = "flex";
-}
-
-function closeSubmitScoreModal() {
-    document.getElementById("scoreSubmitModal").style.display = "none";
-    document.getElementById("gameOverModal").style.display = "flex";
-}
-
-function confirmSubmitScore() {
-    const inputEl = document.getElementById("heroNameInput");
-    let name = inputEl.value.trim() || "無名英雄";
-    localStorage.setItem("fap_player_name", name);
-
-    const maxAllowedScore = currentLevel * 5000 + 5000;
-    if (score > maxAllowedScore) {
-        showTip("⚠️ 數據異常，拒絕同步！");
-        closeSubmitScoreModal();
-        return;
-    }
-
-    if (!database) {
-        showTip("💾 離線模式：成績已儲存於本機瀏覽器！");
-        document.getElementById("scoreSubmitModal").style.display = "none";
-        return;
-    }
-
-    database.ref("leaderboard").push({
-        name: name,
-        level: currentLevel,
-        score: score,
-        timestamp: (typeof firebase !== "undefined" && firebase.database) ? firebase.database.ServerValue.TIMESTAMP : Date.now(),
-        uid: currentUserId || "guest"
-    }).then(() => {
-        showTip("🚀 戰績已登記到全球神醫榜！");
-        document.getElementById("scoreSubmitModal").style.display = "none";
-        showLeaderboardPopup();
-    }).catch(err => {
-        console.warn("上傳受阻:", err);
-        showTip("⚠️ 雲端受阻，已轉為本機紀錄。");
-        document.getElementById("scoreSubmitModal").style.display = "none";
-    });
-}
-
-function showLeaderboardPopup() {
-    const tbody = document.getElementById("leaderboard-body");
-    tbody.innerHTML = `<tr><td colspan="4">載入榜單中...</td></tr>`;
-    document.getElementById("rankModal").style.display = "flex";
-
-    if (!database) {
-        tbody.innerHTML = `<tr><td colspan="4">離線模式運作中（無雲端連線）</td></tr>`;
-        return;
-    }
-
-    database.ref("leaderboard").orderByChild("score").limitToLast(10).once("value", snapshot => {
-        let list = [];
-        snapshot.forEach(child => { list.push(child.val()); });
-        list.reverse();
-        tbody.innerHTML = "";
-        if(list.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4">尚無紀錄，快來搶佔第一！</td></tr>`;
-            return;
-        }
-        list.forEach((p, idx) => {
-            let tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : idx + 1))}</td>
-                <td>${p.name}</td>
-                <td>第 ${p.level} 關</td>
-                <td style="color:var(--system-red);">${p.score}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }).catch(() => {
-        tbody.innerHTML = `<tr><td colspan="4">排行榜資料載入失敗</td></tr>`;
-    });
-}
-
-function closeLeaderboardPopup() {
-    document.getElementById("rankModal").style.display = "none";
-}
-
-function scanForRescueHint(){
-    for(let r=0; r<SIZE; r++){
-        for(let c=0; c<SIZE; c++){
-            let dirs=[[0,1],[1,0]];
-            for(let [dr,dc] of dirs){
-                let nr=r+dr, nc=c+dc;
-                if(nr<SIZE && nc<SIZE){
-                    [grid[r][c],grid[nr][nc]]=[grid[nr][nc],grid[r][c]];
-                    let ok = hasMatch(grid);
-                    [grid[r][c],grid[nr][nc]]=[grid[nr][nc],grid[r][c]];
-                    if(ok) return { p1: {r, c}, p2: {r: nr, c: nc} };
-                }
-            }
-        }
-    }
-    return null;
-}
-
-function useAmbulanceRescue() {
-    if(rescueMovesLeft <= 0 || isAnimating || moves <= 0 || timeLeft <= 0) return;
-    let hint = scanForRescueHint();
-
-    if(hint) {
-        rescueMovesLeft--;
-        carIconsEl.innerHTML = "";
-        for(let i=0; i<rescueMovesLeft; i++) {
-            let spanCar = document.createElement("span");
-            spanCar.className = "step-icon";
-            spanCar.innerText = "🚑";
-            carIconsEl.appendChild(spanCar);
-        }
-        if(rescueMovesLeft === 0) {
-            carIconsEl.innerText = "已耗盡";
-            ambulanceBtn.disabled = true;
-        }
-
-        isAnimating = true; 
-        let cell1 = document.getElementById(`cell-${hint.p1.r}-${hint.p1.c}`);
-        let cell2 = document.getElementById(`cell-${hint.p2.r}-${hint.p2.c}`);
-        cell1.classList.add("hint-flash");
-        cell2.classList.add("hint-flash");
-
-        setTimeout(() => {
-            cell1.classList.remove("hint-flash");
-            cell2.classList.remove("hint-flash");
-            isAnimating = false;
-        }, 1200);
-    }
-}
-
-function userTriggerShuffle() {
-    if(isAnimating || moves <= 0 || timeLeft <= 0) return;
-    showTip("🎲 正在重新調配急救物資...");
-    grid = generateValidGrid(); 
-    render();
+    startBGM();
 }
 
 function restartWholeGame() {
     document.getElementById("gameOverModal").style.display = "none";
-    board.style.filter = "none";
-    currentLevel = 1;
-    score = 0;
+    currentLevel = 1; score = 0;
     document.getElementById("score").innerText = score;
     setupLevel();
 }
 
-function shareScore() {
-    const text = `🚑 我喺《First Aid Pop! 急救先鋒》成功完成第 ${currentLevel} 關救援任務，獲得 ${score} 分！快來挑戰！`;
-    const url = window.location.href;
-    if (navigator.share) {
-        navigator.share({ title: "First Aid Pop! 急救戰績", text: text, url: url }).catch(() => {});
-    } else {
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + " " + url)}`, "_blank");
-    }
+function userTriggerShuffle() {
+    grid = create();
+    render();
 }
 
-function checkTutorial() {
-    if (!localStorage.getItem("fap_tutorial_done")) {
-        document.getElementById("tutorialModal").style.display = "flex";
-    }
+function useAmbulanceRescue() {
+    showTip("🚑 救護人員提示：緊盯頂部任務藍框，切勿消錯！");
 }
 
-function closeTutorial() {
-    localStorage.setItem("fap_tutorial_done", "true");
-    document.getElementById("tutorialModal").style.display = "none";
-}
-
-// 啟動主流程
 setupLevel();
-checkTutorial();
 </script>
 </body>
 </html>
