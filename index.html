@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>First Aid Pop! - 急救先鋒 (手勢與CPR鎖定終極修復版)</title>
+<title>First Aid Pop! - 急救先鋒 (流暢修正版)</title>
 
 <link rel="manifest" href="./manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -28,17 +28,24 @@
     --system-blue: #0062cc;
 }
 
-/* 徹底鎖死視窗滾動，杜絕畫面隨手指移動 */
+@media (prefers-contrast: more) {
+    :root {
+        --oasis-green: #14462a;
+        --apple-gray: #333336;
+        --system-red: #a3000f;
+    }
+}
+
 html, body {
     width: 100%;
     height: 100%;
+    margin: 0;
+    padding: 0;
     overflow: hidden;
-    position: fixed;
-    touch-action: none !important;
+    touch-action: manipulation;
 }
 
 body {
-    margin: 0;
     background: linear-gradient(135deg, #d8e5dd 0%, #d5e0e6 100%);
     background-attachment: fixed;
     text-align: center;
@@ -52,7 +59,6 @@ body {
     transition: background-color 0.3s;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
     align-items: center;
 }
 
@@ -325,10 +331,6 @@ body.penalty-flash {
     justify-content: center;
 }
 
-.bomb_3d { background-image: url('https://img.icons8.com/color/96/bomb.png') !important; }
-.rainbow_3d { background-image: url('https://img.icons8.com/color/96/rainbow.png') !important; }
-
-/* CPR 專屬面板：杜絕雙擊縮放及畫面抖動 */
 #cpr-stage-container {
     display: none;
     position: relative;
@@ -473,19 +475,6 @@ body.penalty-flash {
     max-width: 90%;
 }
 
-.hint-flash { animation: flash-glow 0.4s ease-in-out 3; }
-@keyframes flash-glow {
-    0%, 100% { background-color: #fff; }
-    50% { background-color: #fef08a; transform: scale(1.04); }
-}
-
-#fx-layer { position: fixed; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999; }
-.particle { position: absolute; font-size: 20px; animation: explode 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
-@keyframes explode {
-    0% { transform: translate(0, 0) scale(1); opacity: 1; }
-    100% { transform: translate(var(--x),var(--y)) scale(0.4); opacity: 0; }
-}
-
 @media (min-width: 500px) {
     .board { gap: 8px; padding: 12px; }
     .disk { font-size: 30px; }
@@ -532,12 +521,10 @@ body.penalty-flash {
     出動救護車支援：<span id="car-icons" style="display:inline-flex; gap:3px;"></span>
 </button>
 
-<!-- 棋盤容器 -->
 <div class="board-container" id="board-wrap">
     <div id="board" class="board"></div>
 </div>
 
-<!-- 💓 第二階段 CPR 110 bpm 按壓 QTE 容器 -->
 <div id="cpr-stage-container">
     <div class="cpr-title">⚡ 緊急 CPR 110 bpm 胸外按壓！</div>
     <div class="cpr-sub">跟隨紅色光環節奏，快速按壓心臟恢復傷者心跳！</div>
@@ -551,7 +538,6 @@ body.penalty-flash {
     <div style="font-size:12px; color:var(--oasis-green); font-weight:700;">標準按壓速率：100 - 120 次/分鐘</div>
 </div>
 
-<!-- 分數登記視窗 -->
 <div id="scoreSubmitModal" class="modal">
     <div class="modal-content">
         <div class="modal-title">🩺 登記急救英雄榜</div>
@@ -562,7 +548,6 @@ body.penalty-flash {
     </div>
 </div>
 
-<!-- 全球排行榜視窗 -->
 <div id="rankModal" class="modal">
     <div class="modal-content">
         <div class="modal-title">🏆 全球急救英雄榜 (Top 10)</div>
@@ -583,7 +568,6 @@ body.penalty-flash {
     </div>
 </div>
 
-<!-- 遊戲結算視窗 -->
 <div id="gameOverModal" class="modal">
     <div class="modal-content">
         <div class="modal-title" style="color:var(--system-red);" id="go-main-title">💀 任務中止</div>
@@ -604,13 +588,9 @@ body.penalty-flash {
     </div>
 </div>
 
-<div id="fx-layer"></div>
 <div id="tipBox"></div>
 
 <script>
-// 阻止頁面橡皮筋滾動與手勢縮放
-document.addEventListener('touchmove', function(e) { e.preventDefault(); }, { passive: false });
-
 let database = null;
 let auth = null;
 let currentUserId = null;
@@ -682,7 +662,7 @@ let currentLevelTypes = [];
 
 let grid=[], score=0;
 let last=null; 
-let isAnimating = false; // 關鍵：動畫與交互鎖
+let isAnimating = false;
 let rescueMovesLeft = 3; 
 
 let moves = 35;
@@ -704,13 +684,11 @@ const carIconsEl = document.getElementById("car-icons");
 const timerBar = document.getElementById("timer-bar");
 const timerTextEl = document.getElementById("timer-text");
 const tipBox = document.getElementById("tipBox");
-const fxLayer = document.getElementById("fx-layer");
 
 function triggerVibrate(ms = 40) {
     if (navigator.vibrate) try { navigator.vibrate(ms); } catch(e){}
 }
 
-// Web Audio API
 let audioCtx = null;
 let bgmTimer = null;
 let bgmStep = 0;
@@ -873,37 +851,51 @@ function renderProtocolUI() {
     });
 }
 
-// 觸控交互：全面鎖定 pointerId，杜絕全螢幕跟隨晃動
-let startCell = null;
+let dragStartCell = null;
+let startX = 0, startY = 0;
+
 board.addEventListener("pointerdown", e => {
-    if(isAnimating || moves <= 0 || timeLeft <= 0 || isCprActive) return;
-    startCell = e.target.closest(".cell");
-    if(startCell) startCell.setPointerCapture(e.pointerId);
-});
-
-board.addEventListener("pointermove", e => {
-    if(!startCell || isAnimating || isCprActive) return;
-    let targetEl = document.elementFromPoint(e.clientX, e.clientY);
-    let currentCell = targetEl ? targetEl.closest(".cell") : null;
-    if(!currentCell || startCell === currentCell) return;
-
-    let r1 = parseInt(startCell.dataset.r), c1 = parseInt(startCell.dataset.c);
-    let r2 = parseInt(currentCell.dataset.r), c2 = parseInt(currentCell.dataset.c);
-    
-    if(Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1) {
-        let sc = startCell;
-        startCell = null;
-        try { sc.releasePointerCapture(e.pointerId); } catch(err){}
-        click(r1, c1);
-        click(r2, c2);
+    if (isAnimating || moves <= 0 || timeLeft <= 0 || isCprActive) return;
+    dragStartCell = e.target.closest(".cell");
+    if (dragStartCell) {
+        startX = e.clientX;
+        startY = e.clientY;
     }
 });
 
 board.addEventListener("pointerup", e => {
-    if(startCell) {
-        try { startCell.releasePointerCapture(e.pointerId); } catch(err){}
-        startCell = null;
+    if (!dragStartCell || isAnimating || isCprActive) {
+        dragStartCell = null;
+        return;
     }
+
+    let diffX = e.clientX - startX;
+    let diffY = e.clientY - startY;
+    let r1 = parseInt(dragStartCell.dataset.r);
+    let c1 = parseInt(dragStartCell.dataset.c);
+
+    if (Math.abs(diffX) > 20 || Math.abs(diffY) > 20) {
+        let r2 = r1, c2 = c1;
+        if (Math.abs(diffX) > Math.abs(diffY)) {
+            c2 += diffX > 0 ? 1 : -1;
+        } else {
+            r2 += diffY > 0 ? 1 : -1;
+        }
+
+        if (r2 >= 0 && r2 < SIZE && c2 >= 0 && c2 < SIZE) {
+            last = null;
+            click(r1, c1);
+            click(r2, c2);
+        }
+        dragStartCell = null;
+    } else {
+        click(r1, c1);
+        dragStartCell = null;
+    }
+});
+
+board.addEventListener("pointercancel", () => {
+    dragStartCell = null;
 });
 
 function click(r,c){
@@ -992,11 +984,10 @@ function executeElimination(toRemove) {
     score += eliminatedKeys.length * 100;
     document.getElementById("score").innerText = score;
 
-    // 階段判定與切換
     if(missionProgress[currentStepIndex] <= 0) {
         if(currentStepIndex === 0 && currentScenario.steps[1].key === "CPR_QTE") {
             switchToCprQteMode();
-            return; // 中斷常規 drop
+            return;
         } else if (currentStepIndex < currentScenario.steps.length - 1) {
             currentStepIndex++;
             showTip(`✅ 階段處置完畢！立即進入下一階段！`);
@@ -1017,13 +1008,12 @@ function drop(){
     render();
     setTimeout(() => {
         if(!checkMatchesAndEliminate()) { 
-            isAnimating = false; // 解鎖狀態機
+            isAnimating = false;
             checkGameStatus(); 
         }
     }, 150);
 }
 
-// CPR 110 bpm 按壓 QTE 模式（徹底修復按壓卡死及滾動穿透）
 function switchToCprQteMode() {
     isAnimating = true;
     isCprActive = true;
@@ -1044,7 +1034,6 @@ function switchToCprQteMode() {
     }, 545);
 }
 
-// 綁定原生 pointerdown 取代 onclick，消除 iOS 300ms 點擊延遲
 cprHeartBtn.addEventListener("pointerdown", function(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -1064,7 +1053,7 @@ cprHeartBtn.addEventListener("pointerdown", function(e) {
         showTip("🎉 搶救成功！自主呼吸恢復！");
         setTimeout(() => {
             currentLevel++;
-            setupLevel(); // 重新載入，內部自動釋放 isAnimating 鎖
+            setupLevel();
         }, 1000);
     }
 });
@@ -1090,12 +1079,11 @@ function checkGameStatus(timeOut = false) {
     }
 }
 
-// 初始化關卡：全面重置所有鎖定狀態
 function setupLevel() {
-    isAnimating = false; // 核心解鎖：釋放方塊拖動鎖
+    isAnimating = false;
     isCprActive = false;
     last = null;
-    startCell = null;
+    dragStartCell = null;
 
     if(cprMetronomeTimer) {
         clearInterval(cprMetronomeTimer);
@@ -1239,7 +1227,6 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// 啟動關卡
 setupLevel();
 </script>
 </body>
