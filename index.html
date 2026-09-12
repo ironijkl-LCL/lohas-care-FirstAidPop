@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>First Aid Pop! - 急救先鋒 (手感與節奏精修版)</title>
+<title>First Aid Pop! - 急救先鋒 (細節與音效打磨版)</title>
 
 <link rel="manifest" href="./manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -180,7 +180,6 @@ body {
     transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
-/* 目標欄微幅震動與閃紅 */
 .scenario-card.card-penalty {
     background: #ffe8e8 !important;
     border-color: var(--system-red) !important;
@@ -278,6 +277,13 @@ body {
 
 .btn-ambulance:active { transform: scale(0.98); opacity: 0.9; }
 .btn-ambulance:disabled { background: #cbd5e1; color: #94a3b8; cursor: not-allowed; }
+
+.ambulance-badge {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    vertical-align: middle;
+}
 
 .board-container {
     position: relative;
@@ -415,7 +421,6 @@ body {
 
 .cpr-counter { font-size: 24px; font-weight: 900; color: var(--apple-dark); margin-bottom: 4px; }
 
-/* QTE 節奏動態反饋標籤 */
 .cpr-feedback {
     font-size: 13px;
     font-weight: 800;
@@ -444,7 +449,7 @@ body {
     background: var(--apple-card-bg);
     border: 1px solid var(--apple-border);
     width: 88%;
-    max-width: 360px;
+    max-width: 380px;
     border-radius: 24px;
     padding: 20px;
     box-sizing: border-box;
@@ -482,9 +487,9 @@ body {
 }
 .share-btn { background: var(--oasis-green); color: white; margin-top: 8px; }
 
-.rank-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 12px; }
-.rank-table th { background: rgba(0,0,0,0.04); color: var(--apple-gray); padding: 6px; font-weight: 700; }
-.rank-table td { padding: 8px 6px; border-bottom: 1px solid rgba(0,0,0,0.04); font-weight: 700; }
+.rank-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 11px; }
+.rank-table th { background: rgba(0,0,0,0.04); color: var(--apple-gray); padding: 6px 4px; font-weight: 700; }
+.rank-table td { padding: 7px 4px; border-bottom: 1px solid rgba(0,0,0,0.04); font-weight: 700; }
 
 #tipBox {
     position: fixed;
@@ -547,7 +552,7 @@ body {
 </div>
 
 <button id="ambulance-btn" class="btn-ambulance" onclick="useAmbulanceRescue()">
-    出動救護車支援：<span id="car-icons" style="display:inline-flex; gap:3px;"></span>
+    出動救護車支援：<span id="car-icons" class="ambulance-badge"></span>
 </button>
 
 <div class="board-container" id="board-wrap">
@@ -587,11 +592,12 @@ body {
                     <th>名次</th>
                     <th>神醫暱稱</th>
                     <th>關卡</th>
-                    <th>總得分</th>
+                    <th>得分</th>
+                    <th>日期</th>
                 </tr>
             </thead>
             <tbody id="leaderboard-body">
-                <tr><td colspan="4">載入數據中...</td></tr>
+                <tr><td colspan="5">載入數據中...</td></tr>
             </tbody>
         </table>
         <button class="btn-primary" onclick="closeLeaderboardPopup()">返回急救現場</button>
@@ -600,7 +606,7 @@ body {
 
 <div id="gameOverModal" class="modal">
     <div class="modal-content">
-        <div class="modal-title" style="color:var(--system-red);" id="go-main-title">💀 任務中止</div>
+        <div class="modal-title" style="color:var(--system-red);" id="go-main-title">💀 時間耗盡</div>
         <div id="go-reason-text" style="font-size:13px; color:var(--apple-gray); margin-bottom:12px;">傷者未能脫險！</div>
         <div style="background:rgba(0,0,0,0.03); border-radius:16px; padding:12px; margin-bottom:16px; text-align:left;">
             <div style="display:flex; justify-content:space-between; margin:4px 0; font-size:13px; font-weight:700;">
@@ -724,6 +730,24 @@ function triggerVibrate(pattern = 30) {
     }
 }
 
+// 救護車圖標 createElement / appendChild 渲染
+function renderAmbulanceIcons() {
+    while (carIconsEl.firstChild) {
+        carIconsEl.removeChild(carIconsEl.firstChild);
+    }
+    if (rescueMovesLeft === 0) {
+        carIconsEl.textContent = "已耗盡";
+        ambulanceBtn.disabled = true;
+        return;
+    }
+    ambulanceBtn.disabled = false;
+    for (let i = 0; i < rescueMovesLeft; i++) {
+        const span = document.createElement("span");
+        span.textContent = "🚑";
+        carIconsEl.appendChild(span);
+    }
+}
+
 let audioCtx = null;
 let bgmTimer = null;
 let bgmStep = 0;
@@ -764,6 +788,28 @@ function playSound(type) {
             gain.gain.setValueAtTime(0.2, now);
             gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
             osc.start(now); osc.stop(now + 0.08);
+        } else if (type === 'cprFast') {
+            // 太快：短促偏尖銳提示音 (1046Hz)
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1046.5, now);
+            gain.gain.setValueAtTime(0.18, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+            osc.start(now); osc.stop(now + 0.09);
+        } else if (type === 'cprSlow') {
+            // 太慢：低沉頓音 (220Hz)
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(220, now);
+            gain.gain.setValueAtTime(0.22, now);
+            gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+            osc.start(now); osc.stop(now + 0.12);
+        } else if (type === 'cprPerfect') {
+            // 完美：清脆雙諧波 (659Hz -> 880Hz)
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(659.25, now);
+            osc.frequency.exponentialRampToValueAtTime(880, now + 0.1);
+            gain.gain.setValueAtTime(0.22, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+            osc.start(now); osc.stop(now + 0.14);
         }
     } catch(e){}
 }
@@ -896,7 +942,6 @@ function renderProtocolUI() {
     });
 }
 
-// 拖曳容錯門檻降至 12px
 let dragStartCell = null;
 let startX = 0, startY = 0;
 
@@ -920,7 +965,6 @@ board.addEventListener("pointerup", e => {
     let r1 = parseInt(dragStartCell.dataset.r);
     let c1 = parseInt(dragStartCell.dataset.c);
 
-    // 門檻改為 12px，大幅改善微滑誤判為點擊的問題
     if (Math.abs(diffX) > 12 || Math.abs(diffY) > 12) {
         let r2 = r1, c2 = c1;
         if (Math.abs(diffX) > Math.abs(diffY)) {
@@ -1001,7 +1045,6 @@ function checkMatchesAndEliminate() {
     return false;
 }
 
-// 懲罰機制優化：扣 1.5 秒，僅目標欄閃紅 + 輕微震動 (30ms)
 function executeElimination(toRemove) {
     let targetKey = currentScenario.steps[currentStepIndex].key;
     let eliminatedKeys = [];
@@ -1021,7 +1064,6 @@ function executeElimination(toRemove) {
         playSound('match');
         triggerVibrate(30);
     } else {
-        // 消錯非指定道具：扣 1.5 秒
         timeLeft = Math.max(0, timeLeft - 1.5);
         playSound('penalty');
         triggerVibrate(30);
@@ -1064,7 +1106,6 @@ function drop(){
     }, 150);
 }
 
-// CPR 110 bpm QTE 模式，加入太快/太慢節奏評分
 function switchToCprQteMode() {
     isAnimating = true;
     isCprActive = true;
@@ -1088,6 +1129,7 @@ function switchToCprQteMode() {
     }, 545);
 }
 
+// CPR 節奏判定與音效差異化 (Perfect / Fast / Slow)
 cprHeartBtn.addEventListener("pointerdown", function(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -1098,23 +1140,26 @@ cprHeartBtn.addEventListener("pointerdown", function(e) {
 
     if (lastCprPressTime > 0) {
         const interval = now - lastCprPressTime;
-        // 545ms 週期對應 110 bpm (100-120 bpm 範圍約 500ms - 600ms)
         if (interval < 400) {
             cprFeedbackEl.className = "cpr-feedback fast";
             cprFeedbackEl.innerText = "⚠️ 按壓太快！保持每秒約 2 下";
+            playSound('cprFast');
             pointDelta = 100;
         } else if (interval > 700) {
             cprFeedbackEl.className = "cpr-feedback slow";
             cprFeedbackEl.innerText = "⚠️ 按壓太慢！請跟隨節拍紅光";
+            playSound('cprSlow');
             pointDelta = 100;
         } else {
             cprFeedbackEl.className = "cpr-feedback perfect";
             cprFeedbackEl.innerText = "✨ 節奏完美 (PERFECT 110 bpm)";
+            playSound('cprPerfect');
             pointDelta = 300;
         }
     } else {
         cprFeedbackEl.className = "cpr-feedback perfect";
         cprFeedbackEl.innerText = "❤️ 開始按壓";
+        playSound('cprPerfect');
     }
     lastCprPressTime = now;
 
@@ -1139,7 +1184,6 @@ cprHeartBtn.addEventListener("pointerdown", function(e) {
     }
 });
 
-// 救護車安全網：掃描可行步數並高亮閃爍 2 格
 function scanForRescueHint() {
     for (let r = 0; r < SIZE; r++) {
         for (let c = 0; c < SIZE; c++) {
@@ -1164,14 +1208,7 @@ function useAmbulanceRescue() {
     let hint = scanForRescueHint();
     if (hint) {
         rescueMovesLeft--;
-        carIconsEl.innerHTML = "";
-        for (let i = 0; i < rescueMovesLeft; i++) {
-            carIconsEl.innerHTML += "🚑 ";
-        }
-        if (rescueMovesLeft === 0) {
-            carIconsEl.innerText = "已耗盡";
-            ambulanceBtn.disabled = true;
-        }
+        renderAmbulanceIcons();
 
         isAnimating = true;
         let cell1 = document.getElementById(`cell-${hint.p1.r}-${hint.p1.c}`);
@@ -1197,6 +1234,7 @@ function useAmbulanceRescue() {
     }
 }
 
+// 明確區分 Game Over 死因（時間耗盡 vs 步數耗盡）
 function checkGameStatus(timeOut = false) {
     let allDone = missionProgress.every(v => v <= 0);
     if(allDone && !isCprActive) {
@@ -1212,6 +1250,18 @@ function checkGameStatus(timeOut = false) {
         clearInterval(timerInterval);
         if(cprMetronomeTimer) clearInterval(cprMetronomeTimer);
         isAnimating = true;
+
+        const mainTitleEl = document.getElementById("go-main-title");
+        const reasonTextEl = document.getElementById("go-reason-text");
+
+        if (timeOut) {
+            mainTitleEl.innerText = "⏱️ 時間耗盡";
+            reasonTextEl.innerText = "黃金急救時間用盡！傷患心跳未能及時恢復！";
+        } else {
+            mainTitleEl.innerText = "🛑 步數耗盡";
+            reasonTextEl.innerText = "現場急救物資調配步數耗盡！傷患未能維持生命跡象！";
+        }
+
         document.getElementById("go-level-val").innerText = `第 ${currentLevel} 關`;
         document.getElementById("go-score-val").innerText = `${score} 分`;
         document.getElementById("gameOverModal").style.display = "flex";
@@ -1245,8 +1295,7 @@ function setupLevel() {
     document.getElementById("moves").innerText = moves;
     
     rescueMovesLeft = 3;
-    ambulanceBtn.disabled = false;
-    carIconsEl.innerHTML = "🚑 🚑 🚑";
+    renderAmbulanceIcons();
 
     grid = create();
     render();
@@ -1282,7 +1331,6 @@ function closeSubmitScoreModal() {
     document.getElementById("gameOverModal").style.display = "flex";
 }
 
-// 補回前端 maxAllowedScore 防篡改驗證
 function confirmSubmitScore() {
     const inputEl = document.getElementById("heroNameInput");
     let name = inputEl.value.trim() || "無名英雄";
@@ -1317,13 +1365,24 @@ function confirmSubmitScore() {
     });
 }
 
+// 排行榜增加日期時間顯示
+function formatDate(ts) {
+    if (!ts) return "--";
+    const d = new Date(ts);
+    const m = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    const hr = d.getHours().toString().padStart(2, '0');
+    const min = d.getMinutes().toString().padStart(2, '0');
+    return `${m}/${day} ${hr}:${min}`;
+}
+
 function showLeaderboardPopup() {
     const tbody = document.getElementById("leaderboard-body");
-    tbody.innerHTML = `<tr><td colspan="4">載入榜單中...</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5">載入榜單中...</td></tr>`;
     document.getElementById("rankModal").style.display = "flex";
 
     if (!database) {
-        tbody.innerHTML = `<tr><td colspan="4">離線模式運作中</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5">離線模式運作中</td></tr>`;
         return;
     }
 
@@ -1333,21 +1392,25 @@ function showLeaderboardPopup() {
         list.reverse();
         tbody.innerHTML = "";
         if(list.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4">尚無紀錄，快來搶佔第一！</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5">尚無紀錄，快來搶佔第一！</td></tr>`;
             return;
         }
         list.forEach((p, idx) => {
             let tr = document.createElement("tr");
+            let medal = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : idx + 1));
+            let dateStr = formatDate(p.timestamp);
+
             tr.innerHTML = `
-                <td>${idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : idx + 1))}</td>
+                <td>${medal}</td>
                 <td>${p.name}</td>
                 <td>第 ${p.level} 關</td>
                 <td style="color:var(--system-red);">${p.score}</td>
+                <td style="color:var(--apple-gray); font-size:10px;">${dateStr}</td>
             `;
             tbody.appendChild(tr);
         });
     }).catch(() => {
-        tbody.innerHTML = `<tr><td colspan="4">排行榜載入失敗</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5">排行榜載入失敗</td></tr>`;
     });
 }
 
