@@ -19,7 +19,6 @@
     --system-blue: #0062cc;
     --cell-bg: rgba(255, 255, 255, 0.88);
 
-    /* 預設手機版佈局尺寸 */
     --content-max-width: 440px;
     --disk-font-size: 23px;
     --disk-label-size: 8px;
@@ -27,7 +26,6 @@
     --cpr-ring-size: 100px;
 }
 
-/* 針對 iPad 及平板大螢幕自適應放大 (min-width: 768px) */
 @media (min-width: 768px) {
     :root {
         --content-max-width: min(84vw, 680px);
@@ -36,59 +34,19 @@
         --cpr-heart-size: 120px;
         --cpr-ring-size: 150px;
     }
-    body {
-        padding: 16px 24px 28px 24px !important;
-    }
-    .game-title {
-        font-size: 26px !important;
-    }
-    .tool-btn {
-        padding: 7px 14px !important;
-        font-size: 14px !important;
-        border-radius: 16px !important;
-    }
-    .status-bar {
-        font-size: 15px !important;
-        margin-bottom: 8px !important;
-    }
-    .status-pill {
-        padding: 6px 14px !important;
-        border-radius: 16px !important;
-    }
-    .scenario-box {
-        padding: 14px 16px !important;
-        border-radius: 18px !important;
-        margin-bottom: 10px !important;
-    }
-    .scenario-title {
-        font-size: 17px !important;
-    }
-    .scenario-desc {
-        font-size: 14px !important;
-        line-height: 1.4 !important;
-    }
-    .step-item {
-        padding: 8px 12px !important;
-        font-size: 14px !important;
-        border-radius: 10px !important;
-    }
-    .action-btn {
-        padding: 12px !important;
-        font-size: 15px !important;
-        border-radius: 16px !important;
-    }
-    .board {
-        padding: 10px !important;
-        gap: 8px !important;
-        border-radius: 22px !important;
-    }
-    .cell {
-        border-radius: 12px !important;
-    }
-    .legal-footer {
-        font-size: 12px !important;
-        margin-top: 10px !important;
-    }
+    body { padding: 16px 24px 28px 24px !important; }
+    .game-title { font-size: 26px !important; }
+    .tool-btn { padding: 7px 13px !important; font-size: 13px !important; border-radius: 16px !important; }
+    .status-bar { font-size: 15px !important; margin-bottom: 8px !important; }
+    .status-pill { padding: 6px 14px !important; border-radius: 16px !important; }
+    .scenario-box { padding: 14px 16px !important; border-radius: 18px !important; margin-bottom: 10px !important; }
+    .scenario-title { font-size: 17px !important; }
+    .scenario-desc { font-size: 14px !important; line-height: 1.4 !important; }
+    .step-item { padding: 8px 12px !important; font-size: 14px !important; border-radius: 10px !important; }
+    .action-btn { padding: 12px !important; font-size: 15px !important; border-radius: 16px !important; }
+    .board { padding: 10px !important; gap: 8px !important; border-radius: 22px !important; }
+    .cell { border-radius: 12px !important; }
+    .legal-footer { font-size: 12px !important; margin-top: 10px !important; }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -221,7 +179,7 @@ body.show-labels .disk-label { display: block; }
 }
 .modal-window {
     background: var(--card-bg); border: 1px solid var(--border-color);
-    width: 90%; max-width: min(80vw, 420px); border-radius: 18px; padding: 18px;
+    width: 90%; max-width: min(80vw, 440px); border-radius: 18px; padding: 18px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.25); max-height: 85vh; overflow-y: auto;
 }
 .btn-primary {
@@ -242,6 +200,18 @@ body.show-labels .disk-label { display: block; }
 .notebook-title { font-weight: 800; color: var(--system-blue); margin-bottom: 2px; }
 .notebook-tip { color: var(--text-secondary); line-height: 1.35; }
 
+/* 患者復甦動畫視窗 */
+.resuscitation-anim-box {
+    text-align: center; padding: 10px 0;
+}
+.resuscitation-icon {
+    font-size: 54px; animation: bounceIn 0.8s ease infinite alternate;
+}
+@keyframes bounceIn {
+    0% { transform: scale(0.9); }
+    100% { transform: scale(1.15); }
+}
+
 #tipToast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.88); color: #fff; padding: 8px 18px;
@@ -260,7 +230,8 @@ body.show-labels .disk-label { display: block; }
     <div class="control-btn-group">
         <button class="tool-btn" onclick="toggleAudio()" aria-label="切換音效">🎵 音效</button>
         <button class="tool-btn" onclick="toggleLabelMode()" aria-label="無障礙標籤">👁️ 標籤</button>
-        <button class="tool-btn" onclick="openNotebookModal()" aria-label="急救筆記">📖 筆記</button>
+        <button class="tool-btn" onclick="openNotebookModal()" aria-label="急救手冊">📖 筆記</button>
+        <button class="tool-btn" onclick="openAchievementsModal()" aria-label="成就列表">🏅 成就</button>
         <button class="tool-btn" onclick="triggerManualPause()" aria-label="暫停遊戲">⏸️ 暫停</button>
         <button class="tool-btn" onclick="showLeaderboardPopup()" aria-label="全球英雄榜">🏆 英雄榜</button>
     </div>
@@ -310,13 +281,22 @@ body.show-labels .disk-label { display: block; }
     本 App 僅作急救教育參考，不能替代正式急救證書訓練。遇真實緊急情況請即刻致電 999。
 </div>
 
+<!-- 患者復甦成功過場動畫 Modal -->
+<div id="resuscitationModal" class="modal-backdrop">
+    <div class="modal-window resuscitation-anim-box">
+        <div class="resuscitation-icon" id="resuscitation-icon">💓</div>
+        <div style="font-size:18px; font-weight:800; color:var(--oasis-green); margin:10px 0 4px 0;" id="resuscitation-title">自主心跳恢復！</div>
+        <div style="font-size:13px; color:var(--text-secondary);" id="resuscitation-desc">傷患重拾微弱脈搏，救護車已抵達現場！</div>
+    </div>
+</div>
+
 <!-- CPR 質量報告 Modal -->
 <div id="cprReportModal" class="modal-backdrop">
     <div class="modal-window">
         <div style="font-size:18px; font-weight:800; color:var(--oasis-green); margin-bottom:8px;">📊 CPR 搶救質量評估報告</div>
         <div style="background:rgba(0,0,0,0.03); border-radius:12px; padding:12px; margin-bottom:14px; font-size:13px; line-height:1.7; text-align:left;">
             <div>🎯 完美節奏次數：<b id="rep-perfect-count">0</b> / 15 次</div>
-            <div>⚡ 平均按壓速率：<b id="rep-avg-bpm">0</b> bpm (標準 100-120)</div>
+            <div>⚡ 平均有效速率：<b id="rep-avg-bpm">0</b> bpm (標準 100-120)</div>
             <div>⚠️ 缺氧中斷次數：<b id="rep-interrupt-count" style="color:var(--system-red);">0</b> 次</div>
             <div>🏆 綜合技術評級：<b id="rep-grade" style="font-size:17px; color:var(--system-purple);">A</b></div>
         </div>
@@ -353,6 +333,15 @@ body.show-labels .disk-label { display: block; }
         <div style="font-size:17px; font-weight:800; margin-bottom:8px;">📖 我的急救實用手冊</div>
         <div id="notebook-list" style="margin-bottom:12px;"></div>
         <button class="btn-primary" onclick="closeNotebookModal()">熟讀並返回</button>
+    </div>
+</div>
+
+<!-- 成就列表 Modal -->
+<div id="achievementsModal" class="modal-backdrop">
+    <div class="modal-window">
+        <div style="font-size:17px; font-weight:800; margin-bottom:8px;">🏅 我的急救榮譽勳章</div>
+        <div id="achievements-list" style="margin-bottom:12px;"></div>
+        <button class="btn-primary" onclick="closeAchievementsModal()">返回遊戲</button>
     </div>
 </div>
 
@@ -476,6 +465,10 @@ let isAnimating = false, moves = 35, timeLeft = 90.0, maxTime = 90.0;
 let lastTimerTick = 0, mainTimer = null, isGamePaused = false;
 let rescueUsesLeft = 3, freeShufflesLeft = 1;
 
+// P0-5 防重入旗標
+let isProceeding = false;
+
+// CPR 狀態監控與質量報告統計
 let isCprActive = false, cprPressNeeded = 15, lastCprPressTime = 0;
 let cprMetronome = null, cprTimer = null, cprTimeLeft = 20.0, cprWatchdog = null;
 let cprStats = { perfect: 0, fast: 0, slow: 0, interrupts: 0, intervals: [] };
@@ -639,6 +632,7 @@ function handleCellAction(r1, c1, r2, c2) {
     if (r1 === r2 && c1 === c2) { renderBoard(); return; }
     if (Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1) {
         isAnimating = true;
+        // P0-4: 嚴格防呆 targetColor
         if (grid[r1][c1] === "RAINBOW" || grid[r2][c2] === "RAINBOW") {
             const targetColor = grid[r1][c1] === "RAINBOW" ? grid[r2][c2] : grid[r1][c1];
             if (!targetColor || targetColor === "RAINBOW") {
@@ -837,6 +831,7 @@ function startCprQte() {
         document.getElementById("cpr-timer-text").innerText = Math.max(0, cprTimeLeft).toFixed(1);
     }, 100);
 
+    // P0-3 放寬中斷判定閾值至 1600ms
     if (cprWatchdog) clearInterval(cprWatchdog);
     cprWatchdog = setInterval(() => {
         if (isGamePaused || !isCprActive || lastCprPressTime === 0) return;
@@ -889,18 +884,52 @@ document.getElementById("cprHeartBtn").addEventListener("pointerdown", e => {
     if (cprPressNeeded <= 0) {
         isCprActive = false;
         clearInterval(cprTimer); clearInterval(cprMetronome); clearInterval(cprWatchdog);
-        showCprQualityReport();
+        triggerResuscitationAnim();
     }
 });
 
+// P1-7: 患者康復動態過場
+function triggerResuscitationAnim() {
+    const modal = document.getElementById("resuscitationModal");
+    const icon = document.getElementById("resuscitation-icon");
+    const title = document.getElementById("resuscitation-title");
+    const desc = document.getElementById("resuscitation-desc");
+    
+    modal.style.display = "flex";
+    icon.innerText = "💓";
+    title.innerText = "自主心跳已恢復！";
+    desc.innerText = "傷患重現微弱脈搏，救護隊及時接手！";
+    playBeep(880, 0.35, "sine");
+
+    setTimeout(() => {
+        icon.innerText = "🚑";
+        title.innerText = "傷患已穩定送院！";
+        desc.innerText = "現場搶救成功，正在統計技術質量報告...";
+    }, 1100);
+
+    setTimeout(() => {
+        modal.style.display = "none";
+        showCprQualityReport();
+    }, 2200);
+}
+
 function showCprQualityReport() {
-    const avgDelta = cprStats.intervals.length > 0 ? (cprStats.intervals.reduce((a, b) => a + b, 0) / cprStats.intervals.length) : 545;
+    // P0-3: 過濾大於 1500ms 的非正常中斷間隔
+    const validIntervals = cprStats.intervals.filter(d => d <= 1500 && d >= 200);
+    const avgDelta = validIntervals.length > 0 ? (validIntervals.reduce((a, b) => a + b, 0) / validIntervals.length) : 545;
     const avgBpm = Math.round(60000 / avgDelta);
+    
     let grade = "A";
-    if (cprStats.perfect >= 12 && cprStats.interrupts === 0) grade = "S 傳奇神醫";
-    else if (cprStats.perfect >= 9 && cprStats.interrupts <= 1) grade = "A 優秀救護員";
-    else if (cprStats.perfect >= 6) grade = "B 合格處置";
-    else grade = "C 勉強復甦";
+    if (cprStats.perfect >= 12 && cprStats.interrupts === 0) {
+        grade = "S 傳奇神醫";
+        unlockAchievement("cpr_master");
+    } else if (cprStats.perfect >= 9 && cprStats.interrupts <= 1) {
+        grade = "A 優秀救護員";
+    } else if (cprStats.perfect >= 6) {
+        grade = "B 合格處置";
+    } else {
+        grade = "C 勉強復甦";
+    }
 
     document.getElementById("rep-perfect-count").innerText = cprStats.perfect;
     document.getElementById("rep-avg-bpm").innerText = avgBpm;
@@ -936,7 +965,12 @@ function scanValidMovePure(currentGrid) {
             for (const [dr, dc] of dirs) {
                 const nr = r + dr, nc = c + dc;
                 if (nr < SIZE && nc < SIZE) {
-                    if (b[r][c] === "RAINBOW" || b[nr][nc] === "RAINBOW") return { r1: r, c1: c, r2: nr, c2: nc };
+                    // P0-2: 將 BOMB_ 加入優先提示候選
+                    if (b[r][c] === "RAINBOW" || b[nr][nc] === "RAINBOW" ||
+                        (b[r][c] && b[r][c].startsWith("BOMB_")) || 
+                        (b[nr][nc] && b[nr][nc].startsWith("BOMB_"))) {
+                        return { r1: r, c1: c, r2: nr, c2: nc };
+                    }
                     [b[r][c], b[nr][nc]] = [b[nr][nc], b[r][c]];
                     const ok = checkLocalMatch(b, r, c) || checkLocalMatch(b, nr, nc);
                     [b[r][c], b[nr][nc]] = [b[nr][nc], b[r][c]];
@@ -1019,7 +1053,11 @@ function checkLevelProgress() {
     }
 }
 
+// P0-5: 加上 isProceeding 旗標嚴防重複觸發
 function proceedToNextLevel() {
+    if (isProceeding) return;
+    isProceeding = true;
+
     if (currentScenario && currentScenario.tip) {
         showToast(currentScenario.tip);
         unlockNotebookEntry((currentLevel - 1) % SCENARIOS.length);
@@ -1027,15 +1065,22 @@ function proceedToNextLevel() {
     
     if (currentLevel === SCENARIOS.length) {
         showToast("🏆 恭喜全通 10 大急救情境！已晉身無限挑戰！");
+        unlockAchievement("all_clear");
     }
 
     currentLevel++;
     localStorage.setItem("fap_saved_level", currentLevel);
     localStorage.setItem("fap_saved_score", score);
-    setTimeout(setupLevel, 1300);
+    
+    setTimeout(() => {
+        isProceeding = false;
+        setupLevel();
+    }, 1300);
 }
 
+// P0-4: GameOver 徹底重設 CPR 狀態
 function triggerGameOver(reason) {
+    isCprActive = false;
     clearInterval(mainTimer);
     if (cprTimer) clearInterval(cprTimer);
     if (cprMetronome) clearInterval(cprMetronome);
@@ -1060,6 +1105,7 @@ function setupLevel() {
     document.getElementById("pauseModal").style.display = "none";
     document.getElementById("current-level").innerText = currentLevel;
 
+    // 還原暫停按鈕
     const resumeBtn = document.getElementById("resume-btn");
     resumeBtn.innerText = "恢復救援";
     resumeBtn.onclick = resumeGameWithCountdown;
@@ -1081,6 +1127,12 @@ function setupLevel() {
     grid = createBoard();
     renderBoard();
     startMainTimer();
+
+    // P1-10: 首關進入顯示 2.5 秒教學提點
+    if (currentLevel === 1 && !localStorage.getItem("fap_seen_tut")) {
+        localStorage.setItem("fap_seen_tut", "1");
+        showToast("📋 提示：按照上方紅字指示，優先配對指定急救物資！");
+    }
 }
 
 function restartWholeGame() {
@@ -1126,7 +1178,7 @@ document.addEventListener("visibilitychange", () => {
     }
 });
 
-// --- 9. 英雄榜與筆記本 ---
+// --- 9. 英雄榜、急救筆記與成就系統 ---
 function openSubmitScoreModal() {
     document.getElementById("pauseModal").style.display = "none";
     document.getElementById("heroNameInput").value = localStorage.getItem("fap_hero_name") || "仁心救護員";
@@ -1153,6 +1205,7 @@ function confirmSubmitScore() {
             body: JSON.stringify(entry)
         }).then(() => {
             showToast("🚀 戰績已同步至全球急救庫！");
+            unlockAchievement("leaderboard_post");
         }).catch(() => {
             showToast("💾 雲端離線，已儲存於本機英雄榜！");
         });
@@ -1200,8 +1253,9 @@ function showLeaderboardPopup() {
 }
 function closeLeaderboardPopup() { document.getElementById("rankModal").style.display = "none"; }
 
+// P0-6: 統一預設初始化為 [0]
 function unlockNotebookEntry(idx) {
-    let unlocked = JSON.parse(localStorage.getItem("fap_notebook") || "[]");
+    let unlocked = JSON.parse(localStorage.getItem("fap_notebook") || "[0]");
     if (!unlocked.includes(idx)) {
         unlocked.push(idx);
         localStorage.setItem("fap_notebook", JSON.stringify(unlocked));
@@ -1226,6 +1280,46 @@ function openNotebookModal() {
 }
 function closeNotebookModal() { document.getElementById("notebookModal").style.display = "none"; }
 
+// P1-9: 成就勳章系統
+const ACHIEVEMENTS_DEF = {
+    "first_aid": { title: "🌟 初出茅廬", desc: "完成首次緊急急救任務" },
+    "cpr_master": { title: "💓 傳奇心跳", desc: "於 CPR QTE 取得 S 級神醫評價" },
+    "all_clear": { title: "🏆 急救大師", desc: "成功通關全部 10 大急救情境" },
+    "leaderboard_post": { title: "🩺 名垂青史", desc: "成功登記戰績至全球英雄榜" }
+};
+
+function unlockAchievement(id) {
+    let list = JSON.parse(localStorage.getItem("fap_achievements") || "[]");
+    if (!list.includes(id)) {
+        list.push(id);
+        localStorage.setItem("fap_achievements", JSON.stringify(list));
+        if (ACHIEVEMENTS_DEF[id]) {
+            showToast(`🏅 解鎖成就：${ACHIEVEMENTS_DEF[id].title}！`);
+            playBeep(980, 0.4, "sine");
+        }
+    }
+}
+
+function openAchievementsModal() {
+    const container = document.getElementById("achievements-list");
+    container.innerHTML = "";
+    let unlocked = JSON.parse(localStorage.getItem("fap_achievements") || "[]");
+    for (let k in ACHIEVEMENTS_DEF) {
+        const isOk = unlocked.includes(k);
+        const item = document.createElement("div");
+        item.className = "notebook-item";
+        item.innerHTML = `
+            <div class="notebook-title" style="color:${isOk ? 'var(--system-purple)' : 'var(--text-secondary)'};">
+                ${isOk ? '🏅' : '🔒'} ${ACHIEVEMENTS_DEF[k].title} ${isOk ? '<span style="color:var(--oasis-green); font-size:10px;">(已達成)</span>' : ''}
+            </div>
+            <div class="notebook-tip">${ACHIEVEMENTS_DEF[k].desc}</div>
+        `;
+        container.appendChild(item);
+    }
+    document.getElementById("achievementsModal").style.display = "flex";
+}
+function closeAchievementsModal() { document.getElementById("achievementsModal").style.display = "none"; }
+
 function shareScore() {
     const text = `🚑 我喺《First Aid Pop! 急救突圍》完成第 ${currentLevel} 關現場急救，取得 ${score} 分！一齊學急救救人！`;
     if (navigator.share) {
@@ -1236,6 +1330,7 @@ function shareScore() {
     }
 }
 
+// 讀取進度存檔
 const savedLevel = parseInt(localStorage.getItem("fap_saved_level") || "1");
 const savedScore = parseInt(localStorage.getItem("fap_saved_score") || "0");
 if (savedLevel > 1) {
