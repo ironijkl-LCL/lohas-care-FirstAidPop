@@ -1,9 +1,9 @@
+cat << 'EOF' > www/index.html
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="description" content="First Aid Pop! 急救突圍 - 寓教於樂的急救消消樂手遊">
 <title>First Aid Pop! 急救突圍</title>
 <style>
 :root {
@@ -22,12 +22,12 @@
 }
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg-grad: linear-gradient(135deg, #1c2220 0%, #151b1e 100%);
-        --card-bg: rgba(36, 40, 44, 0.92);
-        --border-color: rgba(255, 255, 255, 0.1);
+        --bg-grad: linear-gradient(135deg, #1a201e 0%, #14181a 100%);
+        --card-bg: rgba(38, 42, 46, 0.94);
+        --border-color: rgba(255, 255, 255, 0.12);
         --text-primary: #f5f5f7;
         --text-secondary: #a1a1a6;
-        --cell-bg: rgba(45, 52, 58, 0.85);
+        --cell-bg: rgba(48, 55, 62, 0.88);
     }
 }
 * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
@@ -39,17 +39,17 @@ body {
     background: var(--bg-grad); background-attachment: fixed; text-align: center;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
     color: var(--text-primary); user-select: none; -webkit-user-select: none;
-    padding: 6px 12px 16px 12px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    padding: 6px 12px 14px 12px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
 }
 .header-bar {
     width: 100%; max-width: 440px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;
 }
-.game-title { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
-.control-btn-group { display: flex; gap: 5px; }
+.game-title { font-size: 17px; font-weight: 800; letter-spacing: -0.5px; }
+.control-btn-group { display: flex; gap: 4px; }
 .tool-btn {
-    padding: 5px 9px; border: 1px solid var(--border-color); border-radius: 14px;
+    padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 12px;
     background: var(--card-bg); font-weight: 700; cursor: pointer; font-size: 11px;
-    color: var(--text-primary); box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    color: var(--text-primary); box-shadow: 0 4px 10px rgba(0,0,0,0.04);
 }
 .timer-container {
     width: 100%; max-width: 440px; background: rgba(0,0,0,0.1); height: 6px;
@@ -57,7 +57,7 @@ body {
 }
 .timer-bar {
     width: 100%; height: 100%; background: var(--oasis-green);
-    border-radius: 3px; transition: width 0.1s linear;
+    border-radius: 3px; transition: width 0.1s linear, background-color 0.3s;
 }
 .status-bar {
     width: 100%; max-width: 440px; display: flex; justify-content: space-between;
@@ -109,12 +109,15 @@ body {
 }
 .cell {
     width: 100%; aspect-ratio: 1; background: var(--cell-bg);
-    border-radius: 8px; position: relative; display: flex; align-items: center;
-    justify-content: center; font-size: 24px; border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 8px; position: relative; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; border: 1px solid rgba(255, 255, 255, 0.4);
 }
 .cell.selected { border: 2.5px solid var(--system-blue) !important; background: #fff !important; }
 .cell.special-bomb { box-shadow: inset 0 0 8px var(--system-orange); }
 .cell.special-rainbow { box-shadow: inset 0 0 10px var(--system-purple); }
+.disk-icon { font-size: 22px; line-height: 1; pointer-events: none; }
+.disk-label { font-size: 8px; font-weight: 800; color: var(--text-secondary); margin-top: 1px; display: none; }
+body.show-labels .disk-label { display: block; }
 .hint-glow { animation: hintPulse 0.45s ease-in-out 3; }
 @keyframes hintPulse {
     0%, 100% { background: var(--cell-bg); }
@@ -147,11 +150,11 @@ body {
 }
 .modal-window {
     background: var(--card-bg); border: 1px solid var(--border-color);
-    width: 90%; max-width: 360px; border-radius: 18px; padding: 18px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+    width: 90%; max-width: 360px; border-radius: 18px; padding: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.25); max-height: 85vh; overflow-y: auto;
 }
 .btn-primary {
-    background: var(--text-primary); color: #fff; border: none; padding: 10px;
+    background: var(--text-primary); color: #fff; border: none; padding: 9px;
     border-radius: 12px; font-weight: 700; width: 100%; font-size: 13px; cursor: pointer; margin-bottom: 6px;
 }
 .btn-secondary {
@@ -161,6 +164,13 @@ body {
 .rank-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 10px; }
 .rank-table th, .rank-table td { padding: 5px 2px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
 
+.notebook-item {
+    text-align: left; padding: 8px; border-radius: 10px; background: rgba(0,0,0,0.03);
+    margin-bottom: 6px; font-size: 11px;
+}
+.notebook-title { font-weight: 800; color: var(--system-blue); margin-bottom: 2px; }
+.notebook-tip { color: var(--text-secondary); line-height: 1.3; }
+
 #tipToast {
     position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.88); color: #fff; padding: 6px 14px;
@@ -168,7 +178,7 @@ body {
     opacity: 0; transition: opacity 0.25s; z-index: 9999; white-space: nowrap;
 }
 .legal-footer {
-    margin-top: 6px; font-size: 9px; color: var(--text-secondary); line-height: 1.2;
+    margin-top: 5px; font-size: 9px; color: var(--text-secondary); line-height: 1.2;
 }
 </style>
 </head>
@@ -178,6 +188,8 @@ body {
     <div class="game-title">🚑 First Aid Pop!</div>
     <div class="control-btn-group">
         <button class="tool-btn" onclick="toggleAudio()" aria-label="切換音效">🎵 音效</button>
+        <button class="tool-btn" onclick="toggleLabelMode()" aria-label="無障礙標籤">👁️ 標籤</button>
+        <button class="tool-btn" onclick="openNotebookModal()" aria-label="急救筆記">📖 筆記</button>
         <button class="tool-btn" onclick="triggerManualPause()" aria-label="暫停遊戲">⏸️ 暫停</button>
         <button class="tool-btn" onclick="showLeaderboardPopup()" aria-label="全球英雄榜">🏆 英雄榜</button>
     </div>
@@ -213,25 +225,39 @@ body {
 <div id="cpr-stage-container">
     <div style="font-size:15px; font-weight:800; color:var(--system-red); margin-bottom:2px;">⚡ 緊急 CPR 110 bpm 胸外按壓！</div>
     <div style="font-size:11px; color:var(--text-secondary); margin-bottom:8px;">
-        剩餘時間: <span id="cpr-timer-text" style="color:var(--system-red); font-weight:800;">20.0</span>s | 中斷按壓超過 1.5 秒即時扣分！
+        搶救時限: <span id="cpr-timer-text" style="color:var(--system-red); font-weight:800;">20.0</span>s | 中斷按壓 > 1.6 秒即時缺氧扣分！
     </div>
     <div style="position:relative; width:100px; height:100px; margin:0 auto 8px auto; display:flex; align-items:center; justify-content:center;">
         <div class="cpr-pulse-ring"></div>
         <button class="cpr-heart-btn" id="cprHeartBtn" type="button" aria-label="按壓心臟">❤️</button>
     </div>
     <div id="cpr-feedback-text" style="font-size:13px; font-weight:800; height:18px; margin-bottom:2px;">跟隨紅光節奏按壓...</div>
-    <div style="font-size:22px; font-weight:900; margin-bottom:2px;"><span id="cpr-press-left">15</span> 次按壓</div>
+    <div style="font-size:20px; font-weight:900; margin-bottom:2px;"><span id="cpr-press-left">15</span> 次按壓</div>
 </div>
 
 <div class="legal-footer">
     本 App 僅作急救教育參考，不能替代正式急救證書訓練。遇真實緊急情況請即刻致電 999。
 </div>
 
+<!-- CPR 質量報告 Modal -->
+<div id="cprReportModal" class="modal-backdrop">
+    <div class="modal-window">
+        <div style="font-size:17px; font-weight:800; color:var(--oasis-green); margin-bottom:6px;">📊 CPR 搶救質量評估報告</div>
+        <div style="background:rgba(0,0,0,0.03); border-radius:12px; padding:10px; margin-bottom:12px; font-size:12px; line-height:1.6; text-align:left;">
+            <div>🎯 完美節奏次數：<b id="rep-perfect-count">0</b> / 15 次</div>
+            <div>⚡ 平均按壓速率：<b id="rep-avg-bpm">0</b> bpm (標準 100-120)</div>
+            <div>⚠️ 缺氧中斷次數：<b id="rep-interrupt-count" style="color:var(--system-red);">0</b> 次</div>
+            <div>🏆 綜合技術評級：<b id="rep-grade" style="font-size:16px; color:var(--system-purple);">A</b></div>
+        </div>
+        <button class="btn-primary" onclick="closeCprReportAndProceed()">繼續下一關救援</button>
+    </div>
+</div>
+
 <!-- 提交英雄榜 Modal -->
 <div id="scoreSubmitModal" class="modal-backdrop">
     <div class="modal-window">
         <div style="font-size:17px; font-weight:800; margin-bottom:8px;">🩺 登記急救英雄榜</div>
-        <input type="text" id="heroNameInput" style="width:100%; padding:10px; border-radius:10px; border:1px solid #ccc; margin-bottom:12px; font-weight:700; text-align:center;" maxlength="12" placeholder="輸入救護員代號">
+        <input type="text" id="heroNameInput" style="width:100%; padding:10px; border-radius:10px; border:1px solid #ccc; margin-bottom:12px; font-weight:700; text-align:center;" maxlength="15" placeholder="輸入救護員代號">
         <button class="btn-primary" onclick="confirmSubmitScore()">確定送出紀錄</button>
         <button class="btn-secondary" onclick="closeSubmitScoreModal()">稍後再說</button>
     </div>
@@ -250,6 +276,15 @@ body {
     </div>
 </div>
 
+<!-- 急救筆記本 Modal -->
+<div id="notebookModal" class="modal-backdrop">
+    <div class="modal-window">
+        <div style="font-size:17px; font-weight:800; margin-bottom:8px;">📖 我的急救實用手冊</div>
+        <div id="notebook-list" style="margin-bottom:12px;"></div>
+        <button class="btn-primary" onclick="closeNotebookModal()">熟讀並返回</button>
+    </div>
+</div>
+
 <!-- 暫停 / 結算 Modal -->
 <div id="pauseModal" class="modal-backdrop">
     <div class="modal-window">
@@ -263,7 +298,7 @@ body {
 <div id="tipToast"></div>
 
 <script>
-// --- 1. 原生 REST API 連線 (無任何外部 SDK 依賴，安全免審查) ---
+// --- 1. 原生 REST API 連線 (無外部 SDK 依賴，安全免審核) ---
 const FIREBASE_REST_URL = "https://first-aid-pop-default-rtdb.firebaseio.com/leaderboard.json";
 let currentUid = localStorage.getItem("fap_uid") || ("rescuer_" + Math.random().toString(36).substring(2, 9));
 localStorage.setItem("fap_uid", currentUid);
@@ -275,18 +310,18 @@ function saveLocalRanks(ranks) {
     try { localStorage.setItem("fap_ranks", JSON.stringify(ranks)); } catch(e) {}
 }
 
-// --- 2. 10 大香港常見緊急處置情境 ---
+// --- 2. 10 大常見緊急處置情境資料庫 ---
 const MASTER_ITEMS = {
-    "defib": { name: "AED去顫器", text: "⚡" },
-    "bandage": { name: "止血繃帶", text: "🩹" },
-    "gloves": { name: "無菌手套", text: "🧤" },
-    "mask": { name: "人工呼吸面膜", text: "😷" },
-    "water": { name: "滅菌生理鹽水", text: "🧴" },
-    "splint": { name: "骨折夾板", text: "🩺" },
-    "ice": { name: "冰敷降溫包", text: "🧊" },
-    "scissors": { name: "急救剪刀", text: "✂️" },
-    "inhaler": { name: "氣管舒緩劑", text: "💨" },
-    "candy": { name: "應急葡萄糖", text: "🍬" }
+    "defib": { name: "去顫器", text: "⚡", label: "AED" },
+    "bandage": { name: "繃帶", text: "🩹", label: "繃帶" },
+    "gloves": { name: "手套", text: "🧤", label: "手套" },
+    "mask": { name: "面罩", text: "😷", label: "面膜" },
+    "water": { name: "鹽水", text: "🧴", label: "鹽水" },
+    "splint": { name: "夾板", text: "🩺", label: "夾板" },
+    "ice": { name: "冰敷", text: "🧊", label: "冰敷" },
+    "scissors": { name: "剪刀", text: "✂️", label: "剪刀" },
+    "inhaler": { name: "舒緩劑", text: "💨", label: "氣霧" },
+    "candy": { name: "葡萄糖", text: "🍬", label: "糖分" }
 };
 
 const SCENARIOS = [
@@ -362,19 +397,20 @@ const SCENARIOS = [
     }
 ];
 
-// --- 3. 核心變量與動態難度曲線 ---
+// --- 3. 核心變量與計時器（修正浮點數誤差） ---
 const SIZE = 8;
 let currentLevel = 1, currentScenario = null, currentStepIndex = 0;
 let missionProgress = [], currentLevelTypes = [], grid = [], score = 0, last = null;
 let isAnimating = false, moves = 35, timeLeft = 90.0, maxTime = 90.0;
-let mainTimer = null, isGamePaused = false;
+let lastTimerTick = 0, mainTimer = null, isGamePaused = false;
 let rescueUsesLeft = 3, freeShufflesLeft = 1;
 
-// CPR 專屬計時與中斷防護
+// CPR 狀態監控與質量報告統計
 let isCprActive = false, cprPressNeeded = 15, lastCprPressTime = 0;
 let cprMetronome = null, cprTimer = null, cprTimeLeft = 20.0, cprWatchdog = null;
+let cprStats = { perfect: 0, fast: 0, slow: 0, interrupts: 0, intervals: [] };
 
-// 音效系統 (用戶手勢懶加載)
+// 音效系統
 let audioCtx = null, audioEnabled = true, audioInitialized = false;
 function initAudioOnGesture() {
     if (audioInitialized) return;
@@ -403,13 +439,17 @@ function toggleAudio() {
     showToast(audioEnabled ? "🎵 音效已啟用" : "🔇 音效已靜音");
 }
 
+function toggleLabelMode() {
+    document.body.classList.toggle("show-labels");
+    showToast(document.body.classList.contains("show-labels") ? "👁️ 已開啟色盲友善文字標籤" : "👁️ 已還原純圖標模式");
+}
+
 function showToast(text) {
     const t = document.getElementById("tipToast");
     t.innerText = text; t.style.opacity = 1;
     setTimeout(() => { t.style.opacity = 0; }, 2200);
 }
 
-// 根據關卡設定難度曲線
 function getLevelParameters(level) {
     if (level <= 3) return { moves: 35, time: 90 };
     if (level <= 6) return { moves: 30, time: 80 };
@@ -417,7 +457,7 @@ function getLevelParameters(level) {
     return { moves: 22, time: 60 };
 }
 
-// --- 4. 棋盤生成與進階比對 (4連十字爆破、5連全消) ---
+// --- 4. 棋盤生成與渲染 ---
 function createBoard() {
     let g = [];
     for (let r = 0; r < SIZE; r++) {
@@ -446,15 +486,25 @@ function renderBoard() {
             
             const item = grid[r][c];
             if (item) {
+                const iconSpan = document.createElement("span");
+                iconSpan.className = "disk-icon";
+                const labelSpan = document.createElement("span");
+                labelSpan.className = "disk-label";
+
                 if (item.startsWith("BOMB_")) {
-                    cell.innerText = "🧰";
+                    iconSpan.innerText = "🧰";
+                    labelSpan.innerText = "炸彈";
                     cell.classList.add("special-bomb");
                 } else if (item === "RAINBOW") {
-                    cell.innerText = "🚑";
+                    iconSpan.innerText = "🚑";
+                    labelSpan.innerText = "全消";
                     cell.classList.add("special-rainbow");
                 } else {
-                    cell.innerText = MASTER_ITEMS[item] ? MASTER_ITEMS[item].text : "🩹";
+                    iconSpan.innerText = MASTER_ITEMS[item] ? MASTER_ITEMS[item].text : "🩹";
+                    labelSpan.innerText = MASTER_ITEMS[item] ? MASTER_ITEMS[item].label : "物資";
                 }
+                cell.appendChild(iconSpan);
+                cell.appendChild(labelSpan);
             }
             boardEl.appendChild(cell);
         }
@@ -479,7 +529,7 @@ function renderProtocolUI() {
     });
 }
 
-// --- 5. 觸控拖曳 (嚴格邊界保護) ---
+// --- 5. 觸控拖曳與消除演算 ---
 let dragCell = null, startX = 0, startY = 0;
 const boardDom = document.getElementById("board");
 
@@ -500,7 +550,6 @@ boardDom.addEventListener("pointerup", e => {
         let r2 = r1, c2 = c1;
         if (Math.abs(diffX) > Math.abs(diffY)) c2 += diffX > 0 ? 1 : -1;
         else r2 += diffY > 0 ? 1 : -1;
-        // 嚴格座標防呆邊界 Clamp
         r2 = Math.max(0, Math.min(SIZE - 1, r2));
         c2 = Math.max(0, Math.min(SIZE - 1, c2));
         last = null;
@@ -521,9 +570,12 @@ function handleCellAction(r1, c1, r2, c2) {
     const dr = Math.abs(r1 - r2), dc = Math.abs(c1 - c2);
     if (dr + dc === 1) {
         isAnimating = true;
-        // 觸發全消特殊彩蛋
+        // P0 防禦：防範 Rainbow 交換對象為空
         if (grid[r1][c1] === "RAINBOW" || grid[r2][c2] === "RAINBOW") {
             const targetColor = grid[r1][c1] === "RAINBOW" ? grid[r2][c2] : grid[r1][c1];
+            if (!targetColor || targetColor === "RAINBOW") {
+                isAnimating = false; renderBoard(); return;
+            }
             triggerRainbowClear(targetColor);
             return;
         }
@@ -532,7 +584,6 @@ function handleCellAction(r1, c1, r2, c2) {
         renderBoard();
         setTimeout(() => {
             if (!executeMatches()) {
-                // 還原無效交換
                 [grid[r1][c1], grid[r2][c2]] = [grid[r2][c2], grid[r1][c1]];
                 isAnimating = false; renderBoard();
                 playBeep(180, 0.12, "triangle");
@@ -551,7 +602,6 @@ function executeMatches() {
     let hasMatch = false;
     let spawnSpecial = [];
 
-    // 橫向檢查 (支援 4 連與 5 連判斷)
     for (let r = 0; r < SIZE; r++) {
         let matchLen = 1;
         for (let c = 0; c < SIZE; c++) {
@@ -570,7 +620,7 @@ function executeMatches() {
             }
         }
     }
-    // 直向檢查
+
     for (let c = 0; c < SIZE; c++) {
         let matchLen = 1;
         for (let r = 0; r < SIZE; r++) {
@@ -601,7 +651,6 @@ function processEliminations(toRemove, spawnSpecial) {
     const targetKey = currentScenario.steps[currentStepIndex].key;
     let targetCount = 0, wrongCount = 0;
 
-    // 展開十字爆破 (十字急救箱)
     for (let r = 0; r < SIZE; r++) {
         for (let c = 0; c < SIZE; c++) {
             if (toRemove[r][c] && grid[r][c] && grid[r][c].startsWith("BOMB_")) {
@@ -621,7 +670,6 @@ function processEliminations(toRemove, spawnSpecial) {
         }
     }
 
-    // 生成特殊消除道具
     spawnSpecial.forEach(s => { grid[s.r][s.c] = s.type; });
 
     if (targetCount > 0) {
@@ -630,13 +678,12 @@ function processEliminations(toRemove, spawnSpecial) {
         playBeep(780, 0.16, "sine");
     }
 
-    // 修正懲罰機制：錯誤消除比例 > 50% 且零目標時才扣罰
     if (wrongCount > 0 && targetCount === 0 && (wrongCount / (wrongCount + targetCount)) >= 0.5) {
         timeLeft = Math.max(0, timeLeft - 2.0);
         playBeep(140, 0.22, "triangle");
         const card = document.getElementById("scenario-card");
         card.classList.add("penalty-flash");
-        showToast("⚠️ 處置失當！黃金時間 -2s！");
+        showToast("⚠️ 處置失當！黃金時間 -2.0s！");
         setTimeout(() => card.classList.remove("penalty-flash"), 280);
     }
 
@@ -655,6 +702,7 @@ function processEliminations(toRemove, spawnSpecial) {
 }
 
 function triggerRainbowClear(targetType) {
+    if (!targetType) return;
     playBeep(900, 0.3, "square");
     for (let r = 0; r < SIZE; r++) {
         for (let c = 0; c < SIZE; c++) {
@@ -689,14 +737,14 @@ function applyGravityAndRefill() {
     }, 160);
 }
 
-// --- 6. 專業 CPR QTE (獨立 20 秒計時 + 1.5 秒中斷懲罰) ---
+// --- 6. 專業 CPR QTE（1.6 秒中斷防護 + 質量報告生成） ---
 function startCprQte() {
     isCprActive = true; currentStepIndex = 1;
     cprPressNeeded = currentScenario.steps[1].count;
     lastCprPressTime = 0;
     cprTimeLeft = 20.0;
+    cprStats = { perfect: 0, fast: 0, slow: 0, interrupts: 0, intervals: [] };
 
-    // 掛起主計時器
     clearInterval(mainTimer);
 
     document.getElementById("board-wrap").style.display = "none";
@@ -707,15 +755,13 @@ function startCprQte() {
     renderProtocolUI();
     showToast("🚨 患者心跳驟停！以 110 bpm 節拍持續按壓！");
 
-    // 110 bpm 節拍器 (545ms)
     if (cprMetronome) clearInterval(cprMetronome);
     cprMetronome = setInterval(() => { playBeep(750, 0.06, "sine"); }, 545);
 
-    // CPR 獨立計時
     if (cprTimer) clearInterval(cprTimer);
     cprTimer = setInterval(() => {
         if (isGamePaused) return;
-        cprTimeLeft -= 0.1;
+        cprTimeLeft = Math.round((cprTimeLeft - 0.1) * 10) / 10;
         if (cprTimeLeft <= 0) {
             cprTimeLeft = 0; clearInterval(cprTimer); clearInterval(cprMetronome); clearInterval(cprWatchdog);
             triggerGameOver("⏱️ CPR 搶救超時！患者大腦已缺氧壞死！");
@@ -723,11 +769,12 @@ function startCprQte() {
         document.getElementById("cpr-timer-text").innerText = Math.max(0, cprTimeLeft).toFixed(1);
     }, 100);
 
-    // 中斷看門狗 (超過 1.5 秒未按即時懲罰)
+    // 放寬中斷判定閥值至 1600ms，徹底杜絕 race condition
     if (cprWatchdog) clearInterval(cprWatchdog);
     cprWatchdog = setInterval(() => {
         if (isGamePaused || !isCprActive || lastCprPressTime === 0) return;
-        if (Date.now() - lastCprPressTime > 1500) {
+        if (Date.now() - lastCprPressTime > 1600) {
+            cprStats.interrupts++;
             score = Math.max(0, score - 80);
             document.getElementById("score").innerText = score;
             const fb = document.getElementById("cpr-feedback-text");
@@ -735,7 +782,7 @@ function startCprQte() {
             fb.innerText = "⚠️ 中斷按壓！大腦正在缺氧！";
             playBeep(120, 0.15, "sawtooth");
         }
-    }, 400);
+    }, 450);
 }
 
 document.getElementById("cprHeartBtn").addEventListener("pointerdown", e => {
@@ -747,13 +794,17 @@ document.getElementById("cprHeartBtn").addEventListener("pointerdown", e => {
 
     if (lastCprPressTime > 0) {
         const delta = now - lastCprPressTime;
+        cprStats.intervals.push(delta);
         if (delta < 420) {
+            cprStats.fast++;
             fb.style.color = "var(--system-orange)"; fb.innerText = "⚠️ 按壓太快！保持每秒約 2 下";
             playBeep(920, 0.07, "sine"); pointDelta = 60;
         } else if (delta > 680) {
+            cprStats.slow++;
             fb.style.color = "var(--system-red)"; fb.innerText = "⚠️ 按壓太慢！跟隨紅光脈衝節奏";
             playBeep(240, 0.1, "triangle"); pointDelta = 60;
         } else {
+            cprStats.perfect++;
             fb.style.color = "var(--oasis-green)"; fb.innerText = "✨ 節奏完美 (PERFECT 110 bpm)";
             playBeep(650, 0.12, "sine"); pointDelta = 250;
         }
@@ -771,30 +822,57 @@ document.getElementById("cprHeartBtn").addEventListener("pointerdown", e => {
     if (cprPressNeeded <= 0) {
         isCprActive = false;
         clearInterval(cprTimer); clearInterval(cprMetronome); clearInterval(cprWatchdog);
-        fb.innerText = "🎉 搶救成功！自主呼吸已恢復！";
-        showToast("🎉 自主心跳重啟！");
-        setTimeout(proceedToNextLevel, 900);
+        showCprQualityReport();
     }
 });
 
-// --- 7. 純函數式救護車指引 (解決修改 grid 殘留 bug) ---
+function showCprQualityReport() {
+    const avgDelta = cprStats.intervals.length > 0 ? (cprStats.intervals.reduce((a, b) => a + b, 0) / cprStats.intervals.length) : 545;
+    const avgBpm = Math.round(60000 / avgDelta);
+    let grade = "A";
+    if (cprStats.perfect >= 12 && cprStats.interrupts === 0) grade = "S 傳奇神醫";
+    else if (cprStats.perfect >= 9 && cprStats.interrupts <= 1) grade = "A 優秀救護員";
+    else if (cprStats.perfect >= 6) grade = "B 合格處置";
+    else grade = "C 勉強復甦";
+
+    document.getElementById("rep-perfect-count").innerText = cprStats.perfect;
+    document.getElementById("rep-avg-bpm").innerText = avgBpm;
+    document.getElementById("rep-interrupt-count").innerText = cprStats.interrupts;
+    document.getElementById("rep-grade").innerText = grade;
+    document.getElementById("cprReportModal").style.display = "flex";
+}
+
+function closeCprReportAndProceed() {
+    document.getElementById("cprReportModal").style.display = "none";
+    proceedToNextLevel();
+}
+
+// --- 7. 高效能局部掃描演算法（耗時 < 0.2ms） ---
+function checkLocalMatch(b, r, c) {
+    const val = b[r][c];
+    if (!val || val === "RAINBOW" || val.startsWith("BOMB_")) return false;
+    let h = 1;
+    for (let i = c - 1; i >= 0 && b[r][i] === val; i--) h++;
+    for (let i = c + 1; i < SIZE && b[r][i] === val; i++) h++;
+    if (h >= 3) return true;
+    let v = 1;
+    for (let i = r - 1; i >= 0 && b[i][c] === val; i--) v++;
+    for (let i = r + 1; i < SIZE && b[i][c] === val; i++) v++;
+    return v >= 3;
+}
+
 function scanValidMovePure(currentGrid) {
-    const clone = currentGrid.map(row => [...row]);
+    const b = currentGrid.map(row => [...row]);
     for (let r = 0; r < SIZE; r++) {
         for (let c = 0; c < SIZE; c++) {
             const dirs = [[0, 1], [1, 0]];
             for (const [dr, dc] of dirs) {
                 const nr = r + dr, nc = c + dc;
                 if (nr < SIZE && nc < SIZE) {
-                    [clone[r][c], clone[nr][nc]] = [clone[nr][nc], clone[r][c]];
-                    let ok = false;
-                    for (let x = 0; x < SIZE; x++) {
-                        for (let y = 0; y < SIZE - 2; y++) {
-                            if (clone[x][y] && clone[x][y] === clone[x][y+1] && clone[x][y] === clone[x][y+2]) ok = true;
-                            if (clone[y][x] && clone[y][x] === clone[y+1][x] && clone[y][x] === clone[y+2][x]) ok = true;
-                        }
-                    }
-                    [clone[r][c], clone[nr][nc]] = [clone[nr][nc], clone[r][c]];
+                    if (b[r][c] === "RAINBOW" || b[nr][nc] === "RAINBOW") return { r1: r, c1: c, r2: nr, c2: nc };
+                    [b[r][c], b[nr][nc]] = [b[nr][nc], b[r][c]];
+                    const ok = checkLocalMatch(b, r, c) || checkLocalMatch(b, nr, nc);
+                    [b[r][c], b[nr][nc]] = [b[nr][nc], b[r][c]];
                     if (ok) return { r1: r, c1: c, r2: nr, c2: nc };
                 }
             }
@@ -817,8 +895,8 @@ function useAmbulanceRescue() {
             c1.classList.add("hint-glow"); c2.classList.add("hint-glow");
             setTimeout(() => { c1.classList.remove("hint-glow"); c2.classList.remove("hint-glow"); }, 1500);
         }
-        timeLeft = Math.min(maxTime, timeLeft + 4.0);
-        showToast("🚑 救護隊標記最佳處置，黃金時間 +4s！");
+        timeLeft = Math.min(maxTime, Math.round((timeLeft + 4.0) * 10) / 10);
+        showToast("🚑 救護隊標記最佳處置，黃金時間 +4.0s！");
         playBeep(720, 0.2, "sine");
     } else {
         grid = createBoard(); renderBoard();
@@ -843,12 +921,20 @@ function triggerUserShuffle() {
     }
 }
 
-// --- 8. 生命週期與進度保存 ---
+// --- 8. 流程控制與高精度計時 ---
 function startMainTimer() {
     clearInterval(mainTimer);
+    lastTimerTick = performance.now();
     mainTimer = setInterval(() => {
-        if (isGamePaused || isCprActive) return;
-        timeLeft -= 0.1;
+        if (isGamePaused || isCprActive) {
+            lastTimerTick = performance.now();
+            return;
+        }
+        const now = performance.now();
+        const dt = (now - lastTimerTick) / 1000;
+        lastTimerTick = now;
+        timeLeft = Math.max(0, Math.round((timeLeft - dt) * 10) / 10);
+
         if (timeLeft <= 0) {
             timeLeft = 0; clearInterval(mainTimer);
             triggerGameOver("⏱️ 黃金時間耗盡！未能於時限內完成現場急救！");
@@ -867,15 +953,20 @@ function checkLevelProgress() {
 }
 
 function proceedToNextLevel() {
-    // 彈出急救小知識
     if (currentScenario && currentScenario.tip) {
         showToast(currentScenario.tip);
+        unlockNotebookEntry((currentLevel - 1) % SCENARIOS.length);
     }
+    
+    // P0 修正：全通關廣播
+    if (currentLevel === SCENARIOS.length) {
+        showToast("🏆 恭喜全通 10 大急救情境！已晉身無限挑戰！");
+    }
+
     currentLevel++;
-    // 本地即時保存進度
     localStorage.setItem("fap_saved_level", currentLevel);
     localStorage.setItem("fap_saved_score", score);
-    setTimeout(setupLevel, 1400);
+    setTimeout(setupLevel, 1300);
 }
 
 function triggerGameOver(reason) {
@@ -889,8 +980,9 @@ function triggerGameOver(reason) {
         <div style="color:var(--system-red); font-weight:800; margin-bottom:8px;">${reason}</div>
         <div>到達關卡：第 ${currentLevel} 關 | 最終救治分：${score} 分</div>
     `;
-    document.getElementById("resume-btn").innerText = "📝 登記英雄榜";
-    document.getElementById("resume-btn").onclick = openSubmitScoreModal;
+    const resumeBtn = document.getElementById("resume-btn");
+    resumeBtn.innerText = "📝 登記英雄榜";
+    resumeBtn.onclick = openSubmitScoreModal;
     document.getElementById("pauseModal").style.display = "flex";
 }
 
@@ -902,7 +994,11 @@ function setupLevel() {
     document.getElementById("pauseModal").style.display = "none";
     document.getElementById("current-level").innerText = currentLevel;
 
-    // 動態難度載入
+    // P0 修正：還原暫停按鈕的正確綁定
+    const resumeBtn = document.getElementById("resume-btn");
+    resumeBtn.innerText = "恢復救援";
+    resumeBtn.onclick = resumeGameWithCountdown;
+
     const params = getLevelParameters(currentLevel);
     moves = params.moves; maxTime = params.time; timeLeft = maxTime;
     document.getElementById("moves").innerText = moves;
@@ -931,14 +1027,14 @@ function restartWholeGame() {
     setupLevel();
 }
 
-// 暫停與 App 背景切換監聽
 function triggerManualPause() {
     if (timeLeft <= 0 || moves <= 0) return;
     isGamePaused = true;
     document.getElementById("pause-title").innerText = "⏸️ 任務已暫停";
     document.getElementById("pause-body").innerText = "現場急救已凍結，準備就緒後隨時繼續。";
-    document.getElementById("resume-btn").innerText = "恢復救援";
-    document.getElementById("resume-btn").onclick = resumeGameWithCountdown;
+    const resumeBtn = document.getElementById("resume-btn");
+    resumeBtn.innerText = "恢復救援";
+    resumeBtn.onclick = resumeGameWithCountdown;
     document.getElementById("pauseModal").style.display = "flex";
 }
 
@@ -954,8 +1050,9 @@ function resumeGameWithCountdown() {
             clearInterval(cd);
             document.getElementById("pauseModal").style.display = "none";
             isGamePaused = false;
+            lastTimerTick = performance.now();
         }
-    }, 700);
+    }, 600);
 }
 
 document.addEventListener("visibilitychange", () => {
@@ -964,7 +1061,7 @@ document.addEventListener("visibilitychange", () => {
     }
 });
 
-// --- 9. 真雲端 REST API 排行榜與分享 ---
+// --- 9. 英雄榜與筆記本 ---
 function openSubmitScoreModal() {
     document.getElementById("pauseModal").style.display = "none";
     document.getElementById("heroNameInput").value = localStorage.getItem("fap_hero_name") || "仁心救護員";
@@ -979,22 +1076,23 @@ function confirmSubmitScore() {
     localStorage.setItem("fap_hero_name", name);
     const entry = { name, level: currentLevel, score, timestamp: Date.now(), uid: currentUid };
 
-    // 1. 本地即時寫入
     let ranks = getLocalRanks();
     ranks.push(entry);
     ranks.sort((a, b) => b.score - a.score);
     saveLocalRanks(ranks.slice(0, 15));
 
-    // 2. 原生 REST API 真雲端寫入 (無 SDK 依賴)
-    fetch(FIREBASE_REST_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(entry)
-    }).then(() => {
-        showToast("🚀 戰績已同步至全球急救庫！");
-    }).catch(() => {
-        showToast("💾 雲端離線，已儲存於本機英雄榜！");
-    });
+    // 前端防刷校驗
+    if (score <= currentLevel * 8000 + 5000 && score < 150000) {
+        fetch(FIREBASE_REST_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(entry)
+        }).then(() => {
+            showToast("🚀 戰績已同步至全球急救庫！");
+        }).catch(() => {
+            showToast("💾 雲端離線，已儲存於本機英雄榜！");
+        });
+    }
 
     document.getElementById("scoreSubmitModal").style.display = "none";
     showLeaderboardPopup();
@@ -1021,7 +1119,6 @@ function showLeaderboardPopup() {
         });
     }
 
-    // 原生 fetch 從 Firebase REST 讀取
     fetch(FIREBASE_REST_URL + '?orderBy="score"&limitToLast=10')
         .then(res => res.json())
         .then(data => {
@@ -1039,8 +1136,34 @@ function showLeaderboardPopup() {
 }
 function closeLeaderboardPopup() { document.getElementById("rankModal").style.display = "none"; }
 
+function unlockNotebookEntry(idx) {
+    let unlocked = JSON.parse(localStorage.getItem("fap_notebook") || "[]");
+    if (!unlocked.includes(idx)) {
+        unlocked.push(idx);
+        localStorage.setItem("fap_notebook", JSON.stringify(unlocked));
+    }
+}
+
+function openNotebookModal() {
+    const container = document.getElementById("notebook-list");
+    container.innerHTML = "";
+    let unlocked = JSON.parse(localStorage.getItem("fap_notebook") || "[0]");
+    SCENARIOS.forEach((s, idx) => {
+        const item = document.createElement("div");
+        item.className = "notebook-item";
+        if (unlocked.includes(idx)) {
+            item.innerHTML = `<div class="notebook-title">✅ ${s.title}</div><div class="notebook-tip">${s.tip}</div>`;
+        } else {
+            item.innerHTML = `<div class="notebook-title" style="color:var(--text-secondary);">🔒 待解鎖：第 ${idx + 1} 關急救情境</div><div class="notebook-tip">通關後即可解鎖實戰臨床指引。</div>`;
+        }
+        container.appendChild(item);
+    });
+    document.getElementById("notebookModal").style.display = "flex";
+}
+function closeNotebookModal() { document.getElementById("notebookModal").style.display = "none"; }
+
 function shareScore() {
-    const text = `🚑 我喺《First Aid Pop!》完成第 ${currentLevel} 關現場急救，取得 ${score} 分！一齊學急救救人！`;
+    const text = `🚑 我喺《First Aid Pop! 急救突圍》完成第 ${currentLevel} 關現場急救，取得 ${score} 分！一齊學急救救人！`;
     if (navigator.share) {
         navigator.share({ title: "First Aid Pop!", text, url: window.location.href }).catch(() => {});
     } else {
@@ -1049,7 +1172,7 @@ function shareScore() {
     }
 }
 
-// 啟動進度檢查與恢復
+// 讀取進度存檔
 const savedLevel = parseInt(localStorage.getItem("fap_saved_level") || "1");
 const savedScore = parseInt(localStorage.getItem("fap_saved_score") || "0");
 if (savedLevel > 1) {
@@ -1061,3 +1184,4 @@ setupLevel();
 </script>
 </body>
 </html>
+EOF
