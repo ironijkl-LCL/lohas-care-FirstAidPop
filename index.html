@@ -35,9 +35,9 @@
         --cpr-heart-size: 120px;
         --cpr-ring-size: 150px;
     }
-    body { padding: 16px 24px 28px 24px !important; }
-    .game-title { font-size: 26px !important; }
-    .tool-btn { padding: 7px 13px !important; font-size: 13px !important; border-radius: 16px !important; }
+    body { padding-bottom: max(24px, env(safe-area-inset-bottom)) !important; }
+    .game-title { font-size: 24px !important; }
+    .tool-btn { padding: 7px 14px !important; font-size: 13px !important; border-radius: 14px !important; }
     .status-bar { font-size: 15px !important; margin-bottom: 8px !important; }
     .status-pill { padding: 6px 14px !important; border-radius: 16px !important; }
     .scenario-box { padding: 14px 16px !important; border-radius: 18px !important; margin-bottom: 10px !important; }
@@ -69,18 +69,40 @@ body {
     background: var(--bg-grad); background-attachment: fixed; text-align: center;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
     color: var(--text-primary); user-select: none; -webkit-user-select: none;
-    padding: 6px 12px 14px 12px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+    
+    /* 核心修復：避讓 iPhone 瀏海與底部橫條 */
+    padding-top: max(10px, env(safe-area-inset-top));
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
 }
-.header-bar {
-    width: 100%; max-width: var(--content-max-width); display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;
+
+/* 雙層頂部導航列 */
+.header-row-primary {
+    width: 100%; max-width: var(--content-max-width);
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 5px;
 }
-.game-title { font-size: 17px; font-weight: 800; letter-spacing: -0.5px; }
-.control-btn-group { display: flex; gap: 4px; }
-.tool-btn {
-    padding: 4px 8px; border: 1px solid var(--border-color); border-radius: 12px;
+.game-title {
+    font-size: 18px; font-weight: 800; letter-spacing: -0.5px;
+    display: flex; align-items: center; gap: 4px; white-space: nowrap;
+}
+.header-primary-actions { display: flex; gap: 6px; }
+
+.header-row-secondary {
+    width: 100%; max-width: var(--content-max-width);
+    display: flex; justify-content: space-between; gap: 6px;
+    margin-bottom: 6px;
+}
+.sub-tool-btn {
+    flex: 1; padding: 5px 4px; border: 1px solid var(--border-color); border-radius: 12px;
     background: var(--card-bg); font-weight: 700; cursor: pointer; font-size: 11px;
-    color: var(--text-primary); box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+    color: var(--text-primary); box-shadow: 0 3px 8px rgba(0,0,0,0.04);
+    white-space: nowrap;
 }
+
 .timer-container {
     width: 100%; max-width: var(--content-max-width); background: rgba(0,0,0,0.1); height: 7px;
     border-radius: 4px; margin-bottom: 5px; overflow: hidden;
@@ -91,10 +113,10 @@ body {
 }
 .status-bar {
     width: 100%; max-width: var(--content-max-width); display: flex; justify-content: space-between;
-    font-size: 12px; font-weight: 700; margin-bottom: 4px;
+    font-size: 12px; font-weight: 700; margin-bottom: 5px;
 }
 .status-pill {
-    background: var(--card-bg); padding: 3px 8px; border-radius: 12px;
+    background: var(--card-bg); padding: 4px 8px; border-radius: 12px;
     border: 1px solid var(--border-color);
 }
 .scenario-box {
@@ -124,7 +146,7 @@ body {
     width: 100%; max-width: var(--content-max-width); display: flex; gap: 6px; margin-bottom: 6px;
 }
 .action-btn {
-    flex: 1; padding: 6px; border-radius: 12px; font-size: 11px; font-weight: 700;
+    flex: 1; padding: 7px; border-radius: 12px; font-size: 12px; font-weight: 700;
     border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;
 }
 .btn-ambulance { background: var(--text-primary); color: #fff; }
@@ -209,7 +231,7 @@ body.show-labels .disk-label { display: block; }
 }
 
 #tipToast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    position: fixed; bottom: max(24px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
     background: rgba(0, 0, 0, 0.88); color: #fff; padding: 8px 18px;
     border-radius: 18px; font-size: 12px; font-weight: 600; pointer-events: none;
     opacity: 0; transition: opacity 0.25s; z-index: 9999; white-space: nowrap;
@@ -221,16 +243,21 @@ body.show-labels .disk-label { display: block; }
 </head>
 <body>
 
-<div class="header-bar">
+<!-- 第一層：標題 + 核心按鈕 -->
+<div class="header-row-primary">
     <div class="game-title">🚑 First Aid Pop!</div>
-    <div class="control-btn-group">
-        <button class="tool-btn" onclick="toggleAudio()" aria-label="切換音效">🎵 音效</button>
-        <button class="tool-btn" onclick="toggleLabelMode()" aria-label="無障礙標籤">👁️ 標籤</button>
-        <button class="tool-btn" onclick="openNotebookModal()" aria-label="急救手冊">📖 筆記</button>
-        <button class="tool-btn" onclick="openAchievementsModal()" aria-label="成就列表">🏅 成就</button>
-        <button class="tool-btn" onclick="triggerManualPause()" aria-label="暫停遊戲">⏸️ 暫停</button>
-        <button class="tool-btn" onclick="showLeaderboardPopup()" aria-label="全球英雄榜">🏆 英雄榜</button>
+    <div class="header-primary-actions">
+        <button class="sub-tool-btn" style="padding: 5px 10px;" onclick="triggerManualPause()" aria-label="暫停遊戲">⏸️ 暫停</button>
+        <button class="sub-tool-btn" style="padding: 5px 10px; color:var(--system-orange);" onclick="showLeaderboardPopup()" aria-label="全球英雄榜">🏆 英雄榜</button>
     </div>
+</div>
+
+<!-- 第二層：次級工具欄 (排成整齊一排，絕不擠出螢幕) -->
+<div class="header-row-secondary">
+    <button class="sub-tool-btn" onclick="toggleAudio()" aria-label="切換音效">🎵 音效</button>
+    <button class="sub-tool-btn" onclick="toggleLabelMode()" aria-label="無障礙標籤">👁️ 標籤</button>
+    <button class="sub-tool-btn" onclick="openNotebookModal()" aria-label="急救手冊">📖 筆記</button>
+    <button class="sub-tool-btn" onclick="openAchievementsModal()" aria-label="成就列表">🏅 成就</button>
 </div>
 
 <div class="timer-container"><div id="timer-bar" class="timer-bar"></div></div>
@@ -977,7 +1004,7 @@ function scanValidMovePure(currentGrid) {
                 const nr = r + dr, nc = c + dc;
                 if (nr < SIZE && nc < SIZE) {
                     if (b[r][c] === "RAINBOW" || b[nr][nc] === "RAINBOW" ||
-                        (b[r][c] && b[r][c].startsWith("BOMB_")) || 
+                        (b[r][c] && b[r][c].startsWith("BOMB_")) ||
                         (b[nr][nc] && b[nr][nc].startsWith("BOMB_"))) {
                         return { r1: r, c1: c, r2: nr, c2: nc };
                     }
