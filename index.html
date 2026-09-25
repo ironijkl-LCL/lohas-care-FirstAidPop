@@ -26,6 +26,7 @@
     --cpr-ring-size: 100px;
 }
 
+/* iPad 及大螢幕響應式適配 */
 @media (min-width: 768px) {
     :root {
         --content-max-width: min(84vw, 680px);
@@ -200,13 +201,8 @@ body.show-labels .disk-label { display: block; }
 .notebook-title { font-weight: 800; color: var(--system-blue); margin-bottom: 2px; }
 .notebook-tip { color: var(--text-secondary); line-height: 1.35; }
 
-/* 患者復甦動畫視窗 */
-.resuscitation-anim-box {
-    text-align: center; padding: 10px 0;
-}
-.resuscitation-icon {
-    font-size: 54px; animation: bounceIn 0.8s ease infinite alternate;
-}
+.resuscitation-anim-box { text-align: center; padding: 10px 0; }
+.resuscitation-icon { font-size: 54px; animation: bounceIn 0.8s ease infinite alternate; }
 @keyframes bounceIn {
     0% { transform: scale(0.9); }
     100% { transform: scale(1.15); }
@@ -465,10 +461,10 @@ let isAnimating = false, moves = 35, timeLeft = 90.0, maxTime = 90.0;
 let lastTimerTick = 0, mainTimer = null, isGamePaused = false;
 let rescueUsesLeft = 3, freeShufflesLeft = 1;
 
-// P0-5 防重入旗標
 let isProceeding = false;
+let isSubmitting = false;
 
-// CPR 狀態監控與質量報告統計
+// CPR 狀態監控
 let isCprActive = false, cprPressNeeded = 15, lastCprPressTime = 0;
 let cprMetronome = null, cprTimer = null, cprTimeLeft = 20.0, cprWatchdog = null;
 let cprStats = { perfect: 0, fast: 0, slow: 0, interrupts: 0, intervals: [] };
@@ -507,10 +503,24 @@ function toggleLabelMode() {
     showToast(document.body.classList.contains("show-labels") ? "👁️ 已開啟色盲友善文字標籤" : "👁️ 已還原純圖標模式");
 }
 
+// Toast Queue 訊息佇列
+let toastQueue = [];
+let isToastShowing = false;
 function showToast(text) {
+    toastQueue.push(text);
+    if (!isToastShowing) processToastQueue();
+}
+function processToastQueue() {
+    if (toastQueue.length === 0) { isToastShowing = false; return; }
+    isToastShowing = true;
+    const msg = toastQueue.shift();
     const t = document.getElementById("tipToast");
-    t.innerText = text; t.style.opacity = 1;
-    setTimeout(() => { t.style.opacity = 0; }, 2200);
+    t.innerText = msg;
+    t.style.opacity = "1";
+    setTimeout(() => {
+        t.style.opacity = "0";
+        setTimeout(processToastQueue, 220);
+    }, 2000);
 }
 
 function getLevelParameters(level) {
@@ -632,7 +642,6 @@ function handleCellAction(r1, c1, r2, c2) {
     if (r1 === r2 && c1 === c2) { renderBoard(); return; }
     if (Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1) {
         isAnimating = true;
-        // P0-4: 嚴格防呆 targetColor
         if (grid[r1][c1] === "RAINBOW" || grid[r2][c2] === "RAINBOW") {
             const targetColor = grid[r1][c1] === "RAINBOW" ? grid[r2][c2] : grid[r1][c1];
             if (!targetColor || targetColor === "RAINBOW") {
@@ -764,7 +773,12 @@ function processEliminations(toRemove, spawnSpecial) {
 }
 
 function triggerRainbowClear(targetType) {
-    if (!targetType) return;
+    if (!targetType || targetType === "RAINBOW") {
+        isAnimating = false;
+        renderBoard();
+        return;
+    }
+    isAnimating = true;
     playBeep(900, 0.3, "square");
     for (let r = 0; r < SIZE; r++) {
         for (let c = 0; c < SIZE; c++) {
@@ -831,7 +845,6 @@ function startCprQte() {
         document.getElementById("cpr-timer-text").innerText = Math.max(0, cprTimeLeft).toFixed(1);
     }, 100);
 
-    // P0-3 放寬中斷判定閾值至 1600ms
     if (cprWatchdog) clearInterval(cprWatchdog);
     cprWatchdog = setInterval(() => {
         if (isGamePaused || !isCprActive || lastCprPressTime === 0) return;
@@ -888,7 +901,6 @@ document.getElementById("cprHeartBtn").addEventListener("pointerdown", e => {
     }
 });
 
-// P1-7: 患者康復動態過場
 function triggerResuscitationAnim() {
     const modal = document.getElementById("resuscitationModal");
     const icon = document.getElementById("resuscitation-icon");
@@ -914,7 +926,6 @@ function triggerResuscitationAnim() {
 }
 
 function showCprQualityReport() {
-    // P0-3: 過濾大於 1500ms 的非正常中斷間隔
     const validIntervals = cprStats.intervals.filter(d => d <= 1500 && d >= 200);
     const avgDelta = validIntervals.length > 0 ? (validIntervals.reduce((a, b) => a + b, 0) / validIntervals.length) : 545;
     const avgBpm = Math.round(60000 / avgDelta);
@@ -965,7 +976,6 @@ function scanValidMovePure(currentGrid) {
             for (const [dr, dc] of dirs) {
                 const nr = r + dr, nc = c + dc;
                 if (nr < SIZE && nc < SIZE) {
-                    // P0-2: 將 BOMB_ 加入優先提示候選
                     if (b[r][c] === "RAINBOW" || b[nr][nc] === "RAINBOW" ||
                         (b[r][c] && b[r][c].startsWith("BOMB_")) || 
                         (b[nr][nc] && b[nr][nc].startsWith("BOMB_"))) {
@@ -1046,14 +1056,19 @@ function startMainTimer() {
 }
 
 function checkLevelProgress() {
-    if (missionProgress.every(v => v <= 0) && !isCprActive) {
+    const allDone = missionProgress.every(v => v <= 0);
+    if (allDone && !isCprActive) {
+        if (currentLevel === 1) {
+            unlockAchievement("first_aid");
+        }
         proceedToNextLevel();
-    } else if (moves <= 0) {
+        return;
+    }
+    if (moves <= 0) {
         triggerGameOver("🛑 物資調配步數耗盡！急救中斷！");
     }
 }
 
-// P0-5: 加上 isProceeding 旗標嚴防重複觸發
 function proceedToNextLevel() {
     if (isProceeding) return;
     isProceeding = true;
@@ -1078,7 +1093,6 @@ function proceedToNextLevel() {
     }, 1300);
 }
 
-// P0-4: GameOver 徹底重設 CPR 狀態
 function triggerGameOver(reason) {
     isCprActive = false;
     clearInterval(mainTimer);
@@ -1105,7 +1119,6 @@ function setupLevel() {
     document.getElementById("pauseModal").style.display = "none";
     document.getElementById("current-level").innerText = currentLevel;
 
-    // 還原暫停按鈕
     const resumeBtn = document.getElementById("resume-btn");
     resumeBtn.innerText = "恢復救援";
     resumeBtn.onclick = resumeGameWithCountdown;
@@ -1128,7 +1141,6 @@ function setupLevel() {
     renderBoard();
     startMainTimer();
 
-    // P1-10: 首關進入顯示 2.5 秒教學提點
     if (currentLevel === 1 && !localStorage.getItem("fap_seen_tut")) {
         localStorage.setItem("fap_seen_tut", "1");
         showToast("📋 提示：按照上方紅字指示，優先配對指定急救物資！");
@@ -1189,6 +1201,9 @@ function closeSubmitScoreModal() {
 }
 
 function confirmSubmitScore() {
+    if (isSubmitting) return;
+    isSubmitting = true;
+
     const name = document.getElementById("heroNameInput").value.trim() || "無名英雄";
     localStorage.setItem("fap_hero_name", name);
     const entry = { name, level: currentLevel, score, timestamp: Date.now(), uid: currentUid };
@@ -1208,7 +1223,11 @@ function confirmSubmitScore() {
             unlockAchievement("leaderboard_post");
         }).catch(() => {
             showToast("💾 雲端離線，已儲存於本機英雄榜！");
+        }).finally(() => {
+            isSubmitting = false;
         });
+    } else {
+        isSubmitting = false;
     }
 
     document.getElementById("scoreSubmitModal").style.display = "none";
@@ -1253,7 +1272,6 @@ function showLeaderboardPopup() {
 }
 function closeLeaderboardPopup() { document.getElementById("rankModal").style.display = "none"; }
 
-// P0-6: 統一預設初始化為 [0]
 function unlockNotebookEntry(idx) {
     let unlocked = JSON.parse(localStorage.getItem("fap_notebook") || "[0]");
     if (!unlocked.includes(idx)) {
@@ -1280,7 +1298,6 @@ function openNotebookModal() {
 }
 function closeNotebookModal() { document.getElementById("notebookModal").style.display = "none"; }
 
-// P1-9: 成就勳章系統
 const ACHIEVEMENTS_DEF = {
     "first_aid": { title: "🌟 初出茅廬", desc: "完成首次緊急急救任務" },
     "cpr_master": { title: "💓 傳奇心跳", desc: "於 CPR QTE 取得 S 級神醫評價" },
@@ -1330,7 +1347,6 @@ function shareScore() {
     }
 }
 
-// 讀取進度存檔
 const savedLevel = parseInt(localStorage.getItem("fap_saved_level") || "1");
 const savedScore = parseInt(localStorage.getItem("fap_saved_score") || "0");
 if (savedLevel > 1) {
