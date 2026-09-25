@@ -19,7 +19,79 @@ cat << 'EOF' > www/index.html
     --system-purple: #8944ab;
     --system-blue: #0062cc;
     --cell-bg: rgba(255, 255, 255, 0.88);
+
+    /* 預設手機版佈局尺寸 */
+    --content-max-width: 440px;
+    --disk-font-size: 23px;
+    --disk-label-size: 8px;
+    --cpr-heart-size: 80px;
+    --cpr-ring-size: 100px;
 }
+
+/* 針對 iPad 及平板大螢幕自適應放大 (min-width: 768px) */
+@media (min-width: 768px) {
+    :root {
+        --content-max-width: min(84vw, 680px);
+        --disk-font-size: 38px;
+        --disk-label-size: 12px;
+        --cpr-heart-size: 120px;
+        --cpr-ring-size: 150px;
+    }
+    body {
+        padding: 16px 24px 28px 24px !important;
+    }
+    .game-title {
+        font-size: 26px !important;
+    }
+    .tool-btn {
+        padding: 7px 14px !important;
+        font-size: 14px !important;
+        border-radius: 16px !important;
+    }
+    .status-bar {
+        font-size: 15px !important;
+        margin-bottom: 8px !important;
+    }
+    .status-pill {
+        padding: 6px 14px !important;
+        border-radius: 16px !important;
+    }
+    .scenario-box {
+        padding: 14px 16px !important;
+        border-radius: 18px !important;
+        margin-bottom: 10px !important;
+    }
+    .scenario-title {
+        font-size: 17px !important;
+    }
+    .scenario-desc {
+        font-size: 14px !important;
+        line-height: 1.4 !important;
+    }
+    .step-item {
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+        border-radius: 10px !important;
+    }
+    .action-btn {
+        padding: 12px !important;
+        font-size: 15px !important;
+        border-radius: 16px !important;
+    }
+    .board {
+        padding: 10px !important;
+        gap: 8px !important;
+        border-radius: 22px !important;
+    }
+    .cell {
+        border-radius: 12px !important;
+    }
+    .legal-footer {
+        font-size: 12px !important;
+        margin-top: 10px !important;
+    }
+}
+
 @media (prefers-color-scheme: dark) {
     :root {
         --bg-grad: linear-gradient(135deg, #1a201e 0%, #14181a 100%);
@@ -42,7 +114,7 @@ body {
     padding: 6px 12px 14px 12px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
 }
 .header-bar {
-    width: 100%; max-width: 440px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;
+    width: 100%; max-width: var(--content-max-width); display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;
 }
 .game-title { font-size: 17px; font-weight: 800; letter-spacing: -0.5px; }
 .control-btn-group { display: flex; gap: 4px; }
@@ -52,15 +124,15 @@ body {
     color: var(--text-primary); box-shadow: 0 4px 10px rgba(0,0,0,0.04);
 }
 .timer-container {
-    width: 100%; max-width: 440px; background: rgba(0,0,0,0.1); height: 6px;
-    border-radius: 3px; margin-bottom: 4px; overflow: hidden;
+    width: 100%; max-width: var(--content-max-width); background: rgba(0,0,0,0.1); height: 7px;
+    border-radius: 4px; margin-bottom: 5px; overflow: hidden;
 }
 .timer-bar {
     width: 100%; height: 100%; background: var(--oasis-green);
-    border-radius: 3px; transition: width 0.1s linear, background-color 0.3s;
+    border-radius: 4px; transition: width 0.1s linear, background-color 0.3s;
 }
 .status-bar {
-    width: 100%; max-width: 440px; display: flex; justify-content: space-between;
+    width: 100%; max-width: var(--content-max-width); display: flex; justify-content: space-between;
     font-size: 12px; font-weight: 700; margin-bottom: 4px;
 }
 .status-pill {
@@ -69,7 +141,7 @@ body {
 }
 .scenario-box {
     background: var(--card-bg); border-radius: 14px; padding: 8px 10px;
-    width: 100%; max-width: 440px; margin-bottom: 6px; border: 1px solid var(--border-color);
+    width: 100%; max-width: var(--content-max-width); margin-bottom: 6px; border: 1px solid var(--border-color);
     text-align: left; transition: background 0.2s;
 }
 .scenario-box.penalty-flash {
@@ -91,7 +163,7 @@ body {
 .step-item.active { background: #eef5ff; border: 1px solid var(--system-blue); color: var(--system-blue); }
 .step-item.done { background: var(--oasis-light); color: var(--oasis-green); }
 .action-grid-tools {
-    width: 100%; max-width: 440px; display: flex; gap: 6px; margin-bottom: 4px;
+    width: 100%; max-width: var(--content-max-width); display: flex; gap: 6px; margin-bottom: 6px;
 }
 .action-btn {
     flex: 1; padding: 6px; border-radius: 12px; font-size: 11px; font-weight: 700;
@@ -101,7 +173,7 @@ body {
 .btn-ambulance:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn-shuffle { background: rgba(0,0,0,0.06); color: var(--text-primary); }
 
-.board-container { width: 100%; max-width: 440px; position: relative; }
+.board-container { width: 100%; max-width: var(--content-max-width); position: relative; }
 .board {
     display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px;
     background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(20px);
@@ -115,8 +187,8 @@ body {
 .cell.selected { border: 2.5px solid var(--system-blue) !important; background: #fff !important; }
 .cell.special-bomb { box-shadow: inset 0 0 8px var(--system-orange); }
 .cell.special-rainbow { box-shadow: inset 0 0 10px var(--system-purple); }
-.disk-icon { font-size: 22px; line-height: 1; pointer-events: none; }
-.disk-label { font-size: 8px; font-weight: 800; color: var(--text-secondary); margin-top: 1px; display: none; }
+.disk-icon { font-size: var(--disk-font-size); line-height: 1; pointer-events: none; }
+.disk-label { font-size: var(--disk-label-size); font-weight: 800; color: var(--text-secondary); margin-top: 1px; display: none; }
 body.show-labels .disk-label { display: block; }
 .hint-glow { animation: hintPulse 0.45s ease-in-out 3; }
 @keyframes hintPulse {
@@ -125,16 +197,16 @@ body.show-labels .disk-label { display: block; }
 }
 
 #cpr-stage-container {
-    display: none; width: 100%; max-width: 440px; background: var(--card-bg);
-    border: 2px solid var(--system-red); border-radius: 18px; padding: 14px 10px;
+    display: none; width: 100%; max-width: var(--content-max-width); background: var(--card-bg);
+    border: 2px solid var(--system-red); border-radius: 18px; padding: 18px 12px;
 }
 .cpr-heart-btn {
-    width: 80px; height: 80px; background: linear-gradient(135deg, #ff453a, #d70015);
-    border-radius: 50%; border: none; font-size: 38px; cursor: pointer;
+    width: var(--cpr-heart-size); height: var(--cpr-heart-size); background: linear-gradient(135deg, #ff453a, #d70015);
+    border-radius: 50%; border: none; font-size: calc(var(--cpr-heart-size) * 0.46); cursor: pointer;
     box-shadow: 0 6px 20px rgba(215, 0, 21, 0.35); position: relative; z-index: 2;
 }
 .cpr-pulse-ring {
-    position: absolute; width: 100px; height: 100px; border-radius: 50%;
+    position: absolute; width: var(--cpr-ring-size); height: var(--cpr-ring-size); border-radius: 50%;
     border: 3px solid var(--system-red); opacity: 0; pointer-events: none;
     animation: pulseRing 0.545s ease-out infinite;
 }
@@ -150,35 +222,35 @@ body.show-labels .disk-label { display: block; }
 }
 .modal-window {
     background: var(--card-bg); border: 1px solid var(--border-color);
-    width: 90%; max-width: 360px; border-radius: 18px; padding: 16px;
+    width: 90%; max-width: min(80vw, 420px); border-radius: 18px; padding: 18px;
     box-shadow: 0 20px 40px rgba(0,0,0,0.25); max-height: 85vh; overflow-y: auto;
 }
 .btn-primary {
-    background: var(--text-primary); color: #fff; border: none; padding: 9px;
+    background: var(--text-primary); color: #fff; border: none; padding: 10px;
     border-radius: 12px; font-weight: 700; width: 100%; font-size: 13px; cursor: pointer; margin-bottom: 6px;
 }
 .btn-secondary {
     background: rgba(0,0,0,0.06); color: var(--text-primary); border: none; padding: 8px;
     border-radius: 12px; font-weight: 700; width: 100%; font-size: 12px; cursor: pointer;
 }
-.rank-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 10px; }
-.rank-table th, .rank-table td { padding: 5px 2px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
+.rank-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 10px; }
+.rank-table th, .rank-table td { padding: 6px 2px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
 
 .notebook-item {
-    text-align: left; padding: 8px; border-radius: 10px; background: rgba(0,0,0,0.03);
-    margin-bottom: 6px; font-size: 11px;
+    text-align: left; padding: 10px; border-radius: 10px; background: rgba(0,0,0,0.03);
+    margin-bottom: 6px; font-size: 12px;
 }
 .notebook-title { font-weight: 800; color: var(--system-blue); margin-bottom: 2px; }
-.notebook-tip { color: var(--text-secondary); line-height: 1.3; }
+.notebook-tip { color: var(--text-secondary); line-height: 1.35; }
 
 #tipToast {
-    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.88); color: #fff; padding: 6px 14px;
-    border-radius: 16px; font-size: 11px; font-weight: 600; pointer-events: none;
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.88); color: #fff; padding: 8px 18px;
+    border-radius: 18px; font-size: 12px; font-weight: 600; pointer-events: none;
     opacity: 0; transition: opacity 0.25s; z-index: 9999; white-space: nowrap;
 }
 .legal-footer {
-    margin-top: 5px; font-size: 9px; color: var(--text-secondary); line-height: 1.2;
+    margin-top: 6px; font-size: 9px; color: var(--text-secondary); line-height: 1.2;
 }
 </style>
 </head>
@@ -223,16 +295,16 @@ body.show-labels .disk-label { display: block; }
 
 <!-- CPR QTE 獨立舞台 -->
 <div id="cpr-stage-container">
-    <div style="font-size:15px; font-weight:800; color:var(--system-red); margin-bottom:2px;">⚡ 緊急 CPR 110 bpm 胸外按壓！</div>
-    <div style="font-size:11px; color:var(--text-secondary); margin-bottom:8px;">
+    <div style="font-size:16px; font-weight:800; color:var(--system-red); margin-bottom:2px;">⚡ 緊急 CPR 110 bpm 胸外按壓！</div>
+    <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">
         搶救時限: <span id="cpr-timer-text" style="color:var(--system-red); font-weight:800;">20.0</span>s | 中斷按壓 > 1.6 秒即時缺氧扣分！
     </div>
-    <div style="position:relative; width:100px; height:100px; margin:0 auto 8px auto; display:flex; align-items:center; justify-content:center;">
+    <div style="position:relative; width:120px; height:120px; margin:0 auto 10px auto; display:flex; align-items:center; justify-content:center;">
         <div class="cpr-pulse-ring"></div>
         <button class="cpr-heart-btn" id="cprHeartBtn" type="button" aria-label="按壓心臟">❤️</button>
     </div>
-    <div id="cpr-feedback-text" style="font-size:13px; font-weight:800; height:18px; margin-bottom:2px;">跟隨紅光節奏按壓...</div>
-    <div style="font-size:20px; font-weight:900; margin-bottom:2px;"><span id="cpr-press-left">15</span> 次按壓</div>
+    <div id="cpr-feedback-text" style="font-size:14px; font-weight:800; height:20px; margin-bottom:4px;">跟隨紅光節奏按壓...</div>
+    <div style="font-size:22px; font-weight:900; margin-bottom:2px;"><span id="cpr-press-left">15</span> 次按壓</div>
 </div>
 
 <div class="legal-footer">
@@ -242,12 +314,12 @@ body.show-labels .disk-label { display: block; }
 <!-- CPR 質量報告 Modal -->
 <div id="cprReportModal" class="modal-backdrop">
     <div class="modal-window">
-        <div style="font-size:17px; font-weight:800; color:var(--oasis-green); margin-bottom:6px;">📊 CPR 搶救質量評估報告</div>
-        <div style="background:rgba(0,0,0,0.03); border-radius:12px; padding:10px; margin-bottom:12px; font-size:12px; line-height:1.6; text-align:left;">
+        <div style="font-size:18px; font-weight:800; color:var(--oasis-green); margin-bottom:8px;">📊 CPR 搶救質量評估報告</div>
+        <div style="background:rgba(0,0,0,0.03); border-radius:12px; padding:12px; margin-bottom:14px; font-size:13px; line-height:1.7; text-align:left;">
             <div>🎯 完美節奏次數：<b id="rep-perfect-count">0</b> / 15 次</div>
             <div>⚡ 平均按壓速率：<b id="rep-avg-bpm">0</b> bpm (標準 100-120)</div>
             <div>⚠️ 缺氧中斷次數：<b id="rep-interrupt-count" style="color:var(--system-red);">0</b> 次</div>
-            <div>🏆 綜合技術評級：<b id="rep-grade" style="font-size:16px; color:var(--system-purple);">A</b></div>
+            <div>🏆 綜合技術評級：<b id="rep-grade" style="font-size:17px; color:var(--system-purple);">A</b></div>
         </div>
         <button class="btn-primary" onclick="closeCprReportAndProceed()">繼續下一關救援</button>
     </div>
@@ -257,7 +329,7 @@ body.show-labels .disk-label { display: block; }
 <div id="scoreSubmitModal" class="modal-backdrop">
     <div class="modal-window">
         <div style="font-size:17px; font-weight:800; margin-bottom:8px;">🩺 登記急救英雄榜</div>
-        <input type="text" id="heroNameInput" style="width:100%; padding:10px; border-radius:10px; border:1px solid #ccc; margin-bottom:12px; font-weight:700; text-align:center;" maxlength="15" placeholder="輸入救護員代號">
+        <input type="text" id="heroNameInput" style="width:100%; padding:10px; border-radius:10px; border:1px solid #ccc; margin-bottom:12px; font-weight:700; text-align:center; font-size:14px;" maxlength="15" placeholder="輸入救護員代號">
         <button class="btn-primary" onclick="confirmSubmitScore()">確定送出紀錄</button>
         <button class="btn-secondary" onclick="closeSubmitScoreModal()">稍後再說</button>
     </div>
@@ -289,7 +361,7 @@ body.show-labels .disk-label { display: block; }
 <div id="pauseModal" class="modal-backdrop">
     <div class="modal-window">
         <div id="pause-title" style="font-size:17px; font-weight:800; margin-bottom:10px;">⏸️ 任務已暫停</div>
-        <div id="pause-body" style="font-size:12px; color:var(--text-secondary); margin-bottom:14px;">現場傷患生命表徵暫時凍結。</div>
+        <div id="pause-body" style="font-size:13px; color:var(--text-secondary); margin-bottom:14px;">現場傷患生命表徵暫時凍結。</div>
         <button id="resume-btn" class="btn-primary" onclick="resumeGameWithCountdown()">恢復救援</button>
         <button class="btn-secondary" onclick="restartWholeGame()">放棄並重頭開始</button>
     </div>
@@ -298,7 +370,7 @@ body.show-labels .disk-label { display: block; }
 <div id="tipToast"></div>
 
 <script>
-// --- 1. 原生 REST API 連線 (無外部 SDK 依賴，安全免審核) ---
+// --- 1. 原生 REST API 連線 ---
 const FIREBASE_REST_URL = "https://first-aid-pop-default-rtdb.firebaseio.com/leaderboard.json";
 let currentUid = localStorage.getItem("fap_uid") || ("rescuer_" + Math.random().toString(36).substring(2, 9));
 localStorage.setItem("fap_uid", currentUid);
@@ -397,7 +469,7 @@ const SCENARIOS = [
     }
 ];
 
-// --- 3. 核心變量與計時器（修正浮點數誤差） ---
+// --- 3. 核心變量與計時器 ---
 const SIZE = 8;
 let currentLevel = 1, currentScenario = null, currentStepIndex = 0;
 let missionProgress = [], currentLevelTypes = [], grid = [], score = 0, last = null;
@@ -405,7 +477,6 @@ let isAnimating = false, moves = 35, timeLeft = 90.0, maxTime = 90.0;
 let lastTimerTick = 0, mainTimer = null, isGamePaused = false;
 let rescueUsesLeft = 3, freeShufflesLeft = 1;
 
-// CPR 狀態監控與質量報告統計
 let isCprActive = false, cprPressNeeded = 15, lastCprPressTime = 0;
 let cprMetronome = null, cprTimer = null, cprTimeLeft = 20.0, cprWatchdog = null;
 let cprStats = { perfect: 0, fast: 0, slow: 0, interrupts: 0, intervals: [] };
@@ -567,10 +638,8 @@ boardDom.addEventListener("pointerup", e => {
 
 function handleCellAction(r1, c1, r2, c2) {
     if (r1 === r2 && c1 === c2) { renderBoard(); return; }
-    const dr = Math.abs(r1 - r2), dc = Math.abs(c1 - c2);
-    if (dr + dc === 1) {
+    if (Math.abs(r1 - r2) + Math.abs(c1 - c2) === 1) {
         isAnimating = true;
-        // P0 防禦：防範 Rainbow 交換對象為空
         if (grid[r1][c1] === "RAINBOW" || grid[r2][c2] === "RAINBOW") {
             const targetColor = grid[r1][c1] === "RAINBOW" ? grid[r2][c2] : grid[r1][c1];
             if (!targetColor || targetColor === "RAINBOW") {
@@ -737,7 +806,7 @@ function applyGravityAndRefill() {
     }, 160);
 }
 
-// --- 6. 專業 CPR QTE（1.6 秒中斷防護 + 質量報告生成） ---
+// --- 6. 專業 CPR QTE ---
 function startCprQte() {
     isCprActive = true; currentStepIndex = 1;
     cprPressNeeded = currentScenario.steps[1].count;
@@ -769,7 +838,6 @@ function startCprQte() {
         document.getElementById("cpr-timer-text").innerText = Math.max(0, cprTimeLeft).toFixed(1);
     }, 100);
 
-    // 放寬中斷判定閥值至 1600ms，徹底杜絕 race condition
     if (cprWatchdog) clearInterval(cprWatchdog);
     cprWatchdog = setInterval(() => {
         if (isGamePaused || !isCprActive || lastCprPressTime === 0) return;
@@ -847,7 +915,7 @@ function closeCprReportAndProceed() {
     proceedToNextLevel();
 }
 
-// --- 7. 高效能局部掃描演算法（耗時 < 0.2ms） ---
+// --- 7. 高效能局部掃描演算法 ---
 function checkLocalMatch(b, r, c) {
     const val = b[r][c];
     if (!val || val === "RAINBOW" || val.startsWith("BOMB_")) return false;
@@ -958,7 +1026,6 @@ function proceedToNextLevel() {
         unlockNotebookEntry((currentLevel - 1) % SCENARIOS.length);
     }
     
-    // P0 修正：全通關廣播
     if (currentLevel === SCENARIOS.length) {
         showToast("🏆 恭喜全通 10 大急救情境！已晉身無限挑戰！");
     }
@@ -994,7 +1061,6 @@ function setupLevel() {
     document.getElementById("pauseModal").style.display = "none";
     document.getElementById("current-level").innerText = currentLevel;
 
-    // P0 修正：還原暫停按鈕的正確綁定
     const resumeBtn = document.getElementById("resume-btn");
     resumeBtn.innerText = "恢復救援";
     resumeBtn.onclick = resumeGameWithCountdown;
@@ -1081,7 +1147,6 @@ function confirmSubmitScore() {
     ranks.sort((a, b) => b.score - a.score);
     saveLocalRanks(ranks.slice(0, 15));
 
-    // 前端防刷校驗
     if (score <= currentLevel * 8000 + 5000 && score < 150000) {
         fetch(FIREBASE_REST_URL, {
             method: "POST",
@@ -1172,7 +1237,6 @@ function shareScore() {
     }
 }
 
-// 讀取進度存檔
 const savedLevel = parseInt(localStorage.getItem("fap_saved_level") || "1");
 const savedScore = parseInt(localStorage.getItem("fap_saved_score") || "0");
 if (savedLevel > 1) {
